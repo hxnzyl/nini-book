@@ -9,11 +9,13 @@
 }
 
 .quill-editor .ql-container {
-	overflow: auto;
+	overflow: hidden;
+	height: max-content;
 }
 
 .quill-editor .ql-editor {
-	height: auto;
+	overflow: hidden;
+	height: max-content;
 }
 
 .quill-editor .ql-toolbar {

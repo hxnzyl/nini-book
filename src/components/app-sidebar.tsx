@@ -4,22 +4,23 @@ import { NavUser } from '@/components/nav-user'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import {
-    Sidebar,
-    SidebarContent,
-    SidebarFooter,
-    SidebarGroup,
-    SidebarGroupContent,
-    SidebarHeader,
-    SidebarInput,
-    SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem,
-    useSidebar
+	Sidebar,
+	SidebarContent,
+	SidebarFooter,
+	SidebarGroup,
+	SidebarGroupContent,
+	SidebarHeader,
+	SidebarInput,
+	SidebarMenu,
+	SidebarMenuButton,
+	SidebarMenuItem,
+	useSidebar
 } from '@/components/ui/sidebar'
 import { Switch } from '@/components/ui/switch'
 import { cn } from '@/lib/utils'
 import { ArchiveX, Columns2, Columns3, Command, File, Inbox, PanelLeft, Send, Trash2 } from 'lucide-react'
 import { ComponentProps, useEffect, useState } from 'react'
+import { ScrollArea } from './ui/scroll-area'
 
 // This is sample data
 const data = {
@@ -66,14 +67,16 @@ const data = {
 			email: 'williamsmith@example.com',
 			subject: 'Meeting Tomorrow',
 			date: '09:34 AM',
-			teaser: 'Hi team, just a reminder about our meeting tomorrow at 10 AM.\nPlease come prepared with your project updates.'
+			teaser:
+				'Hi team, just a reminder about our meeting tomorrow at 10 AM.\nPlease come prepared with your project updates.'
 		},
 		{
 			name: 'Alice Smith',
 			email: 'alicesmith@example.com',
 			subject: 'Re: Project Update',
 			date: 'Yesterday',
-			teaser: "Thanks for the update. The progress looks great so far.\nLet's schedule a call to discuss the next steps."
+			teaser:
+				"Thanks for the update. The progress looks great so far.\nLet's schedule a call to discuss the next steps."
 		},
 		{
 			name: 'Bob Johnson',
@@ -237,7 +240,12 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 						</SidebarContent>
 						<SidebarFooter>
 							{isMobile || (
-								<div className={cn('flex items-center justify-center', leftSidebarWidth == '200px' ? 'flex-row' : 'flex-col')}>
+								<div
+									className={cn(
+										'flex items-center justify-center',
+										leftSidebarWidth == '200px' ? 'flex-row' : 'flex-col'
+									)}
+								>
 									<Button variant="ghost" size="icon" className="h-7 w-7" onClick={setColumns1}>
 										<PanelLeft />
 										<span className="sr-only">Toggle Sidebar</span>
@@ -269,24 +277,26 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 							<SidebarInput placeholder="Type to search..." />
 						</SidebarHeader>
 						<SidebarContent>
-							<SidebarGroup className="px-0">
-								<SidebarGroupContent>
-									{mails.map((mail) => (
-										<a
-											href="#"
-											key={mail.email}
-											className="flex flex-col items-start gap-2 whitespace-nowrap border-b p-4 text-sm leading-tight last:border-b-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-										>
-											<div className="flex w-full items-center gap-2">
-												<span>{mail.name}</span>
-												<span className="ml-auto text-xs">{mail.date}</span>
-											</div>
-											<span className="font-medium">{mail.subject}</span>
-											<span className="line-clamp-2 w-[260px] whitespace-break-spaces text-xs">{mail.teaser}</span>
-										</a>
-									))}
-								</SidebarGroupContent>
-							</SidebarGroup>
+							<ScrollArea>
+								<SidebarGroup className="px-0">
+									<SidebarGroupContent>
+										{mails.map((mail) => (
+											<a
+												href="#"
+												key={mail.email}
+												className="flex flex-col items-start gap-2 whitespace-nowrap border-b p-4 text-sm leading-tight last:border-b-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+											>
+												<div className="flex w-full items-center gap-2">
+													<span>{mail.name}</span>
+													<span className="ml-auto text-xs">{mail.date}</span>
+												</div>
+												<span className="font-medium">{mail.subject}</span>
+												<span className="line-clamp-2 w-[260px] whitespace-break-spaces text-xs">{mail.teaser}</span>
+											</a>
+										))}
+									</SidebarGroupContent>
+								</SidebarGroup>
+							</ScrollArea>
 						</SidebarContent>
 					</Sidebar>
 				</div>
