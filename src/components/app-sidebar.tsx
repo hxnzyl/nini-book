@@ -1,8 +1,5 @@
 'use client'
 
-import { ArchiveX, Columns2, Columns3, Command, File, Inbox, PanelLeft, Send, Trash2 } from 'lucide-react'
-import * as React from 'react'
-
 import { NavUser } from '@/components/nav-user'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
@@ -21,6 +18,8 @@ import {
 } from '@/components/ui/sidebar'
 import { Switch } from '@/components/ui/switch'
 import { cn } from '@/lib/utils'
+import { ArchiveX, Columns2, Columns3, Command, File, Inbox, PanelLeft, Send, Trash2 } from 'lucide-react'
+import { ComponentProps, useEffect, useState } from 'react'
 
 // This is sample data
 const data = {
@@ -143,122 +142,122 @@ const data = {
 	]
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 	// Note: I'm using state to show active item.
 	// IRL you should use the url/router.
 	const { isMobile, setOpen } = useSidebar()
 
-	const [activeItem, setActiveItem] = React.useState(data.navMain[0])
-	const [mails, setMails] = React.useState(data.mails)
+	const [activeItem, setActiveItem] = useState(data.navMain[0])
+	const [mails, setMails] = useState(data.mails)
 
-	const [leftSidebarWidth, setLeftSidebarWidth] = React.useState('0px')
-	const [rightSidebarWidth, setRightSidebarWidth] = React.useState('0px')
+	const [sidebarWidth, setSidebarWidth] = useState(isMobile ? '0px' : '500px')
+	const [leftSidebarWidth, setLeftSidebarWidth] = useState(isMobile ? '0px' : '200px')
+	const [rightSidebarWidth, setRightSidebarWidth] = useState(isMobile ? '0px' : '300px')
 
 	const setColumns1 = () => (
-		setLeftSidebarWidth('calc(var(--sidebar-width-icon) + 1px)'), setRightSidebarWidth('0px'), setOpen(true)
+		setSidebarWidth('calc(var(--sidebar-width-icon))'),
+		setLeftSidebarWidth('calc(var(--sidebar-width-icon))'),
+		setRightSidebarWidth('0px'),
+		setOpen(true)
 	)
 
 	const setColumns2 = () => (
-		setLeftSidebarWidth('calc(var(--sidebar-width-icon) + 1px)'), setRightSidebarWidth('300px'), setOpen(true)
+		setSidebarWidth('calc(var(--sidebar-width-icon) + 300px)'),
+		setLeftSidebarWidth('calc(var(--sidebar-width-icon))'),
+		setRightSidebarWidth('300px'),
+		setOpen(true)
 	)
 
-	const setColumns3 = () => (setLeftSidebarWidth('200px'), setRightSidebarWidth('300px'), setOpen(true))
+	const setColumns3 = () => (
+		setSidebarWidth('500px'), setLeftSidebarWidth('200px'), setRightSidebarWidth('300px'), setOpen(true)
+	)
 
-	React.useEffect(() => {
+	useEffect(() => {
 		if (isMobile) {
+			setSidebarWidth('0px')
 			setLeftSidebarWidth('0px')
 			setRightSidebarWidth('0px')
 		} else {
+			setSidebarWidth('500px')
 			setLeftSidebarWidth('200px')
 			setRightSidebarWidth('300px')
 		}
 	}, [isMobile])
 
 	return (
-		<Sidebar
-			collapsible="none"
-			className="overflow-hidden flex-row"
-			style={{ '--sidebar-width': 'auto' } as React.CSSProperties}
-			{...props}
-		>
-			{/* This is the first sidebar */}
-			{/* We disable collapsible and adjust width to icon. */}
-			{/* This will make the sidebar appear as icons. */}
-			{/* !w-[] */}
-			<div style={{ '--sidebar-width': leftSidebarWidth } as React.CSSProperties}>
-				<Sidebar collapsible="icon" className="border-r">
-					<SidebarHeader>
-						<SidebarMenu>
-							<SidebarMenuItem>
-								<SidebarMenuButton size="lg" asChild className="md:h-8 md:p-0">
-									<a href="#">
-										<div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-											<Command className="size-4" />
-										</div>
-										<div className="grid flex-1 text-left text-sm leading-tight">
-											<span className="truncate font-semibold">Acme Inc</span>
-											<span className="truncate text-xs">Enterprise</span>
-										</div>
-									</a>
-								</SidebarMenuButton>
-							</SidebarMenuItem>
-						</SidebarMenu>
-					</SidebarHeader>
-					<SidebarContent>
-						<SidebarGroup>
-							<SidebarGroupContent className="px-1.5 md:px-0">
-								<SidebarMenu>
-									{data.navMain.map((item) => (
-										<SidebarMenuItem key={item.title}>
-											<SidebarMenuButton
-												tooltip={{
-													children: item.title,
-													hidden: false
-												}}
-												onClick={() => {
-													setActiveItem(item)
-													const mail = data.mails.sort(() => Math.random() - 0.5)
-													setMails(mail.slice(0, Math.max(5, Math.floor(Math.random() * 10) + 1)))
-													setOpen(true)
-												}}
-												isActive={activeItem.title === item.title}
-												className="px-2.5 md:px-2"
-											>
-												<item.icon />
-												<span>{item.title}</span>
-											</SidebarMenuButton>
-										</SidebarMenuItem>
-									))}
-								</SidebarMenu>
-							</SidebarGroupContent>
-						</SidebarGroup>
-					</SidebarContent>
-					<SidebarFooter>
-						{isMobile || (
-							<div className={cn('flex items-center justify-center', leftSidebarWidth == '200px' ? 'flex-row' : 'flex-col')}>
-								<Button variant="ghost" size="icon" className="h-7 w-7" onClick={setColumns1}>
-									<PanelLeft />
-									<span className="sr-only">Toggle Sidebar</span>
-								</Button>
-								<Button variant="ghost" size="icon" className="h-7 w-7" onClick={setColumns2}>
-									<Columns2 />
-									<span className="sr-only">Toggle Sidebar</span>
-								</Button>
-								<Button variant="ghost" size="icon" className="h-7 w-7" onClick={setColumns3}>
-									<Columns3 />
-									<span className="sr-only">Toggle Sidebar</span>
-								</Button>
-							</div>
-						)}
-						<NavUser user={data.user} />
-					</SidebarFooter>
-				</Sidebar>
-			</div>
-			{/* This is the second sidebar */}
-			{/* We disable collapsible and let it fill remaining space */}
-			{isMobile || (
+		<div style={{ '--sidebar-width': sidebarWidth } as React.CSSProperties}>
+			<Sidebar collapsible="icon" className="overflow-hidden [&>[data-sidebar=sidebar]]:flex-row" {...props}>
+				<div style={{ '--sidebar-width': leftSidebarWidth } as React.CSSProperties}>
+					<Sidebar collapsible="none" className="border-r">
+						<SidebarHeader>
+							<SidebarMenu>
+								<SidebarMenuItem>
+									<SidebarMenuButton size="lg" asChild className="md:h-8 md:p-0">
+										<a href="#">
+											<div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+												<Command className="size-4" />
+											</div>
+											<div className="grid flex-1 text-left text-sm leading-tight">
+												<span className="truncate font-semibold">Acme Inc</span>
+												<span className="truncate text-xs">Enterprise</span>
+											</div>
+										</a>
+									</SidebarMenuButton>
+								</SidebarMenuItem>
+							</SidebarMenu>
+						</SidebarHeader>
+						<SidebarContent>
+							<SidebarGroup>
+								<SidebarGroupContent className="px-1.5 md:px-0">
+									<SidebarMenu>
+										{data.navMain.map((item) => (
+											<SidebarMenuItem key={item.title}>
+												<SidebarMenuButton
+													tooltip={{
+														children: item.title,
+														hidden: false
+													}}
+													onClick={() => {
+														setActiveItem(item)
+														const mail = data.mails.sort(() => Math.random() - 0.5)
+														setMails(mail.slice(0, Math.max(5, Math.floor(Math.random() * 10) + 1)))
+														setOpen(true)
+													}}
+													isActive={activeItem.title === item.title}
+													className="px-2.5 md:px-2"
+												>
+													<item.icon />
+													<span>{item.title}</span>
+												</SidebarMenuButton>
+											</SidebarMenuItem>
+										))}
+									</SidebarMenu>
+								</SidebarGroupContent>
+							</SidebarGroup>
+						</SidebarContent>
+						<SidebarFooter>
+							{isMobile || (
+								<div className={cn('flex items-center justify-center', leftSidebarWidth == '200px' ? 'flex-row' : 'flex-col')}>
+									<Button variant="ghost" size="icon" className="h-7 w-7" onClick={setColumns1}>
+										<PanelLeft />
+										<span className="sr-only">Toggle Sidebar</span>
+									</Button>
+									<Button variant="ghost" size="icon" className="h-7 w-7" onClick={setColumns2}>
+										<Columns2 />
+										<span className="sr-only">Toggle Sidebar</span>
+									</Button>
+									<Button variant="ghost" size="icon" className="h-7 w-7" onClick={setColumns3}>
+										<Columns3 />
+										<span className="sr-only">Toggle Sidebar</span>
+									</Button>
+								</div>
+							)}
+							<NavUser user={data.user} />
+						</SidebarFooter>
+					</Sidebar>
+				</div>
 				<div style={{ '--sidebar-width': rightSidebarWidth } as React.CSSProperties}>
-					<Sidebar collapsible="none" className="flex-1 md:flex">
+					<Sidebar collapsible="none">
 						<SidebarHeader className="gap-3.5 border-b p-4">
 							<div className="flex w-full items-center justify-between">
 								<div className="text-base font-medium text-foreground">{activeItem.title}</div>
@@ -279,7 +278,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 											className="flex flex-col items-start gap-2 whitespace-nowrap border-b p-4 text-sm leading-tight last:border-b-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
 										>
 											<div className="flex w-full items-center gap-2">
-												<span>{mail.name}</span> <span className="ml-auto text-xs">{mail.date}</span>
+												<span>{mail.name}</span>
+												<span className="ml-auto text-xs">{mail.date}</span>
 											</div>
 											<span className="font-medium">{mail.subject}</span>
 											<span className="line-clamp-2 w-[260px] whitespace-break-spaces text-xs">{mail.teaser}</span>
@@ -290,7 +290,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 						</SidebarContent>
 					</Sidebar>
 				</div>
-			)}
-		</Sidebar>
+			</Sidebar>
+		</div>
 	)
 }

@@ -1,6 +1,7 @@
 'use client'
 
 import { AppSidebar } from '@/components/app-sidebar'
+import QuillEditor from '@/components/quill/editor'
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -11,10 +12,11 @@ import {
 } from '@/components/ui/breadcrumb'
 import { Separator } from '@/components/ui/separator'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
+import { CSSProperties } from 'react'
 
 export default function HomePage() {
 	return (
-		<SidebarProvider style={{ '--sidebar-width': '350px' } as React.CSSProperties}>
+		<SidebarProvider style={{ '--sidebar-width': '350px' } as CSSProperties}>
 			<AppSidebar />
 			<SidebarInset>
 				<header className="sticky top-0 flex shrink-0 items-center gap-2 border-b bg-background p-4">
@@ -32,11 +34,7 @@ export default function HomePage() {
 						</BreadcrumbList>
 					</Breadcrumb>
 				</header>
-				<div className="flex flex-1 flex-col gap-4 p-4">
-					{Array.from({ length: 24 }).map((_, index) => (
-						<div key={index} className="aspect-video h-12 w-full rounded-lg bg-muted/50" />
-					))}
-				</div>
+				<QuillEditor />
 			</SidebarInset>
 		</SidebarProvider>
 	)

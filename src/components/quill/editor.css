@@ -1,0 +1,42 @@
+@import 'quill/dist/quill.snow.css';
+
+.quill-editor .ql-container,
+.quill-editor .ql-toolbar {
+	border-left: 0;
+	border-right: 0;
+	border-top: 0;
+	border-bottom-color: hsl(var(--border));
+}
+
+.quill-editor .ql-container {
+	overflow: auto;
+}
+
+.quill-editor .ql-editor {
+	height: auto;
+}
+
+.quill-editor .ql-toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	@apply divide-x;
+}
+
+.quill-editor .ql-toolbar::after {
+	display: none;
+}
+
+.quill-editor .ql-toolbar .ql-formats {
+	display: flex;
+	margin: 0;
+	@apply gap-1;
+}
+
+.quill-editor .ql-toolbar .ql-formats::after {
+	display: none;
+}
+
+.quill-editor .ql-toolbar .ql-formats button {
+	float: none;
+}
