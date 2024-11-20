@@ -38,7 +38,7 @@
 }
 
 .home-editor .ql-toolbar .ql-formats::before {
-    content: "";
+	content: '';
 	@apply w-2;
 }
 

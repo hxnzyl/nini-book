@@ -1,8 +1,8 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-	/* config options here */
-	reactStrictMode: false
+	reactStrictMode: false,
+	trailingSlash: true
 }
 
 export default nextConfig
