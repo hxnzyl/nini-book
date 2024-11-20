@@ -1,0 +1,51 @@
+@import 'quill/dist/quill.snow.css';
+
+.home-editor .ql-container {
+	border: none;
+}
+
+.home-editor .ql-toolbar {
+	border: none;
+	border-bottom: 1px solid hsl(var(--border));
+}
+
+.home-editor .ql-container {
+	@apply overflow-auto;
+}
+
+.home-editor .ql-container::-webkit-scrollbar {
+	@apply w-2.5;
+}
+
+.home-editor .ql-container::-webkit-scrollbar-thumb {
+	@apply bg-border rounded-full;
+}
+
+.home-editor .ql-editor {
+	@apply overflow-visible h-full;
+}
+
+.home-editor .ql-toolbar {
+	@apply flex flex-wrap justify-center divide-x;
+}
+
+.home-editor .ql-toolbar::after {
+	@apply hidden;
+}
+
+.home-editor .ql-toolbar .ql-formats {
+	@apply flex m-0;
+}
+
+.home-editor .ql-toolbar .ql-formats::before {
+    content: "";
+	@apply w-2;
+}
+
+.home-editor .ql-toolbar .ql-formats::after {
+	@apply w-2;
+}
+
+.home-editor .ql-toolbar .ql-formats button {
+	@apply float-none;
+}

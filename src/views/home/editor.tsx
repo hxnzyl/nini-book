@@ -1,11 +1,10 @@
+import { HomeContext } from '@/contexts/home'
 import { Redo2, Undo2 } from 'lucide-react'
 import Quill, { QuillOptions } from 'quill'
 import QuillModuleHistory from 'quill/modules/history'
 import QuillModuleToolbar from 'quill/modules/toolbar'
-import { Component, useEffect, useRef } from 'react'
-import { createPortal } from 'react-dom'
+import { useContext, useEffect, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { ScrollArea } from '../ui/scroll-area'
 import './editor.css'
 
 const quillOptions: QuillOptions = {
@@ -54,74 +53,65 @@ const quillOptions: QuillOptions = {
 	}
 }
 
-// 高阶组件
-const ScrollAreaWith = (container: Element | DocumentFragment) => {
-	return class extends Component {
-		render() {
-			return createPortal(<ScrollArea {...this.props} />, container)
-		}
-	}
-}
-
-export default function QuillEditor() {
+export default function HomeEditor() {
 	const editorRef = useRef<HTMLDivElement>(null)
-	const scrollRef = useRef<HTMLDivElement>(null)
+	const { activeNote } = useContext(HomeContext)
+	const [quill, setQuill] = useState<Quill | undefined>()
 
+	// mounted
 	useEffect(() => {
 		// #region componentDidMount
 		const editor = editorRef.current
 		if (!editor) return
-		const scrollOut = scrollRef.current
-		if (!scrollOut) return
-		const scrollIn = scrollOut.childNodes[1] as HTMLDivElement
-		if (!scrollIn) return
 
 		// Create an element to store Quill Editor
 		const container = document.createElement('div')
 		editor.appendChild(container)
 
 		// Create Quill Editor
-		const quill = new Quill(container, quillOptions)
+		const quillEditor = new Quill(container, quillOptions)
 
 		// Get toolbar module
-		const tollbar = quill.getModule('toolbar') as QuillModuleToolbar
+		const tollbar = quillEditor.getModule('toolbar') as QuillModuleToolbar
+		if (!tollbar.container) return
 
 		// Calculate content height
-		const toolbarHeight = tollbar.container!.offsetHeight || 0
+		const toolbarHeight = tollbar.container.offsetHeight || 0
 		const editorHeight = editor.offsetHeight || 0
 		const contentHeight = editorHeight - toolbarHeight
 
 		// Set container height, fixed height allows the scrollbar to appear naturally.
-		scrollIn.style.height = contentHeight + 'px'
+		quillEditor.container.style.height = contentHeight + 'px'
 
 		// Set editor min height, leave blank space below the editing area.
-		quill.root.style.minHeight = contentHeight - 1 + 'px'
+		quillEditor.root.style.minHeight = contentHeight - 1 + 'px'
 
 		// Add icon undo component to undo button element
 		const undo = tollbar.container!.querySelector('.ql-undo')
-		if (undo) {
-			createRoot(undo).render(<Undo2></Undo2>)
-		}
+		if (undo) createRoot(undo).render(<Undo2></Undo2>)
 
 		// Add icon redo component button element
 		const redo = tollbar.container!.querySelector('.ql-redo')
-		if (redo) {
-			createRoot(redo).render(<Redo2></Redo2>)
-		}
+		if (redo) createRoot(redo).render(<Redo2></Redo2>)
 
-		editor?.insertBefore(tollbar.container!, scrollOut)
-		scrollIn?.appendChild(quill.container)
+		setQuill(quillEditor)
 		// #endregion componentDidMount
 
 		// #region componentWillUnmount
 		// return () => {}dddd
 		// #endregion componentDidMount
-	})
+	}, [])
+
+	// watch
+	useEffect(() => {
+		if (quill && activeNote) {
+			quill.setText(activeNote.teaser)
+		}
+	}, [quill, activeNote])
 
 	return (
-		<div ref={editorRef} className="quill-editor w-full h-full overflow-hidden">
+		<div ref={editorRef} className="home-editor w-full h-full overflow-hidden">
 			{/** the contents will be replaced by Quill. */}
-			<ScrollArea ref={scrollRef} type="scroll"></ScrollArea>
 		</div>
 	)
 }

@@ -14,19 +14,17 @@ const ScrollArea = React.forwardRef<
 	React.ElementRef<typeof ScrollAreaPrimitive.Root>,
 	React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root>
 >(({ className, children, ...props }, ref) => {
-	const [fadeIn, setFadeIn] = useState(0)
+	const [animate, setAnimate] = useState<Tailwindcss.Animate | undefined>(undefined)
 	return (
 		<ScrollAreaPrimitive.Root
 			ref={ref}
 			className={cn('relative overflow-hidden', className)}
-			onPointerEnter={() => setFadeIn(1)}
-			onPointerLeave={() => setFadeIn(2)}
+			onPointerEnter={() => setAnimate('fadeIn')}
+			onPointerLeave={() => setAnimate('fadeOut')}
 			{...props}
 		>
-			<ScrollAreaPrimitive.Viewport className="h-full w-full rounded-[inherit]">
-				{children}
-			</ScrollAreaPrimitive.Viewport>
-			<ScrollBar animate={fadeIn == 1 ? 'fadeIn' : fadeIn == 2 ? 'fadeOut' : undefined} />
+			<ScrollAreaPrimitive.Viewport className="h-full w-full rounded-[inherit]">{children}</ScrollAreaPrimitive.Viewport>
+			<ScrollBar animate={animate} />
 			<ScrollAreaPrimitive.Corner />
 		</ScrollAreaPrimitive.Root>
 	)
@@ -57,3 +55,4 @@ const ScrollBar = React.forwardRef<
 ScrollBar.displayName = ScrollAreaPrimitive.ScrollAreaScrollbar.displayName
 
 export { ScrollArea, ScrollBar }
+
