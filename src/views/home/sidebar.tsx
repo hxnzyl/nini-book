@@ -5,25 +5,24 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
-	Sidebar,
-	SidebarContent,
-	SidebarFooter,
-	SidebarGroup,
-	SidebarGroupContent,
-	SidebarHeader,
-	SidebarInput,
-	SidebarMenu,
-	SidebarMenuButton,
-	SidebarMenuItem,
-	useSidebar
+    Sidebar,
+    SidebarContent,
+    SidebarFooter,
+    SidebarGroup,
+    SidebarGroupContent,
+    SidebarHeader,
+    SidebarInput,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem
 } from '@/components/ui/sidebar'
 import { Switch } from '@/components/ui/switch'
-import { HomeContext } from '@/contexts/home'
+import { SIDEBAR_WIDTH, useHome } from '@/contexts/home'
 import { cn } from '@/lib/utils'
 import { UserNotePO } from '@/types/po/UserNote'
-import { SideMenu, SideMenuFolders, SideMenuItems } from '@/views/home/side-menu'
+import { SideMenu, SideMenuFolder, SideMenuItem } from '@/views/home/side-menu'
 import { BookOpen, Bot, Columns2, Columns3, Command, PanelLeft, Settings2, SquareTerminal } from 'lucide-react'
-import { ComponentProps, useContext, useEffect, useState } from 'react'
+import { ComponentProps, useState } from 'react'
 
 const user = {
 	name: 'shadcn',
@@ -121,146 +120,120 @@ const notes: UserNotePO[] = [
 	}
 ]
 
-const menus: SideMenuItems[] = [
+const menus: SideMenuItem[] = [
 	{
-		title: 'Dashboard',
+		title: 'Directory',
+		url: '#',
+		icon: SquareTerminal,
 		children: [
 			{
-				title: 'Directory',
-				url: '#',
-				icon: SquareTerminal,
-				children: [
-					{
-						title: 'History',
-						url: '#'
-					},
-					{
-						title: 'Starred',
-						url: '#'
-					},
-					{
-						title: 'Settings',
-						url: '#'
-					}
-				]
+				title: 'History',
+				url: '#'
 			},
 			{
-				title: 'Models',
-				url: '#',
-				icon: Bot,
-				children: [
-					{
-						title: 'Genesis',
-						url: '#'
-					},
-					{
-						title: 'Explorer',
-						url: '#'
-					},
-					{
-						title: 'Quantum',
-						url: '#'
-					}
-				]
-			},
-			{
-				title: 'Documentation',
-				url: '#',
-				icon: BookOpen,
-				children: [
-					{
-						title: 'Introduction',
-						url: '#'
-					},
-					{
-						title: 'Get Started',
-						url: '#'
-					},
-					{
-						title: 'Tutorials',
-						url: '#'
-					},
-					{
-						title: 'Changelog',
-						url: '#'
-					}
-				]
+				title: 'Starred',
+				url: '#'
 			},
 			{
 				title: 'Settings',
-				url: '#',
-				icon: Settings2,
-				children: [
-					{
-						title: 'General',
-						url: '#'
-					},
-					{
-						title: 'Team',
-						url: '#'
-					},
-					{
-						title: 'Billing',
-						url: '#'
-					},
-					{
-						title: 'Limits',
-						url: '#'
-					}
-				]
+				url: '#'
+			}
+		]
+	},
+	{
+		title: 'Models',
+		url: '#',
+		icon: Bot,
+		children: [
+			{
+				title: 'Genesis',
+				url: '#'
+			},
+			{
+				title: 'Explorer',
+				url: '#'
+			},
+			{
+				title: 'Quantum',
+				url: '#'
+			}
+		]
+	},
+	{
+		title: 'Documentation',
+		url: '#',
+		icon: BookOpen,
+		children: [
+			{
+				title: 'Introduction',
+				url: '#'
+			},
+			{
+				title: 'Get Started',
+				url: '#'
+			},
+			{
+				title: 'Tutorials',
+				url: '#'
+			},
+			{
+				title: 'Changelog',
+				url: '#'
+			}
+		]
+	},
+	{
+		title: 'Settings',
+		url: '#',
+		icon: Settings2,
+		children: [
+			{
+				title: 'General',
+				url: '#'
+			},
+			{
+				title: 'Team',
+				url: '#'
+			},
+			{
+				title: 'Billing',
+				url: '#'
+			},
+			{
+				title: 'Limits',
+				url: '#'
 			}
 		]
 	}
 ]
 
-const folders: SideMenuFolders[] = [
-	{
-		title: 'Files',
-		children: [
-			['app', ['api', ['hello', ['route.ts']], 'page.tsx', 'layout.tsx', ['blog', ['page.tsx']]]],
-			['components', ['ui', 'button.tsx', 'card.tsx'], 'header.tsx', 'footer.tsx'],
-			['lib', ['util.ts']],
-			['public', 'favicon.ico', 'vercel.svg'],
-			['.eslintrc.json'],
-			['.gitignore'],
-			['next.config.js'],
-			['tailwind.config.js'],
-			['package.json'],
-			['README.md']
-		]
-	}
+const folders: SideMenuFolder[] = [
+	'My Folder',
+	['api', ['hello', ['route.ts']], 'page.tsx', 'layout.tsx', ['blog', ['page.tsx']]]
 ]
 
 export function HomeSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
-	// Note: I'm using state to show active item.
-	// IRL you should use the url/router.
-	const { isMobile, setOpen } = useSidebar()
-
 	const [activeMenu, setActiveMenu] = useState(menus[0])
-	const { activeNote, setActiveNote } = useContext(HomeContext)
+	const { activeNote, setActiveNote, sidebarWidth, setSidebarWidth, isColumns1, isColumns2, isColumns3 } = useHome()
 
-	const [sidebarWidth, setSidebarWidth] = useState(isMobile ? ['0px', '0px', '0px'] : ['550px', '250px', '300px'])
+	const setColumns1 = () =>
+		isColumns1() || setSidebarWidth(['calc(var(--sidebar-width-icon))', 'calc(var(--sidebar-width-icon))', '0px'])
 
-	const setColumns1 = () => (
-		setSidebarWidth(['calc(var(--sidebar-width-icon))', 'calc(var(--sidebar-width-icon))', '0px']), setOpen(true)
-	)
+	const setColumns2 = () =>
+		isColumns2() ||
+		setSidebarWidth([
+			`calc(var(--sidebar-width-icon) + ${SIDEBAR_WIDTH[2]})`,
+			'calc(var(--sidebar-width-icon))',
+			SIDEBAR_WIDTH[2]
+		])
 
-	const setColumns2 = () => (
-		setSidebarWidth(['calc(var(--sidebar-width-icon) + 300px)', 'calc(var(--sidebar-width-icon))', '300px']),
-		setOpen(true)
-	)
-
-	const setColumns3 = () => (setSidebarWidth(['550px', '250px', '300px']), setOpen(true))
-
-	useEffect(() => {
-		setSidebarWidth(isMobile ? ['0px', '0px', '0px'] : ['550px', '250px', '300px'])
-	}, [isMobile])
+	const setColumns3 = () => isColumns3() || setSidebarWidth(SIDEBAR_WIDTH)
 
 	return (
-		<div className="home-sidebar" style={{ '--sidebar-width': sidebarWidth[0] } as React.CSSProperties}>
+		<div style={{ '--sidebar-width': sidebarWidth[0] } as React.CSSProperties}>
 			<Sidebar collapsible="icon" className="overflow-hidden [&>[data-sidebar=sidebar]]:flex-row" {...props}>
 				{/** Menu list */}
-				<div className="home-sidebar-menus" style={{ '--sidebar-width': sidebarWidth[1] } as React.CSSProperties}>
+				<div style={{ '--sidebar-width': sidebarWidth[1] } as React.CSSProperties}>
 					<Sidebar collapsible="none" className="border-r">
 						<SidebarHeader>
 							<SidebarMenu>
@@ -285,33 +258,26 @@ export function HomeSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 							</ScrollArea>
 						</SidebarContent>
 						<SidebarFooter>
-							{isMobile || (
-								<div
-									className={cn(
-										'flex items-center justify-center',
-										sidebarWidth[1] == '250px' ? 'flex-row' : 'flex-col'
-									)}
-								>
-									<Button variant="ghost" size="icon" className="h-7 w-7" onClick={setColumns1}>
-										<PanelLeft />
-										<span className="sr-only">Set Columns 1</span>
-									</Button>
-									<Button variant="ghost" size="icon" className="h-7 w-7" onClick={setColumns2}>
-										<Columns2 />
-										<span className="sr-only">Set Columns 2</span>
-									</Button>
-									<Button variant="ghost" size="icon" className="h-7 w-7" onClick={setColumns3}>
-										<Columns3 />
-										<span className="sr-only">Set Columns 3</span>
-									</Button>
-								</div>
-							)}
+							<div className={cn('flex items-center justify-center', isColumns3() ? 'flex-row' : 'flex-col')}>
+								<Button variant="ghost" size="icon" className="h-7 w-7" onClick={setColumns1}>
+									<PanelLeft />
+									<span className="sr-only">Set Columns 1</span>
+								</Button>
+								<Button variant="ghost" size="icon" className="h-7 w-7" onClick={setColumns2}>
+									<Columns2 />
+									<span className="sr-only">Set Columns 2</span>
+								</Button>
+								<Button variant="ghost" size="icon" className="h-7 w-7" onClick={setColumns3}>
+									<Columns3 />
+									<span className="sr-only">Set Columns 3</span>
+								</Button>
+							</div>
 							<NavUser user={user} />
 						</SidebarFooter>
 					</Sidebar>
 				</div>
 				{/** Note list */}
-				<div className="home-sidebar-notes" style={{ '--sidebar-width': sidebarWidth[2] } as React.CSSProperties}>
+				<div style={{ '--sidebar-width': sidebarWidth[2] } as React.CSSProperties}>
 					<Sidebar collapsible="none">
 						<SidebarHeader className="gap-3.5 border-b p-4">
 							<div className="flex w-full items-center justify-between">
