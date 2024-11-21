@@ -1,28 +1,31 @@
 'use client'
 
+import { LucideIcon } from '@/components/lucide-icon'
 import { NavUser } from '@/components/nav-user'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
-    Sidebar,
-    SidebarContent,
-    SidebarFooter,
-    SidebarGroup,
-    SidebarGroupContent,
-    SidebarHeader,
-    SidebarInput,
-    SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem
+	Sidebar,
+	SidebarContent,
+	SidebarFooter,
+	SidebarGroup,
+	SidebarGroupContent,
+	SidebarHeader,
+	SidebarInput,
+	SidebarMenu,
+	SidebarMenuButton,
+	SidebarMenuSub
 } from '@/components/ui/sidebar'
 import { Switch } from '@/components/ui/switch'
-import { SIDEBAR_WIDTH, useHome } from '@/contexts/home'
+import { RIGHT_SIDEBAR_WIDTH, useHome } from '@/contexts/home'
 import { cn } from '@/lib/utils'
-import { UserNotePO } from '@/types/po/UserNote'
-import { SideMenu, SideMenuFolder, SideMenuItem } from '@/views/home/side-menu'
-import { BookOpen, Bot, Columns2, Columns3, Command, PanelLeft, Settings2, SquareTerminal } from 'lucide-react'
-import { ComponentProps, useState } from 'react'
+import { UserNoteFilePO } from '@/types/po/UserNoteFilePO'
+import { MenuVO } from '@/types/vo/MenuVO'
+import { UserNoteFolderVO } from '@/types/vo/UserNoteFolderVO'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@radix-ui/react-collapsible'
+import { ChevronRight, Columns2, Columns3, Command, Folder, PanelLeft } from 'lucide-react'
+import { ComponentProps } from 'react'
 
 const user = {
 	name: 'shadcn',
@@ -30,214 +33,178 @@ const user = {
 	avatar: '/avatars/shadcn.jpg'
 }
 
-const notes: UserNotePO[] = [
-	{
-		name: 'William Smith',
-		email: 'williamsmith@example.com',
-		subject: 'Meeting Tomorrow',
-		date: '09:34 AM',
-		content:
-			'Hi team, just a reminder about our meeting tomorrow at 10 AM.\nPlease come prepared with your project updates.'
-	},
-	{
-		name: 'Alice Smith',
-		email: 'alicesmith@example.com',
-		subject: 'Re: Project Update',
-		date: 'Yesterday',
-		content: "Thanks for the update. The progress looks great so far.\nLet's schedule a call to discuss the next steps."
-	},
-	{
-		name: 'Bob Johnson',
-		email: 'bobjohnson@example.com',
-		subject: 'Weekend Plans',
-		date: '2 days ago',
-		content:
-			"Hey everyone! I'm thinking of organizing a team outing this weekend.\nWould you be interested in a hiking trip or a beach day?"
-	},
-	{
-		name: 'Emily Davis',
-		email: 'emilydavis@example.com',
-		subject: 'Re: Question about Budget',
-		date: '2 days ago',
-		content:
-			"I've reviewed the budget numbers you sent over.\nCan we set up a quick call to discuss some potential adjustments?"
-	},
-	{
-		name: 'Michael Wilson',
-		email: 'michaelwilson@example.com',
-		subject: 'Important Announcement',
-		date: '1 week ago',
-		content:
-			"Please join us for an all-hands meeting this Friday at 3 PM.\nWe have some exciting news to share about the company's future."
-	},
-	{
-		name: 'Sarah Brown',
-		email: 'sarahbrown@example.com',
-		subject: 'Re: Feedback on Proposal',
-		date: '1 week ago',
-		content:
-			"Thank you for sending over the proposal. I've reviewed it and have some thoughts.\nCould we schedule a meeting to discuss my feedback in detail?"
-	},
-	{
-		name: 'David Lee',
-		email: 'davidlee@example.com',
-		subject: 'New Project Idea',
-		date: '1 week ago',
-		content:
-			"I've been brainstorming and came up with an interesting project concept.\nDo you have time this week to discuss its potential impact and feasibility?"
-	},
-	{
-		name: 'Olivia Wilson',
-		email: 'oliviawilson@example.com',
-		subject: 'Vacation Plans',
-		date: '1 week ago',
-		content:
-			"Just a heads up that I'll be taking a two-week vacation next month.\nI'll make sure all my projects are up to date before I leave."
-	},
-	{
-		name: 'James Martin',
-		email: 'jamesmartin@example.com',
-		subject: 'Re: Conference Registration',
-		date: '1 week ago',
-		content:
-			"I've completed the registration for the upcoming tech conference.\nLet me know if you need any additional information from my end."
-	},
-	{
-		name: 'Sophia White',
-		email: 'sophiawhite@example.com',
-		subject: 'Team Dinner',
-		date: '1 week ago',
-		content:
-			"To celebrate our recent project success, I'd like to organize a team dinner.\nAre you available next Friday evening? Please let me know your preferences."
-	},
-	{
-		name: 'Sophia Black',
-		email: 'sophiablack@example.com',
-		subject: 'Team Dinner',
-		date: '1 week ago',
-		content:
-			"To celebrate our recent project success, I'd like to organize a team dinner.\nAre you available next Friday evening? Please let me know your preferences."
-	}
-]
-
-const menus: SideMenuItem[] = [
+const menus: MenuVO[] = [
 	{
 		title: 'Directory',
-		url: '#',
-		icon: SquareTerminal,
+		icon: 'square-terminal',
 		children: [
 			{
-				title: 'History',
-				url: '#'
+				title: 'History'
 			},
 			{
-				title: 'Starred',
-				url: '#'
+				title: 'Starred'
 			},
 			{
-				title: 'Settings',
-				url: '#'
+				title: 'Settings'
 			}
 		]
 	},
 	{
 		title: 'Models',
-		url: '#',
-		icon: Bot,
+		icon: 'bot',
 		children: [
 			{
-				title: 'Genesis',
-				url: '#'
+				title: 'Genesis'
 			},
 			{
-				title: 'Explorer',
-				url: '#'
+				title: 'Explorer'
 			},
 			{
-				title: 'Quantum',
-				url: '#'
+				title: 'Quantum'
 			}
 		]
 	},
 	{
 		title: 'Documentation',
-		url: '#',
-		icon: BookOpen,
+		icon: 'book-open',
 		children: [
 			{
-				title: 'Introduction',
-				url: '#'
+				title: 'Introduction'
 			},
 			{
-				title: 'Get Started',
-				url: '#'
+				title: 'Get Started'
 			},
 			{
-				title: 'Tutorials',
-				url: '#'
+				title: 'Tutorials'
 			},
 			{
-				title: 'Changelog',
-				url: '#'
+				title: 'Changelog'
 			}
 		]
 	},
 	{
 		title: 'Settings',
-		url: '#',
-		icon: Settings2,
+		icon: 'settings-2',
 		children: [
 			{
-				title: 'General',
-				url: '#'
+				title: 'General'
 			},
 			{
-				title: 'Team',
-				url: '#'
+				title: 'Team'
 			},
 			{
-				title: 'Billing',
-				url: '#'
+				title: 'Billing'
 			},
 			{
-				title: 'Limits',
-				url: '#'
+				title: 'Limits'
 			}
 		]
 	}
 ]
 
-const folders: SideMenuFolder[] = [
-	'My Folder',
-	['api', ['hello', ['route.ts']], 'page.tsx', 'layout.tsx', ['blog', ['page.tsx']]]
+const notes: UserNoteFilePO[] = [
+	{
+		title: 'Meeting Tomorrow',
+		date: '09:34 AM',
+		content:
+			'Hi team, just a reminder about our meeting tomorrow at 10 AM.\nPlease come prepared with your project updates.'
+	},
+	{
+		title: 'Re: Project Update',
+		date: 'Yesterday',
+		content: "Thanks for the update. The progress looks great so far.\nLet's schedule a call to discuss the next steps."
+	},
+	{
+		title: 'Weekend Plans',
+		date: '2 days ago',
+		content:
+			"Hey everyone! I'm thinking of organizing a team outing this weekend.\nWould you be interested in a hiking trip or a beach day?"
+	},
+	{
+		title: 'Re: Question about Budget',
+		date: '2 days ago',
+		content:
+			"I've reviewed the budget numbers you sent over.\nCan we set up a quick call to discuss some potential adjustments?"
+	},
+	{
+		title: 'Important Announcement',
+		date: '1 week ago',
+		content:
+			"Please join us for an all-hands meeting this Friday at 3 PM.\nWe have some exciting news to share about the company's future."
+	},
+	{
+		title: 'Re: Feedback on Proposal',
+		date: '1 week ago',
+		content:
+			"Thank you for sending over the proposal. I've reviewed it and have some thoughts.\nCould we schedule a meeting to discuss my feedback in detail?"
+	},
+	{
+		title: 'New Project Idea',
+		date: '1 week ago',
+		content:
+			"I've been brainstorming and came up with an interesting project concept.\nDo you have time this week to discuss its potential impact and feasibility?"
+	},
+	{
+		title: 'Vacation Plans',
+		date: '1 week ago',
+		content:
+			"Just a heads up that I'll be taking a two-week vacation next month.\nI'll make sure all my projects are up to date before I leave."
+	},
+	{
+		title: 'Re: Conference Registration',
+		date: '1 week ago',
+		content:
+			"I've completed the registration for the upcoming tech conference.\nLet me know if you need any additional information from my end."
+	},
+	{
+		title: 'Team Dinner',
+		date: '1 week ago',
+		content:
+			"To celebrate our recent project success, I'd like to organize a team dinner.\nAre you available next Friday evening? Please let me know your preferences."
+	},
+	{
+		title: 'Team Dinner',
+		date: '1 week ago',
+		content:
+			"To celebrate our recent project success, I'd like to organize a team dinner.\nAre you available next Friday evening? Please let me know your preferences."
+	}
 ]
 
+const folder: UserNoteFolderVO = {
+	name: 'My Folder',
+	children: [
+		{
+			name: 'Folder 1'
+		},
+		{
+			name: 'Folder 2'
+		}
+	]
+}
+
 export function HomeSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
-	const [activeMenu, setActiveMenu] = useState(menus[0])
-	const { activeNote, setActiveNote, sidebarWidth, setSidebarWidth, isColumns1, isColumns2, isColumns3 } = useHome()
-
-	const setColumns1 = () =>
-		isColumns1() || setSidebarWidth(['calc(var(--sidebar-width-icon))', 'calc(var(--sidebar-width-icon))', '0px'])
-
-	const setColumns2 = () =>
-		isColumns2() ||
-		setSidebarWidth([
-			`calc(var(--sidebar-width-icon) + ${SIDEBAR_WIDTH[2]})`,
-			'calc(var(--sidebar-width-icon))',
-			SIDEBAR_WIDTH[2]
-		])
-
-	const setColumns3 = () => isColumns3() || setSidebarWidth(SIDEBAR_WIDTH)
+	const {
+		activeNotes,
+		activeNote,
+		setActiveNote,
+		sidebarWidth,
+		leftSidebarWidth,
+		rightSidebarWidth,
+		isColumns3,
+		setColumns1,
+		setColumns2,
+		setColumns3
+	} = useHome()
 
 	return (
-		<div style={{ '--sidebar-width': sidebarWidth[0] } as React.CSSProperties}>
+		<div style={{ '--sidebar-width': sidebarWidth } as React.CSSProperties}>
 			<Sidebar collapsible="icon" className="overflow-hidden [&>[data-sidebar=sidebar]]:flex-row" {...props}>
 				{/** Menu list */}
-				<div style={{ '--sidebar-width': sidebarWidth[1] } as React.CSSProperties}>
-					<Sidebar collapsible="none" className="border-r">
+				<div style={{ '--sidebar-width': leftSidebarWidth } as React.CSSProperties}>
+					<Sidebar collapsible="icon" className="border-r">
 						<SidebarHeader>
 							<SidebarMenu>
-								<SidebarMenuItem>
+								<SidebarMenu>
 									<SidebarMenuButton size="lg" asChild className="md:h-8 md:p-0">
 										<a href="#">
 											<div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
@@ -249,12 +216,36 @@ export function HomeSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 											</div>
 										</a>
 									</SidebarMenuButton>
-								</SidebarMenuItem>
+								</SidebarMenu>
 							</SidebarMenu>
 						</SidebarHeader>
 						<SidebarContent>
 							<ScrollArea>
-								<SideMenu items={menus} folders={folders} />
+								<SidebarGroup>
+									<SidebarGroupContent>
+										{menus.map((item, key1) => (
+											<SidebarMenu key={key1}>
+												<SidebarMenu>
+													<SidebarMenuButton tooltip={item.title}>
+														{item.icon && <LucideIcon name={item.icon} />}
+														<span className={isColumns3() ? '' : 'hidden'}>{item.title}</span>
+													</SidebarMenuButton>
+												</SidebarMenu>
+											</SidebarMenu>
+										))}
+										<SidebarMenu>
+											{isColumns3() ? (
+												<SidebarFolder folder={folder}></SidebarFolder>
+											) : (
+												<SidebarMenu>
+													<SidebarMenuButton>
+														<Folder />
+													</SidebarMenuButton>
+												</SidebarMenu>
+											)}
+										</SidebarMenu>
+									</SidebarGroupContent>
+								</SidebarGroup>
 							</ScrollArea>
 						</SidebarContent>
 						<SidebarFooter>
@@ -277,37 +268,36 @@ export function HomeSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 					</Sidebar>
 				</div>
 				{/** Note list */}
-				<div style={{ '--sidebar-width': sidebarWidth[2] } as React.CSSProperties}>
+				<div style={{ '--sidebar-width': rightSidebarWidth } as React.CSSProperties}>
 					<Sidebar collapsible="none">
-						<SidebarHeader className="gap-3.5 border-b p-4">
+						<SidebarHeader className="gap-3.5 border-b p-4" style={{ width: RIGHT_SIDEBAR_WIDTH }}>
 							<div className="flex w-full items-center justify-between">
-								<div className="text-base font-medium text-foreground">{activeMenu.title}</div>
+								<div className="text-base font-medium text-foreground">{activeNotes.name}</div>
 								<Label className="flex items-center gap-2 text-sm">
 									<span>Unreads</span>
 									<Switch className="shadow-none" />
 								</Label>
 							</div>
-							<SidebarInput placeholder="Type to search..." />
+							<SidebarInput placeholder="Note to search..." />
 						</SidebarHeader>
-						<SidebarContent>
+						<SidebarContent style={{ width: RIGHT_SIDEBAR_WIDTH }}>
 							<ScrollArea>
 								<SidebarGroup className="px-0">
 									<SidebarGroupContent>
-										{notes.map((note) => (
+										{notes.map((note, key) => (
 											<a
 												href="#"
-												key={note.email}
+												key={key}
 												onClick={() => setActiveNote(note)}
 												className={cn(
 													'flex flex-col items-start gap-2 whitespace-nowrap border-b p-4 text-sm leading-tight last:border-b-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors',
-													activeNote && note.email === activeNote.email ? '!bg-sidebar-ring !text-sidebar-accent' : ''
+													activeNote && note.title === activeNote.title ? '!bg-sidebar-ring !text-sidebar-accent' : ''
 												)}
 											>
 												<div className="flex w-full items-center gap-2">
-													<span>{note.name}</span>
+													<span>{note.title}</span>
 													<span className="ml-auto text-xs">{note.date}</span>
 												</div>
-												<span className="font-medium">{note.subject}</span>
 												<span className="line-clamp-2 w-[260px] whitespace-break-spaces text-xs">{note.content}</span>
 											</a>
 										))}
@@ -319,5 +309,48 @@ export function HomeSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 				</div>
 			</Sidebar>
 		</div>
+	)
+}
+
+function SidebarFolder({ folder }: { folder: UserNoteFolderVO }) {
+	const { setActiveNotes } = useHome()
+	return !folder.children || !folder.children.length ? (
+		<SidebarMenu>
+			<SidebarMenuButton
+				className="pl-1.5"
+				onClick={() => setActiveNotes({ name: folder.name, files: folder.children })}
+			>
+				<Folder className="w-4 h-4" />
+				<span>{folder.name}</span>
+			</SidebarMenuButton>
+		</SidebarMenu>
+	) : (
+		<Collapsible
+			className="group/collapsible [&[data-state=open]>button>svg:first-child]:rotate-90"
+			defaultOpen
+			asChild
+		>
+			<SidebarMenu>
+				<SidebarMenuButton>
+					<CollapsibleTrigger asChild>
+						<ChevronRight className="transition-transform" />
+					</CollapsibleTrigger>
+					<div
+						className="flex items-center gap-2"
+						onClick={() => setActiveNotes({ name: folder.name, files: folder.children })}
+					>
+						<Folder className="w-4 h-4" />
+						<span>{folder.name}</span>
+					</div>
+				</SidebarMenuButton>
+				<CollapsibleContent>
+					<SidebarMenuSub>
+						{folder.children?.map((child, index) => (
+							<SidebarFolder key={index} folder={child} />
+						))}
+					</SidebarMenuSub>
+				</CollapsibleContent>
+			</SidebarMenu>
+		</Collapsible>
 	)
 }

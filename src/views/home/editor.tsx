@@ -69,10 +69,10 @@ export default function HomeEditor() {
 		editor.appendChild(container)
 
 		// Create Quill Editor
-		const quillEditor = new Quill(container, quillOptions)
+		const _quill = new Quill(container, quillOptions)
 
 		// Get toolbar module
-		const tollbar = quillEditor.getModule('toolbar') as QuillModuleToolbar
+		const tollbar = _quill.getModule('toolbar') as QuillModuleToolbar
 		if (!tollbar.container) return
 
 		// Calculate content height
@@ -81,10 +81,10 @@ export default function HomeEditor() {
 		const contentHeight = editorHeight - toolbarHeight
 
 		// Set container height, fixed height allows the scrollbar to appear naturally.
-		quillEditor.container.style.height = contentHeight + 'px'
+		_quill.container.style.height = contentHeight + 'px'
 
 		// Set editor min height, leave blank space below the editing area.
-		quillEditor.root.style.minHeight = contentHeight - 1 + 'px'
+		_quill.root.style.minHeight = contentHeight - 1 + 'px'
 
 		// Add icon undo component to undo button element
 		const undo = tollbar.container!.querySelector('.ql-undo')
@@ -94,20 +94,18 @@ export default function HomeEditor() {
 		const redo = tollbar.container!.querySelector('.ql-redo')
 		if (redo) createRoot(redo).render(<Redo2></Redo2>)
 
-		setQuill(quillEditor)
+		setQuill(_quill)
 		// #endregion componentDidMount
 
 		// #region componentWillUnmount
-		// return () => {}dddd
+		// return () => {}
 		// #endregion componentDidMount
 	}, [])
 
 	// watch
 	useEffect(() => {
-		if (quill) {
-			quill.setText(activeNote.content)
-		}
-	}, [quill, activeNote.content])
+		quill?.setText(activeNote.content || '')
+	}, [activeNote.content])
 
 	return (
 		<div ref={editorRef} className="home-editor w-full h-full overflow-hidden">
