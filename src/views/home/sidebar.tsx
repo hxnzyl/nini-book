@@ -313,7 +313,7 @@ function SidebarMenuFolder({
 }
 
 function SidebarMenuFolderAction() {
-	const [openState, setOpenState] = useState(true)
+	const [openState, setOpenState] = useState(false)
 	return (
 		<DropdownMenu open={openState} onOpenChange={setOpenState}>
 			<DropdownMenuTrigger
