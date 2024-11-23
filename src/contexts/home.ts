@@ -1,12 +1,12 @@
 import { UserNoteFileVO } from '@/types/vo/UserNoteFileVO'
 import { Dispatch, SetStateAction, createContext, useContext } from 'react'
 
-export const SIDEBAR_WIDTH = ['500px', '200px', '300px']
-export const ICON_SIDEBAR_WIDTH = 'calc(var(--sidebar-width-icon))'
+export const SIDEBAR_WIDTH = ['36rem', '16rem', '20rem']
+export const ICON_SIDEBAR_WIDTH = '3rem'
 
 export interface HomeContext {
-	activeNote: UserNoteFileVO
-	setActiveNote: Dispatch<SetStateAction<UserNoteFileVO>>
+	activeNote: Partial<UserNoteFileVO>
+	setActiveNote: Dispatch<SetStateAction<Partial<UserNoteFileVO>>>
 	sidebarWidth: string[]
 	setSidebarWidth: Dispatch<SetStateAction<string[]>>
 	isColumns1: () => boolean

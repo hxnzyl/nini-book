@@ -4,30 +4,43 @@ import { getFolders, getNotes } from '@/api/user'
 import { LucideIcon } from '@/components/lucide-icon'
 import { NavUser } from '@/components/nav-user'
 import { Button } from '@/components/ui/button'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuGroup,
+	DropdownMenuItem,
+	DropdownMenuPortal,
+	DropdownMenuSub,
+	DropdownMenuSubContent,
+	DropdownMenuSubTrigger,
+	DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
 import { Label } from '@/components/ui/label'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
-    Sidebar,
-    SidebarContent,
-    SidebarFooter,
-    SidebarGroup,
-    SidebarGroupContent,
-    SidebarHeader,
-    SidebarInput,
-    SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem,
-    SidebarMenuSub
+	Sidebar,
+	SidebarContent,
+	SidebarFooter,
+	SidebarGroup,
+	SidebarGroupContent,
+	SidebarHeader,
+	SidebarInput,
+	SidebarMenu,
+	SidebarMenuButton,
+	SidebarMenuItem,
+	SidebarMenuSub,
+	useSidebar
 } from '@/components/ui/sidebar'
 import { Switch } from '@/components/ui/switch'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { ICON_SIDEBAR_WIDTH, SIDEBAR_WIDTH, useHome } from '@/contexts/home'
 import { cn } from '@/lib/utils'
 import { MenuVO } from '@/types/vo/MenuVO'
 import { UserNoteFileVO } from '@/types/vo/UserNoteFileVO'
 import { UserNoteFilesVO } from '@/types/vo/UserNoteFilesVO'
 import { UserNoteFolderVO } from '@/types/vo/UserNoteFolderVO'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@radix-ui/react-collapsible'
-import { ChevronRight, Columns2, Columns3, Command, Folder, PanelLeft } from 'lucide-react'
+import { ChevronRight, Columns2, Columns3, Command, FileText, Folder, MoreHorizontal, PanelLeft } from 'lucide-react'
 import { ComponentProps, useEffect, useState } from 'react'
 
 const user = {
@@ -43,6 +56,7 @@ const menus: MenuVO[] = [
 ]
 
 export function HomeSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
+	const { setOpen } = useSidebar()
 	const { activeNote, setActiveNote, sidebarWidth, setSidebarWidth, isColumns1, isColumns2, isColumns3 } = useHome()
 
 	const [notes, setNotes] = useState([] as UserNoteFileVO[])
@@ -50,29 +64,40 @@ export function HomeSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 
 	const [activeNotes, setActiveNotes] = useState({} as UserNoteFilesVO)
 
-	const setColumns1 = () => isColumns1() || setSidebarWidth([ICON_SIDEBAR_WIDTH, ICON_SIDEBAR_WIDTH, '0px'])
+	const setColumns1 = () =>
+		isColumns1() || (setSidebarWidth([ICON_SIDEBAR_WIDTH, ICON_SIDEBAR_WIDTH, '0px']), setOpen(false))
 
 	const setColumns2 = () =>
 		isColumns2() ||
-		setSidebarWidth([`calc(${ICON_SIDEBAR_WIDTH} + ${SIDEBAR_WIDTH[2]})`, ICON_SIDEBAR_WIDTH, SIDEBAR_WIDTH[2]])
+		(setSidebarWidth([`calc(${ICON_SIDEBAR_WIDTH} + ${SIDEBAR_WIDTH[2]})`, ICON_SIDEBAR_WIDTH, SIDEBAR_WIDTH[2]]),
+		setOpen(true))
 
-	const setColumns3 = () => isColumns3() || setSidebarWidth(SIDEBAR_WIDTH)
+	const setColumns3 = () => isColumns3() || (setSidebarWidth(SIDEBAR_WIDTH), setOpen(true))
+
+	const isActiveNotes = (notes?: UserNoteFilesVO) => (notes ? notes.id === activeNotes.id : !!activeNotes.isFolder)
 
 	const setActiveNotesByFolder = (folder: UserNoteFolderVO) => {
-		setActiveNotes({
-			id: folder.id,
-			name: folder.name,
-			files: (folder.children || []).concat(notes.filter((note) => !note.isRecycle && note.userNoteFolderId === folder.id))
-		})
+		if (activeNotes.id !== folder.id) {
+			setActiveNotes({
+				id: folder.id,
+				name: folder.name,
+				isFolder: 1,
+				files: (folder.children || []).concat(
+					notes.filter((note) => !note.isRecycle && note.userNoteFolderId === folder.id)
+				)
+			})
+		}
 	}
 
 	const setActiveNotesByMenu = (menu: MenuVO) => {
-		const isField = ('is' + menu.name) as keyof UserNoteFileVO
-		setActiveNotes({
-			id: menu.id,
-			name: menu.name,
-			files: notes.filter((note) => (isField === 'isRecycle' || !note.isRecycle) && note[isField])
-		})
+		if (activeNotes.id !== menu.id) {
+			const isField = ('is' + menu.name) as keyof UserNoteFileVO
+			setActiveNotes({
+				id: menu.id,
+				name: menu.name,
+				files: notes.filter((note) => (isField === 'isRecycle' || !note.isRecycle) && note[isField])
+			})
+		}
 	}
 
 	// mounted
@@ -86,7 +111,10 @@ export function HomeSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 			setActiveNotes({
 				id: folders.id,
 				name: folders.name,
-				files: (folders.children || []).concat(notes.filter((note) => !note.isRecycle && note.userNoteFolderId === folders.id))
+				isFolder: 1,
+				files: (folders.children || []).concat(
+					notes.filter((note) => !note.isRecycle && note.userNoteFolderId === folders.id)
+				)
 			})
 		})
 	}, [])
@@ -96,7 +124,7 @@ export function HomeSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 			<Sidebar collapsible="icon" className="overflow-hidden [&>[data-sidebar=sidebar]]:flex-row" {...props}>
 				{/** Menu list */}
 				<div style={{ '--sidebar-width': sidebarWidth[1] } as React.CSSProperties}>
-					<Sidebar collapsible="icon" className="border-r">
+					<Sidebar collapsible="icon" className="overflow-hidden border-r">
 						<SidebarHeader>
 							<SidebarMenu>
 								<SidebarMenuItem>
@@ -121,20 +149,43 @@ export function HomeSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 										<SidebarMenu>
 											{menus.map((menu, key) => (
 												<SidebarMenuItem key={key} onClick={() => setActiveNotesByMenu(menu)}>
-													<SidebarMenuButton tooltip={menu.name}>
-														{menu.icon && <LucideIcon name={menu.icon} />}
-														<span className={isColumns3() ? '' : 'hidden'}>{menu.name}</span>
-													</SidebarMenuButton>
+													<Tooltip>
+														<TooltipTrigger asChild>
+															<SidebarMenuButton
+																className={cn(
+																	'transition-colors',
+																	isActiveNotes(menu) ? '!bg-sidebar-ring !text-sidebar-accent' : ''
+																)}
+															>
+																{menu.icon && <LucideIcon name={menu.icon} />}
+																<span hidden={isColumns1() || isColumns2()}>{menu.name}</span>
+															</SidebarMenuButton>
+														</TooltipTrigger>
+														<TooltipContent
+															side="right"
+															align="center"
+															className="relative overflow-visible"
+															sideOffset={10}
+														>
+															{/** left arrow */}
+															<div className="absolute -left-[6px] w-2 h-2 border-t-8 border-b-8 border-r-8 border-t-transparent border-b-transparent border-r-primary"></div>
+															<div>{menu.name}</div>
+														</TooltipContent>
+													</Tooltip>
 												</SidebarMenuItem>
 											))}
 											{isColumns3() ? (
-												<SidebarFolder folders={folders} onChange={setActiveNotesByFolder}></SidebarFolder>
+												<SidebarMenuFolder
+													folders={folders}
+													isActive={isActiveNotes}
+													onChange={setActiveNotesByFolder}
+												/>
 											) : (
-												<SidebarMenuItem>
-													<SidebarMenuButton>
-														<Folder />
-													</SidebarMenuButton>
-												</SidebarMenuItem>
+												<SidebarDropdownMenuFolder
+													folders={folders}
+													isActive={isActiveNotes}
+													onChange={setActiveNotesByFolder}
+												/>
 											)}
 										</SidebarMenu>
 									</SidebarGroupContent>
@@ -181,10 +232,10 @@ export function HomeSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 											<a
 												href="#"
 												key={key}
-												onClick={() => setActiveNote(note)}
+												onClick={() => note.isFile && setActiveNote(note)}
 												className={cn(
 													'flex flex-col items-start gap-2 whitespace-nowrap border-b p-4 text-sm leading-tight last:border-b-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors',
-													activeNote && note.id === activeNote.id ? '!bg-sidebar-ring !text-sidebar-accent' : ''
+													note.id === activeNote.id ? '!bg-sidebar-ring !text-sidebar-accent' : ''
 												)}
 											>
 												<div className="flex w-full items-center gap-2">
@@ -192,7 +243,9 @@ export function HomeSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 													<span>{note.name}</span>
 													<span className="ml-auto text-xs">{note.date}</span>
 												</div>
-												<span className="line-clamp-2 w-[260px] whitespace-break-spaces text-xs">{note.content}</span>
+												{note.isFile && (
+													<span className="line-clamp-2 w-[260px] whitespace-break-spaces text-xs">{note.content}</span>
+												)}
 											</a>
 										))}
 									</SidebarGroupContent>
@@ -206,41 +259,178 @@ export function HomeSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 	)
 }
 
-function SidebarFolder({
+function SidebarMenuFolder({
 	folders,
+	isActive,
 	onChange
 }: {
 	folders: UserNoteFolderVO
+	isActive: (folders?: UserNoteFilesVO) => boolean
 	onChange: (folders: UserNoteFolderVO) => void
 }) {
 	const files: UserNoteFilesVO[] = folders.children || []
 	return !files.length ? (
-		<SidebarMenuItem>
-			<SidebarMenuButton className="pl-1.5" onClick={() => onChange(folders)}>
-				<Folder className="w-4 h-4" />
-				<span>{folders.name}</span>
+		<SidebarMenuItem onClick={() => onChange(folders)}>
+			<SidebarMenuButton
+				className={cn(
+					'group/action transition-colors',
+					isActive(folders) ? '!bg-sidebar-ring !text-sidebar-accent' : ''
+				)}
+			>
+				<Folder />
+				<div className="flex-1">{folders.name}</div>
+				<SidebarMenuFolderAction />
 			</SidebarMenuButton>
 		</SidebarMenuItem>
 	) : (
-		<Collapsible className="group/collapsible [&[data-state=open]>button>svg:first-child]:rotate-90" defaultOpen>
-			<SidebarMenuItem>
-				<SidebarMenuButton>
+		<SidebarMenuItem>
+			<Collapsible className="group/collapsible [&[data-state=open]>button>svg:first-child]:rotate-90" defaultOpen>
+				<SidebarMenuButton
+					className={cn(
+						'group/action transition-colors',
+						isActive(folders) ? '!bg-sidebar-ring !text-sidebar-accent' : ''
+					)}
+				>
 					<CollapsibleTrigger asChild>
 						<ChevronRight className="transition-transform" />
 					</CollapsibleTrigger>
-					<div className="flex items-center gap-2" onClick={() => onChange(folders)}>
+					<div className="flex flex-1  items-center gap-2" onClick={() => onChange(folders)}>
 						<Folder className="w-4 h-4" />
 						<span>{folders.name}</span>
 					</div>
+					<SidebarMenuFolderAction />
 				</SidebarMenuButton>
 				<CollapsibleContent>
 					<SidebarMenuSub className="mr-0 pr-0">
-						{files.map((children, index) => (
-							<SidebarFolder key={index} folders={children} onChange={onChange} />
+						{files.map((children, key) => (
+							<SidebarMenuFolder key={key} folders={children} onChange={onChange} isActive={isActive} />
 						))}
 					</SidebarMenuSub>
 				</CollapsibleContent>
-			</SidebarMenuItem>
-		</Collapsible>
+			</Collapsible>
+		</SidebarMenuItem>
+	)
+}
+
+function SidebarMenuFolderAction() {
+	const [openState, setOpenState] = useState(true)
+	return (
+		<DropdownMenu open={openState} onOpenChange={setOpenState}>
+			<DropdownMenuTrigger
+				className={cn(
+					'group-hover/action:visible hover:bg-sidebar-accent hover:text-sidebar-ring rounded-md',
+					openState ? 'bg-sidebar-accent text-sidebar-ring' : 'invisible'
+				)}
+				asChild
+			>
+				<MoreHorizontal />
+			</DropdownMenuTrigger>
+			<DropdownMenuContent side="right" align="start">
+				<DropdownMenuGroup>
+					<DropdownMenuItem>
+						<FileText />
+						<span>新建文档</span>
+					</DropdownMenuItem>
+				</DropdownMenuGroup>
+			</DropdownMenuContent>
+		</DropdownMenu>
+	)
+}
+
+function SidebarDropdownMenuFolder({
+	folders,
+	isActive,
+	onChange
+}: {
+	folders: UserNoteFolderVO
+	isActive: (folders?: UserNoteFilesVO) => boolean
+	onChange: (folders: UserNoteFolderVO) => void
+}) {
+	const [openState, setOpenState] = useState(false)
+	const onChangeSub = (folders: UserNoteFolderVO) => (setOpenState(false), onChange(folders))
+	return (
+		<DropdownMenu open={openState} onOpenChange={setOpenState}>
+			<DropdownMenuTrigger asChild>
+				<SidebarMenuItem>
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<SidebarMenuButton
+								className={cn('transition-colors', isActive() ? '!bg-sidebar-ring !text-sidebar-accent' : '')}
+							>
+								<Folder />
+							</SidebarMenuButton>
+						</TooltipTrigger>
+						<TooltipContent side="right" align="center" className="relative overflow-visible" sideOffset={10}>
+							{/** left arrow */}
+							<div className="absolute -left-[6px] w-2 h-2 border-t-8 border-b-8 border-r-8 border-t-transparent border-b-transparent border-r-primary"></div>
+							<div>{folders.name}</div>
+						</TooltipContent>
+					</Tooltip>
+				</SidebarMenuItem>
+			</DropdownMenuTrigger>
+			<DropdownMenuContent side="right" align="start">
+				<DropdownMenuGroup>
+					<DropdownMenuItem
+						onClick={() => onChange(folders)}
+						className={cn(
+							'transition-colors cursor-pointer',
+							isActive(folders) ? '!bg-sidebar-ring !text-sidebar-accent' : ''
+						)}
+					>
+						<Folder />
+						<span>{folders.name}</span>
+					</DropdownMenuItem>
+				</DropdownMenuGroup>
+				<DropdownMenuGroup className="px-1">
+					{folders.children?.map((children, key) => (
+						<SidebarDropdownMenuFolderSub key={key} folders={children} onChange={onChangeSub} isActive={isActive} />
+					))}
+				</DropdownMenuGroup>
+			</DropdownMenuContent>
+		</DropdownMenu>
+	)
+}
+
+function SidebarDropdownMenuFolderSub({
+	folders,
+	isActive,
+	onChange
+}: {
+	folders: UserNoteFolderVO
+	isActive: (folders?: UserNoteFilesVO) => boolean
+	onChange: (folders: UserNoteFolderVO) => void
+}) {
+	const files: UserNoteFilesVO[] = folders.children || []
+	return !files.length ? (
+		<DropdownMenuItem
+			onClick={() => onChange(folders)}
+			className={cn(
+				'transition-colors cursor-pointer',
+				isActive(folders) ? '!bg-sidebar-ring !text-sidebar-accent' : ''
+			)}
+		>
+			<Folder />
+			<span>{folders.name}</span>
+		</DropdownMenuItem>
+	) : (
+		<DropdownMenuSub>
+			<DropdownMenuSubTrigger
+				onClick={() => onChange(folders)}
+				className={cn(
+					'transition-colors cursor-pointer',
+					isActive(folders) ? '!bg-sidebar-ring !text-sidebar-accent' : ''
+				)}
+			>
+				<Folder />
+				<span>{folders.name}</span>
+			</DropdownMenuSubTrigger>
+			<DropdownMenuPortal>
+				<DropdownMenuSubContent>
+					{files.map((children, key) => (
+						<SidebarDropdownMenuFolderSub key={key} folders={children} onChange={onChange} isActive={isActive} />
+					))}
+				</DropdownMenuSubContent>
+			</DropdownMenuPortal>
+		</DropdownMenuSub>
 	)
 }
