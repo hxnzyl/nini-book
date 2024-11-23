@@ -8,7 +8,18 @@ export async function getFolders(): Promise<UserNoteFolderVO> {
 		isFolder: 1,
 		children: [
 			{ id: '01', name: 'Folder 1', isFolder: 1 },
-			{ id: '02', name: 'Folder 2', isFolder: 1 }
+			{
+				id: '02',
+				name: 'Folder 2',
+				isFolder: 1,
+				children: [
+					{
+						id: '03',
+						name: 'Folder 3',
+						isFolder: 1
+					}
+				]
+			}
 		]
 	})
 }
@@ -31,7 +42,8 @@ export async function getNotes(): Promise<UserNoteFileVO[]> {
 			id: '1',
 			name: 'Re: Project Update',
 			date: 'Yesterday',
-			content: "Thanks for the update. The progress looks great so far.\nLet's schedule a call to discuss the next steps.",
+			content:
+				"Thanks for the update. The progress looks great so far.\nLet's schedule a call to discuss the next steps.",
 			userNoteFolderId: '00',
 			isFile: 1,
 			isLatest: 0,

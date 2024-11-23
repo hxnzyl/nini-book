@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react'
 export default function HomePage() {
 	const isMobile = useIsMobile()
 
-	const [activeNote, setActiveNote] = useState({ name: '', content: '' } as UserNoteFileVO)
+	const [activeNote, setActiveNote] = useState({ name: '', content: '' } as Partial<UserNoteFileVO>)
 
 	const [sidebarWidth, setSidebarWidth] = useState(isMobile ? ['0px', '0px', '0px'] : SIDEBAR_WIDTH)
 
