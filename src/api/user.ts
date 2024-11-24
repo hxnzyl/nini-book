@@ -6,17 +6,29 @@ export async function getFolders(): Promise<UserNoteFolderVO> {
 		id: '00',
 		name: 'My Folder',
 		isFolder: 1,
+		lvl: 1,
+		pid: '',
 		children: [
-			{ id: '01', name: 'Folder 1', isFolder: 1 },
+			{
+				id: '01',
+				name: 'Folder 1',
+				isFolder: 1,
+				lvl: 2,
+				pid: '00'
+			},
 			{
 				id: '02',
 				name: 'Folder 2',
 				isFolder: 1,
+				lvl: 2,
+				pid: '00',
 				children: [
 					{
 						id: '03',
 						name: 'Folder 3',
-						isFolder: 1
+						isFolder: 1,
+						lvl: 3,
+						pid: '02'
 					}
 				]
 			}

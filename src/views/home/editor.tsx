@@ -1,9 +1,10 @@
-import { HomeContext } from '@/contexts/home'
+import { useHome } from '@/contexts/home'
+import { cn } from '@/lib/utils'
 import { Redo2, Undo2 } from 'lucide-react'
 import Quill, { QuillOptions } from 'quill'
 import QuillModuleHistory from 'quill/modules/history'
 import QuillModuleToolbar from 'quill/modules/toolbar'
-import { useContext, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import './editor.css'
 
@@ -55,7 +56,7 @@ const quillOptions: QuillOptions = {
 
 export default function HomeEditor() {
 	const editorRef = useRef<HTMLDivElement>(null)
-	const { activeNote } = useContext(HomeContext)
+	const { activeNote } = useHome()
 	const [quill, setQuill] = useState<Quill | undefined>()
 
 	// mounted
@@ -104,11 +105,11 @@ export default function HomeEditor() {
 
 	// watch
 	useEffect(() => {
-		quill?.setText(activeNote.content || '')
-	}, [activeNote.content])
+		quill?.setText(activeNote?.content || '')
+	}, [activeNote])
 
 	return (
-		<div ref={editorRef} className="home-editor w-full h-full overflow-hidden">
+		<div ref={editorRef} className={cn('home-editor w-full h-full overflow-hidden', activeNote ? '' : 'hidden')}>
 			{/** the contents will be replaced by Quill. */}
 		</div>
 	)

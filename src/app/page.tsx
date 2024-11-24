@@ -1,34 +1,27 @@
 'use client'
 
-import { Separator } from '@/components/ui/separator'
-import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { HomeContext, SIDEBAR_WIDTH } from '@/contexts/home'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { UserNoteFileVO } from '@/types/vo/UserNoteFileVO'
 import HomeEditor from '@/views/home/editor'
+import HomeHeader from '@/views/home/header'
 import { HomeSidebar } from '@/views/home/sidebar'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 export default function HomePage() {
 	const isMobile = useIsMobile()
-
-	const [activeNote, setActiveNote] = useState({ name: '', content: '' } as Partial<UserNoteFileVO>)
-
+	const [activeNote, setActiveNote] = useState<Partial<UserNoteFileVO> | undefined>({ name: '', content: '' })
 	const [sidebarWidth, setSidebarWidth] = useState(isMobile ? ['0px', '0px', '0px'] : SIDEBAR_WIDTH)
 
-	const isColumns1 = () => sidebarWidth[2] === '0px'
-	const isColumns2 = () => sidebarWidth[1] !== SIDEBAR_WIDTH[1] && sidebarWidth[2] === SIDEBAR_WIDTH[2]
-	const isColumns3 = () => sidebarWidth[0] === SIDEBAR_WIDTH[0]
+	const isColumns1 = useCallback(() => sidebarWidth[2] === '0px', [sidebarWidth])
+	const isColumns2 = useCallback(
+		() => sidebarWidth[1] !== SIDEBAR_WIDTH[1] && sidebarWidth[2] === SIDEBAR_WIDTH[2],
+		[sidebarWidth]
+	)
+	const isColumns3 = useCallback(() => sidebarWidth[0] === SIDEBAR_WIDTH[0], [sidebarWidth])
 
-	const homeContext = {
-		activeNote,
-		setActiveNote,
-		sidebarWidth,
-		setSidebarWidth,
-		isColumns1,
-		isColumns2,
-		isColumns3
-	}
+	const homeContext = { activeNote, setActiveNote, sidebarWidth, setSidebarWidth, isColumns1, isColumns2, isColumns3 }
 
 	// watch
 	useEffect(() => {
@@ -40,17 +33,7 @@ export default function HomePage() {
 			<SidebarProvider>
 				<HomeSidebar />
 				<SidebarInset>
-					<header className="sticky top-0 flex shrink-0 items-center gap-2 border-b bg-background p-4">
-						<SidebarTrigger className="-ml-1 md:hidden" />
-						<Separator orientation="vertical" className="mr-2 h-4 md:hidden" />
-						<input
-							value={activeNote.name}
-							type="text"
-							placeholder="Note Subject..."
-							className="flex w-full text-2xl text-foreground focus:outline-none"
-							onChange={(e) => setActiveNote({ ...activeNote, name: e.target.value })}
-						/>
-					</header>
+					<HomeHeader />
 					<HomeEditor />
 				</SidebarInset>
 			</SidebarProvider>
