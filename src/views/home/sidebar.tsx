@@ -45,6 +45,7 @@ const menus: MenuVO[] = [
 
 export function HomeSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 	const { setOpen } = useSidebar()
+
 	const { activeNote, setActiveNote, sidebarWidth, setSidebarWidth, isColumns1, isColumns2, isColumns3 } = useHome()
 	const [notes, setNotes] = useState([] as UserNoteFileVO[])
 	const [folders, setFolders] = useState({} as UserNoteFolderVO)
@@ -67,9 +68,9 @@ export function HomeSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 	const setActiveNotesByFolder = (folder: UserNoteFolderVO) => {
 		if (activeNotes.id !== folder.id) {
 			const files = (folder.children || []).concat(
-				notes.filter((note) => !note.isRecycle && note.userNoteFolderId === folder.id)
+				notes.filter((note) => !note.isRecycle && note.userNoteFolderId === folder.id) as []
 			)
-			setActiveNotes({ id: folder.id, pid: folder.pid, name: folder.name, isFolder: 1, files: files })
+			setActiveNotes({ id: folder.id, pid: folder.pid, name: folder.name, isFolder: 1, files })
 			setActiveNote(files.find((file) => !file.isFolder))
 		}
 	}
@@ -97,17 +98,14 @@ export function HomeSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 			setNotes(notes)
 			// Fetch folders
 			setFolders(folders)
-			// Set default folders
-			setActiveNotes({
-				id: folders.id,
-				name: folders.name,
-				isFolder: 1,
-				files: (folders.children || []).concat(
-					notes.filter((note) => !note.isRecycle && note.userNoteFolderId === folders.id)
-				)
-			})
 		})
 	}, [])
+
+	// watch
+	useEffect(() => {
+		// Initialization
+		setActiveNotesByFolder(folders)
+	}, [folders])
 
 	return (
 		<div style={{ '--sidebar-width': sidebarWidth[0] } as React.CSSProperties}>
@@ -242,7 +240,12 @@ export function HomeSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 									</SidebarGroupContent>
 								</SidebarGroup>
 							</ScrollArea>
-							<div className={cn('flex flex-1 items-center justify-center', activeNotes.files?.length ? 'hidden' : '')}>
+							<div
+								className={cn(
+									'flex flex-1 items-center justify-center',
+									!activeNotes.files || activeNotes.files.length ? 'hidden' : ''
+								)}
+							>
 								<div className="flex flex-col items-center gap-2">
 									<FolderSearch2 className="w-20 h-20" />
 									<span>Not found note.</span>

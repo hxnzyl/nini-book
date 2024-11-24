@@ -24,7 +24,7 @@ export function SidebarMenuFolder({
 	isActive: (folders?: UserNoteFilesVO) => boolean
 	onChange: (folders: UserNoteFolderVO) => void
 }) {
-	const files: UserNoteFilesVO[] = folders.children || []
+	const files: UserNoteFolderVO[] = folders.children || []
 	return !files.length ? (
 		<SidebarMenuItem onClick={() => onChange(folders)}>
 			<SidebarMenuButton

@@ -14,13 +14,6 @@ export async function getFolders(): Promise<UserNoteFolderVO> {
 				name: 'Folder 1',
 				isFolder: 1,
 				lvl: 2,
-				pid: '00'
-			},
-			{
-				id: '02',
-				name: 'Folder 2',
-				isFolder: 1,
-				lvl: 2,
 				pid: '00',
 				children: [
 					{
@@ -28,9 +21,16 @@ export async function getFolders(): Promise<UserNoteFolderVO> {
 						name: 'Folder 3',
 						isFolder: 1,
 						lvl: 3,
-						pid: '02'
+						pid: '01'
 					}
 				]
+			},
+			{
+				id: '02',
+				name: 'Folder 2',
+				isFolder: 1,
+				lvl: 2,
+				pid: '00'
 			}
 		]
 	})
