@@ -1,10 +1,10 @@
 'use client'
 
 import { getFolders, getNotes } from '@/api/user'
+import { HighlightText } from '@/components/highlight-text'
 import { LucideIcon } from '@/components/lucide-icon'
 import { NavUser } from '@/components/nav-user'
 import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
 	Sidebar,
@@ -45,6 +45,7 @@ const menus: MenuVO[] = [
 
 export function HomeSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 	const { setOpen } = useSidebar()
+	const [keyword, setKeyword] = useState('')
 
 	const { activeNote, setActiveNote, sidebarWidth, setSidebarWidth, isColumns1, isColumns2, isColumns3 } = useHome()
 	const [notes, setNotes] = useState([] as UserNoteFileVO[])
@@ -207,9 +208,14 @@ export function HomeSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 								<a href="#" className={cn('absolute left-0', activeNotes.pid ? '' : 'hidden')} onClick={onBackFolder}>
 									<ChevronLeft />
 								</a>
-								<Label className="text-base font-semibold text-foreground">{activeNotes.name}</Label>
+								<div className="text-base font-semibold text-foreground">{activeNotes.name}</div>
 							</div>
-							<SidebarInput className={activeNotes.files?.length ? '' : 'hidden'} placeholder="Note to search..." />
+							<SidebarInput
+								value={keyword}
+								className={activeNotes.files?.length ? '' : 'hidden'}
+								placeholder="Note to search..."
+								onChange={(e) => setKeyword(e.target.value)}
+							/>
 						</SidebarHeader>
 						<SidebarContent style={{ width: SIDEBAR_WIDTH[2] }}>
 							<ScrollArea hidden={!activeNotes.files?.length}>
@@ -224,16 +230,21 @@ export function HomeSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 												}
 												className={cn(
 													'flex flex-col items-start gap-2 whitespace-nowrap border-b p-4 text-sm leading-tight last:border-b-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors',
-													note.id === activeNote?.id ? '!bg-sidebar-ring !text-sidebar-accent' : ''
+													note.id === activeNote?.id ? '!bg-sidebar-ring !text-sidebar-accent' : '',
+													!keyword || note.name?.includes(keyword) || note.content?.includes(keyword) ? '' : 'hidden'
 												)}
 											>
 												<div className="flex w-full items-center gap-2">
 													<Folder className={note.isFolder ? '' : 'hidden'} />
-													<span>{note.name}</span>
+													<HighlightText text={note.name} keyword={keyword} />
 													<span className="ml-auto text-xs">{note.date}</span>
 												</div>
 												{note.isFile && (
-													<span className="line-clamp-2 w-[260px] whitespace-break-spaces text-xs">{note.content}</span>
+													<HighlightText
+														className="line-clamp-2 w-[260px] whitespace-break-spaces text-xs"
+														text={note.content}
+														keyword={keyword}
+													/>
 												)}
 											</a>
 										))}
