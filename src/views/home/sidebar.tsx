@@ -21,12 +21,24 @@ import {
 } from '@/components/ui/sidebar'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { SIDEBAR_ICON_WIDTH, SIDEBAR_WIDTH, useHome } from '@/contexts/home'
-import { cn, findChildren } from '@/lib/utils'
+import ArrayUtils from '@/lib/array'
+import StringUtils from '@/lib/string'
+import { cn } from '@/lib/utils'
 import { MenuVO } from '@/types/vo/MenuVO'
 import { UserNoteFileVO } from '@/types/vo/UserNoteFileVO'
 import { UserNoteFilesVO } from '@/types/vo/UserNoteFilesVO'
 import { UserNoteFolderVO } from '@/types/vo/UserNoteFolderVO'
-import { ChevronLeft, Columns2, Columns3, Command, Folder, FolderSearch2, PanelLeft } from 'lucide-react'
+import {
+	ChevronLeft,
+	Columns2,
+	Columns3,
+	Command,
+	Folder,
+	FolderSearch,
+	FolderSearch2,
+	PanelLeft,
+	RotateCw
+} from 'lucide-react'
 import { ComponentProps, useCallback, useEffect, useState } from 'react'
 import { SidebarDropdownMenuFolder } from './sidebar-dropdown-menu-folder'
 import { SidebarMenuFolder } from './sidebar-menu-folder'
@@ -45,17 +57,25 @@ const menus: MenuVO[] = [
 
 export function HomeSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 	const { setOpen } = useSidebar()
-	const [keyword, setKeyword] = useState('')
 
-	const { activeNote, setActiveNote, sidebarWidth, setSidebarWidth, isColumns1, isColumns2, isColumns3 } = useHome()
+	// with api state
 	const [notes, setNotes] = useState([] as UserNoteFileVO[])
 	const [folders, setFolders] = useState({} as UserNoteFolderVO)
-	const [activeNotes, setActiveNotes] = useState({} as UserNoteFilesVO)
+
+	// parent provider
+	const { activeNote, setActiveNote, sidebarWidth, setSidebarWidth, isColumns1, isColumns2, isColumns3 } = useHome()
+
+	// self state
+	const [keyword, setKeyword] = useState('')
+	const [activeFolder, setActiveFolder] = useState({} as UserNoteFilesVO)
+	const [activeFiles, setActiveFiles] = useState<Partial<UserNoteFileVO & UserNoteFolderVO>[]>([])
+	const [filterFiles, setFilterFiles] = useState<Partial<UserNoteFileVO & UserNoteFolderVO>[]>([])
 
 	const setColumns1 = useCallback(
 		() => isColumns1() || (setSidebarWidth([SIDEBAR_ICON_WIDTH, SIDEBAR_ICON_WIDTH, '0px']), setOpen(false)),
 		[sidebarWidth]
 	)
+
 	const setColumns2 = useCallback(
 		() =>
 			isColumns2() ||
@@ -63,34 +83,69 @@ export function HomeSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 			setOpen(true)),
 		[sidebarWidth]
 	)
+
 	const setColumns3 = useCallback(() => isColumns3() || (setSidebarWidth(SIDEBAR_WIDTH), setOpen(true)), [sidebarWidth])
 
-	const isActiveNotes = (notes?: UserNoteFilesVO) => (notes ? notes.id === activeNotes.id : !!activeNotes.isFolder)
-	const setActiveNotesByFolder = (folder: UserNoteFolderVO) => {
-		if (activeNotes.id !== folder.id) {
-			const files = (folder.children || []).concat(
-				notes.filter((note) => !note.isRecycle && note.userNoteFolderId === folder.id) as []
+	const isActiveFolder = useCallback(
+		(notes?: UserNoteFilesVO) => (notes ? notes.id === activeFolder.id : !!activeFolder.isFolder),
+		[activeFolder]
+	)
+
+	const updateDataByFolder = useCallback(
+		(folder: UserNoteFolderVO) => {
+			if (activeFolder.id !== folder.id) {
+				const files = (folder.children || []).concat(
+					notes.filter((note) => !note.isRecycle && note.userNoteFolderId === folder.id) as []
+				)
+				setActiveFolder({ id: folder.id, pid: folder.pid, name: folder.name, isFolder: 1 })
+				setActiveFiles(files)
+				setFilterFiles(files)
+				setActiveNote(files.find((file) => !file.isFolder))
+				setKeyword('')
+			}
+		},
+		[activeFolder, notes]
+	)
+
+	const updateDataByMenu = useCallback(
+		(menu: MenuVO) => {
+			if (activeFolder.id !== menu.id) {
+				const isField = ('is' + menu.name) as keyof UserNoteFileVO
+				const files = notes.filter((note) => (isField === 'isRecycle' || !note.isRecycle) && note[isField])
+				setActiveFolder({ id: menu.id, name: menu.name })
+				setActiveFiles(files)
+				setFilterFiles(files)
+				setActiveNote(files.find((file) => file.isFile))
+				setKeyword('')
+			}
+		},
+		[activeFolder, notes]
+	)
+
+	const updateFilterFilesByKeyword = useCallback(
+		(keyword: string) => {
+			setKeyword(keyword)
+			setFilterFiles(
+				keyword
+					? activeFiles.filter(
+							(note) => StringUtils.includes(note.name, keyword) || StringUtils.includes(note.content, keyword)
+					  )
+					: activeFiles
 			)
-			setActiveNotes({ id: folder.id, pid: folder.pid, name: folder.name, isFolder: 1, files })
-			setActiveNote(files.find((file) => !file.isFolder))
-		}
-	}
+		},
+		[activeFiles]
+	)
 
-	const setActiveNotesByMenu = (menu: MenuVO) => {
-		if (activeNotes.id !== menu.id) {
-			const isField = ('is' + menu.name) as keyof UserNoteFileVO
-			const files = notes.filter((note) => (isField === 'isRecycle' || !note.isRecycle) && note[isField])
-			setActiveNotes({ id: menu.id, name: menu.name, files })
-			setActiveNote(files.find((file) => file.isFile))
-		}
-	}
-
-	const onBackFolder = () => {
-		const folder = findChildren([folders], (folder) => folder.id === activeNotes.pid)
+	const onBackFolder = useCallback(() => {
+		const folder = ArrayUtils.findChildren([folders], (folder) => folder.id === activeFolder.pid)
 		if (folder) {
-			setActiveNotesByFolder(folder)
+			updateDataByFolder(folder)
 		}
-	}
+	}, [activeFolder])
+
+	const onRefreshFolder = useCallback(() => {
+		// @TODO
+	}, [])
 
 	// mounted
 	useEffect(() => {
@@ -105,7 +160,7 @@ export function HomeSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 	// watch
 	useEffect(() => {
 		// Initialization
-		setActiveNotesByFolder(folders)
+		updateDataByFolder(folders)
 	}, [folders])
 
 	return (
@@ -137,13 +192,13 @@ export function HomeSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 									<SidebarGroupContent>
 										<SidebarMenu>
 											{menus.map((menu, key) => (
-												<SidebarMenuItem key={key} onClick={() => setActiveNotesByMenu(menu)}>
+												<SidebarMenuItem key={key} onClick={() => updateDataByMenu(menu)}>
 													<Tooltip>
 														<TooltipTrigger asChild>
 															<SidebarMenuButton
 																className={cn(
 																	'transition-colors',
-																	isActiveNotes(menu) ? '!bg-sidebar-ring !text-sidebar-accent' : ''
+																	isActiveFolder(menu) ? '!bg-sidebar-ring !text-sidebar-accent' : ''
 																)}
 															>
 																{menu.icon && <LucideIcon name={menu.icon} />}
@@ -164,16 +219,12 @@ export function HomeSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 												</SidebarMenuItem>
 											))}
 											{isColumns3() ? (
-												<SidebarMenuFolder
-													folders={folders}
-													isActive={isActiveNotes}
-													onChange={setActiveNotesByFolder}
-												/>
+												<SidebarMenuFolder folders={folders} isActive={isActiveFolder} onChange={updateDataByFolder} />
 											) : (
 												<SidebarDropdownMenuFolder
 													folders={folders}
-													isActive={isActiveNotes}
-													onChange={setActiveNotesByFolder}
+													isActive={isActiveFolder}
+													onChange={updateDataByFolder}
 												/>
 											)}
 										</SidebarMenu>
@@ -205,33 +256,40 @@ export function HomeSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 					<Sidebar collapsible="none">
 						<SidebarHeader className="gap-3.5 border-b p-4" style={{ width: SIDEBAR_WIDTH[2] }}>
 							<div className="flex w-full items-center justify-center relative">
-								<a href="#" className={cn('absolute left-0', activeNotes.pid ? '' : 'hidden')} onClick={onBackFolder}>
+								<a
+									href="#"
+									title="Go Parent Folder"
+									className={cn('absolute left-0', activeFolder.pid ? '' : 'hidden')}
+									onClick={onBackFolder}
+								>
 									<ChevronLeft />
 								</a>
-								<div className="text-base font-semibold text-foreground">{activeNotes.name}</div>
+								<div className="text-base font-semibold text-foreground">{activeFolder.name}</div>
+								<a href="#" title="Refresh Folder" className="absolute right-0" onClick={onRefreshFolder}>
+									<RotateCw className="w-5 h-5" />
+								</a>
 							</div>
 							<SidebarInput
 								value={keyword}
-								className={activeNotes.files?.length ? '' : 'hidden'}
+								className={activeFiles.length > 1 ? '' : 'hidden'}
 								placeholder="Note to search..."
-								onChange={(e) => setKeyword(e.target.value)}
+								onChange={(e) => updateFilterFilesByKeyword(e.target.value)}
 							/>
 						</SidebarHeader>
 						<SidebarContent style={{ width: SIDEBAR_WIDTH[2] }}>
-							<ScrollArea hidden={!activeNotes.files?.length}>
+							<ScrollArea hidden={!filterFiles.length}>
 								<SidebarGroup className="px-0">
 									<SidebarGroupContent>
-										{activeNotes.files?.map((note, key) => (
+										{filterFiles.map((note) => (
 											<a
 												href="#"
-												key={key}
+												key={note.id}
 												onClick={() =>
-													note.isFolder ? setActiveNotesByFolder(note as UserNoteFolderVO) : setActiveNote(note)
+													note.isFolder ? updateDataByFolder(note as UserNoteFolderVO) : setActiveNote(note)
 												}
 												className={cn(
 													'flex flex-col items-start gap-2 whitespace-nowrap border-b p-4 text-sm leading-tight last:border-b-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors',
-													note.id === activeNote?.id ? '!bg-sidebar-ring !text-sidebar-accent' : '',
-													!keyword || note.name?.includes(keyword) || note.content?.includes(keyword) ? '' : 'hidden'
+													note.id === activeNote?.id ? '!bg-sidebar-ring !text-sidebar-accent' : ''
 												)}
 											>
 												<div className="flex w-full items-center gap-2">
@@ -254,9 +312,15 @@ export function HomeSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 							<div
 								className={cn(
 									'flex flex-1 items-center justify-center',
-									!activeNotes.files || activeNotes.files.length ? 'hidden' : ''
+									!activeFiles.length || filterFiles.length ? 'hidden' : ''
 								)}
 							>
+								<div className="flex flex-col items-center gap-2">
+									<FolderSearch className="w-20 h-20" />
+									<span>Not found note.</span>
+								</div>
+							</div>
+							<div className={cn('flex flex-1 items-center justify-center', activeFiles.length ? 'hidden' : '')}>
 								<div className="flex flex-col items-center gap-2">
 									<FolderSearch2 className="w-20 h-20" />
 									<span>Not found note.</span>

@@ -10,7 +10,7 @@ export interface LucideIconProps extends LucideProps {
 
 const LucideIconCaches: Partial<Record<LucideIconName, React.ComponentType>> = {}
 
-export function LucideIcon({ name, ...props }: LucideIconProps) {
+export function LucideIcon({ name, ...props }: Readonly<LucideIconProps>) {
 	const LucideIconPrivate = (LucideIconCaches[name] = LucideIconCaches[name] || dynamic(dynamicIconImports[name]))
 
 	return <LucideIconPrivate {...props} />

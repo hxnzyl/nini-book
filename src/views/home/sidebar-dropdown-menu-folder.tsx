@@ -82,8 +82,8 @@ function SidebarDropdownMenuFolderSub({
 	isActive: (folders?: UserNoteFilesVO) => boolean
 	onChange: (folders: UserNoteFolderVO) => void
 }) {
-	const files: UserNoteFilesVO[] = folders.children || []
-	return !files.length ? (
+	const folderChildren: UserNoteFolderVO[] = folders.children || []
+	return !folderChildren.length ? (
 		<DropdownMenuItem
 			onClick={() => onChange(folders)}
 			className={cn(
@@ -108,7 +108,7 @@ function SidebarDropdownMenuFolderSub({
 			</DropdownMenuSubTrigger>
 			<DropdownMenuPortal>
 				<DropdownMenuSubContent>
-					{files.map((children, key) => (
+					{folderChildren.map((children, key) => (
 						<SidebarDropdownMenuFolderSub key={key} folders={children} onChange={onChange} isActive={isActive} />
 					))}
 				</DropdownMenuSubContent>
