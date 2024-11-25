@@ -1,4 +1,5 @@
 import StringUtils from '@/lib/string'
+import { escape } from 'lodash-es'
 
 /**
  * Highlight Text based on keyword
@@ -18,7 +19,10 @@ export function HighlightText({
 	}
 	if (caseInsensitive) {
 		// Case Insensitive
-		const __html = text.replace(new RegExp(`(${keyword})`, 'i'), '<span class="text-red-500 font-semibold">$1</span>')
+		const __html = escape(text).replace(
+			new RegExp(`(${escape(keyword)})`, 'i'),
+			'<span class="text-red-500 font-semibold">$1</span>'
+		)
 		return <span className={className} dangerouslySetInnerHTML={{ __html }}></span>
 	}
 	// Case Sensitive

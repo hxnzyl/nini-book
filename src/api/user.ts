@@ -54,8 +54,7 @@ export async function getNotes(): Promise<UserNoteFileVO[]> {
 			id: '1',
 			name: 'Re: Project Update',
 			date: 'Yesterday',
-			content:
-				"Thanks for the update. The progress looks great so far.\nLet's schedule a call to discuss the next steps.",
+			content: 'Thanks for the update. <script>console.log("xss")</script><p>Hello, World!</p>.',
 			userNoteFolderId: '00',
 			isFile: 1,
 			isLatest: 0,
