@@ -6,7 +6,6 @@ import {
 	SidebarContent,
 	SidebarFooter,
 	SidebarGroup,
-	SidebarGroupContent,
 	SidebarHeader,
 	SidebarMenu,
 	SidebarMenuButton,
@@ -62,50 +61,43 @@ export function HomeSidebarLeft() {
 				<SidebarContent>
 					<ScrollArea>
 						<SidebarGroup>
-							<SidebarGroupContent>
-								<SidebarMenu>
-									{data.menus.map((menu, key) => (
-										<SidebarMenuItem key={key} onClick={() => dispatch({ type: 'menu', target: menu })}>
-											<Tooltip>
-												<TooltipTrigger asChild>
-													<SidebarMenuButton
-														className={cn(
-															'transition-colors',
-															isActive(menu) ? '!bg-sidebar-ring !text-sidebar-accent' : ''
-														)}
-													>
-														{menu.icon && <LucideIcon name={menu.icon} />}
-														<span hidden={isColumns(1) || isColumns(2)}>{menu.name}</span>
-													</SidebarMenuButton>
-												</TooltipTrigger>
-												<TooltipContent
-													side="right"
-													align="center"
-													className="relative overflow-visible"
-													sideOffset={10}
+							<SidebarMenu>
+								{data.menus.map((menu, key) => (
+									<SidebarMenuItem key={key} onClick={() => dispatch({ type: 'menu', target: menu })}>
+										<Tooltip>
+											<TooltipTrigger asChild>
+												<SidebarMenuButton
+													className={cn(
+														'transition-colors',
+														isActive(menu) ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
+													)}
 												>
-													{/** left arrow */}
-													<div className="absolute -left-[6px] w-2 h-2 border-t-8 border-b-8 border-r-8 border-t-transparent border-b-transparent border-r-primary"></div>
-													<div>{menu.name}</div>
-												</TooltipContent>
-											</Tooltip>
-										</SidebarMenuItem>
-									))}
-									{isColumns(3) ? (
-										<SidebarMenuFolder
-											folders={data.folders}
-											isActive={isActive}
-											onChange={(target) => dispatch({ type: 'folder', target })}
-										/>
-									) : (
-										<SidebarDropdownMenuFolder
-											folders={data.folders}
-											isActive={isActive}
-											onChange={(target) => dispatch({ type: 'folder', target })}
-										/>
-									)}
-								</SidebarMenu>
-							</SidebarGroupContent>
+													{menu.icon && <LucideIcon name={menu.icon} />}
+													<span hidden={isColumns(1) || isColumns(2)}>{menu.name}</span>
+												</SidebarMenuButton>
+											</TooltipTrigger>
+											<TooltipContent side="right" align="center" className="relative overflow-visible" sideOffset={10}>
+												{/** left arrow */}
+												<div className="absolute -left-[6px] w-2 h-2 border-t-8 border-b-8 border-r-8 border-t-transparent border-b-transparent border-r-primary"></div>
+												<div>{menu.name}</div>
+											</TooltipContent>
+										</Tooltip>
+									</SidebarMenuItem>
+								))}
+								{isColumns(3) ? (
+									<SidebarMenuFolder
+										folders={data.folders}
+										isActive={isActive}
+										onChange={(target) => dispatch({ type: 'folder', target })}
+									/>
+								) : (
+									<SidebarDropdownMenuFolder
+										folders={data.folders}
+										isActive={isActive}
+										onChange={(target) => dispatch({ type: 'folder', target })}
+									/>
+								)}
+							</SidebarMenu>
 						</SidebarGroup>
 					</ScrollArea>
 				</SidebarContent>

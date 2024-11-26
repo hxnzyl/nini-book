@@ -31,7 +31,7 @@ export function SidebarMenuFolder({
 				onClick={() => onChange(folders)}
 				className={cn(
 					'group/action transition-colors',
-					isActive(folders) ? '!bg-sidebar-ring !text-sidebar-accent' : ''
+					isActive(folders) ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
 				)}
 			>
 				<Folder />
@@ -46,7 +46,7 @@ export function SidebarMenuFolder({
 				<SidebarMenuButton
 					className={cn(
 						'group/action transition-colors py-0',
-						isActive(folders) ? '!bg-sidebar-ring !text-sidebar-accent' : ''
+						isActive(folders) ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
 					)}
 				>
 					<CollapsibleTrigger asChild>

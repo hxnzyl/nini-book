@@ -88,7 +88,7 @@ function SidebarDropdownMenuFolderSub({
 			onClick={() => onChange(folders)}
 			className={cn(
 				'transition-colors cursor-pointer',
-				isActive(folders) ? '!bg-sidebar-ring !text-sidebar-accent' : ''
+				isActive(folders) ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
 			)}
 		>
 			<Folder />
@@ -100,7 +100,7 @@ function SidebarDropdownMenuFolderSub({
 				onClick={() => onChange(folders)}
 				className={cn(
 					'transition-colors cursor-pointer',
-					isActive(folders) ? '!bg-sidebar-ring !text-sidebar-accent' : ''
+					isActive(folders) ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
 				)}
 			>
 				<Folder />
