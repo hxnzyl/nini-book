@@ -56,7 +56,7 @@ const quillOptions: QuillOptions = {
 
 export default function HomeEditor() {
 	const editorRef = useRef<HTMLDivElement>(null)
-	const { activeNote } = useHome()
+	const { state } = useHome()
 	const [quill, setQuill] = useState<Quill | undefined>()
 
 	// mounted
@@ -105,11 +105,11 @@ export default function HomeEditor() {
 
 	// watch
 	useEffect(() => {
-		quill?.setText(activeNote?.content || '')
-	}, [activeNote, quill])
+		quill?.setText(state.activeNote?.content || '')
+	}, [quill, state.activeNote?.content])
 
 	return (
-		<div ref={editorRef} className={cn('home-editor w-full h-full overflow-hidden', activeNote ? '' : 'hidden')}>
+		<div ref={editorRef} className={cn('home-editor w-full h-full overflow-hidden', state.activeNote ? '' : 'hidden')}>
 			{/** the contents will be replaced by Quill. */}
 		</div>
 	)
