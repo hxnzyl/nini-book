@@ -1,5 +1,5 @@
-import StringUtils from '@/lib/string';
-import { escape } from 'lodash-es';
+import StringUtils from '@/lib/string'
+import { escape } from 'lodash-es'
 
 /**
  * Highlight Text based on keyword

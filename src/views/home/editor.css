@@ -7,6 +7,7 @@
 .home-editor .ql-toolbar {
 	border: none;
 	border-bottom: 1px solid hsl(var(--border));
+	@apply min-h-10 py-1.5 gap-1.5;
 }
 
 .home-editor .ql-container {
@@ -34,7 +35,7 @@
 }
 
 .home-editor .ql-toolbar .ql-formats {
-	@apply flex m-0;
+	@apply flex items-center m-0;
 }
 
 .home-editor .ql-toolbar .ql-formats::before {
@@ -48,4 +49,8 @@
 
 .home-editor .ql-toolbar .ql-formats button {
 	@apply float-none;
+}
+
+.home-editor .ql-toolbar .ql-picker-label::before {
+	@apply mt-0.5;
 }

@@ -1,28 +1,21 @@
-'use client'
-
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuGroup,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuGroup,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar'
+import { useHome } from '@/contexts/home'
 import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles } from 'lucide-react'
 
-export function NavUser({
-	user
-}: {
-	user: {
-		name: string
-		email: string
-		avatar: string
-	}
-}) {
+export function HomeSidebarUser() {
 	const { isMobile } = useSidebar()
+	const { data } = useHome()
+	const { user } = data
 
 	return (
 		<SidebarMenu>

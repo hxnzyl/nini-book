@@ -1,6 +1,6 @@
 'use client'
 
-import { getFolders, getNotes } from '@/api/user'
+import { getFolders, getMenus, getNotes, getUser } from '@/api/user'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { HomeAction, HomeContext, HomeData, HomeState, SIDEBAR_WIDTH } from '@/contexts/home'
 import { useIsMobile } from '@/hooks/use-mobile'
@@ -9,6 +9,7 @@ import { MenuVO } from '@/types/vo/MenuVO'
 import { UserNoteFileVO } from '@/types/vo/UserNoteFileVO'
 import { UserNoteFilesVO } from '@/types/vo/UserNoteFilesVO'
 import { UserNoteFolderVO } from '@/types/vo/UserNoteFolderVO'
+import { UserVO } from '@/types/vo/UserVO'
 import HomeEditor from '@/views/home/editor'
 import HomeHeader from '@/views/home/header'
 import { HomeSidebar } from '@/views/home/sidebar'
@@ -43,7 +44,9 @@ const homeReducer: Reducer<HomeState, Required<HomeAction>> = (state: HomeState,
 		// Change from search
 		keyword = target as string
 		filterFiles = keyword
-			? activeFiles.filter((note) => StringUtils.includes(note.name, keyword) || StringUtils.includes(note.content, keyword))
+			? activeFiles.filter(
+					(note) => StringUtils.includes(note.name, keyword) || StringUtils.includes(note.content, keyword)
+			  )
 			: activeFiles
 	}
 	return { activeFolder, activeFiles, filterFiles, activeNote, keyword }
@@ -52,7 +55,12 @@ const homeReducer: Reducer<HomeState, Required<HomeAction>> = (state: HomeState,
 export default function HomePage() {
 	const isMobile = useIsMobile()
 
-	const [data, setData] = useState<HomeData>({ notes: [], folders: {} as UserNoteFolderVO })
+	const [data, setData] = useState<HomeData>({
+		user: {} as UserVO,
+		menus: [],
+		notes: [],
+		folders: {} as UserNoteFolderVO
+	})
 
 	const [state, stateDispatch] = useReducer(homeReducer, {
 		activeNote: { name: '', content: '' },
@@ -86,9 +94,9 @@ export default function HomePage() {
 
 	// mounted
 	useEffect(() => {
-		Promise.all([getNotes(), getFolders()]).then(([notes, folders]) => {
+		Promise.all([getUser(), getMenus(), getNotes(), getFolders()]).then(([user, menus, notes, folders]) => {
 			// Fetch data
-			setData({ notes, folders })
+			setData({ user, menus, notes, folders })
 		})
 	}, [])
 
