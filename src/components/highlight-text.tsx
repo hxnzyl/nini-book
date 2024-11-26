@@ -1,5 +1,5 @@
-import StringUtils from '@/lib/string'
-import { escape } from 'lodash-es'
+import StringUtils from '@/lib/string';
+import { escape } from 'lodash-es';
 
 /**
  * Highlight Text based on keyword
@@ -12,7 +12,7 @@ export function HighlightText({
 	keyword,
 	className,
 	caseInsensitive = true
-}: Readonly<{ text?: string; keyword?: string; className?: string; caseInsensitive: boolean }>) {
+}: Readonly<{ text?: string; keyword?: string; className?: string; caseInsensitive?: boolean }>) {
 	if (StringUtils.isEmpty(text) || StringUtils.isEmpty(keyword)) {
 		// Empty text or Empty keyword
 		return <span className={className}>{text}</span>

@@ -106,7 +106,7 @@ export default function HomeEditor() {
 	// watch
 	useEffect(() => {
 		quill?.setText(activeNote?.content || '')
-	}, [activeNote])
+	}, [activeNote, quill])
 
 	return (
 		<div ref={editorRef} className={cn('home-editor w-full h-full overflow-hidden', activeNote ? '' : 'hidden')}>
