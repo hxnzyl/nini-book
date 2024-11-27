@@ -58,7 +58,22 @@ export default function HomePage() {
 		folders: {} as UserNoteFolderVO
 	})
 
-	const [state, stateDispatch] = useReducer(homeReducer, {
+	const refreshData = useCallback(
+		(fetch: PromiseProps<HomeData>) => {
+			const keys = Object.keys(fetch)
+			Promise.all(Object.values(fetch)).then((results) => {
+				// Refresh data
+				const newData: HomeData = { ...data }
+				for (const key in results) {
+					newData[keys[key] as keyof HomeData] = results[key] as never
+				}
+				setData(newData)
+			})
+		},
+		[data]
+	)
+
+	const [state, _dispatch] = useReducer(homeReducer, {
 		activeNote: { name: '', content: '' },
 		activeFolder: {},
 		activeFiles: [],
@@ -67,7 +82,7 @@ export default function HomePage() {
 	})
 
 	const dispatch = useCallback(
-		(action: HomeAction) => ((action.data = data), stateDispatch(action as Required<HomeAction>)),
+		(action: HomeAction) => ((action.data = data), _dispatch(action as Required<HomeAction>)),
 		[data]
 	)
 
@@ -80,21 +95,15 @@ export default function HomePage() {
 
 	const isColumns = useCallback(
 		(type: 1 | 2 | 3) =>
-			(type === 1 && sidebarWidth[2] === '0px') ||
-			(type === 2 && sidebarWidth[1] !== SIDEBAR_WIDTH[1] && sidebarWidth[2] === SIDEBAR_WIDTH[2]) ||
-			(type === 3 && sidebarWidth[0] === SIDEBAR_WIDTH[0]),
+			type === 1
+				? sidebarWidth[2] === '0px'
+				: type === 2
+				? sidebarWidth[1] !== SIDEBAR_WIDTH[1] && sidebarWidth[2] === SIDEBAR_WIDTH[2]
+				: sidebarWidth[0] === SIDEBAR_WIDTH[0],
 		[sidebarWidth]
 	)
 
-	const homeContext = { data, state, dispatch, sidebarWidth, setSidebarWidth, isActive, isColumns }
-
-	// mounted
-	useEffect(() => {
-		Promise.all([getUser(), getMenus(), getNotes(), getFolders()]).then(([user, menus, notes, folders]) => {
-			// Fetch data
-			setData({ user, menus, notes, folders })
-		})
-	}, [])
+	const homeContext = { data, refreshData, state, dispatch, sidebarWidth, setSidebarWidth, isActive, isColumns }
 
 	// watch
 	useEffect(() => {
@@ -106,6 +115,14 @@ export default function HomePage() {
 		// Initialization
 		dispatch({ type: 'folder', target: data.folders })
 	}, [data.folders, dispatch])
+
+	// mounted
+	useEffect(() => {
+		Promise.all([getUser(), getMenus(), getNotes(), getFolders()]).then(([user, menus, notes, folders]) => {
+			// Fetch data
+			setData({ user, menus, notes, folders })
+		})
+	}, [])
 
 	return (
 		<HomeContext.Provider value={homeContext}>

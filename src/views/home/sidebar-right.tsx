@@ -1,3 +1,4 @@
+import { getFolders } from '@/api/user'
 import { SearcherInput, SearcherProvider, SearcherText } from '@/components/searcher'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -10,7 +11,7 @@ import { useCallback } from 'react'
 
 export function HomeSidebarRight() {
 	// parent provider
-	const { data, state, dispatch, sidebarWidth } = useHome()
+	const { data, refreshData, state, dispatch, sidebarWidth } = useHome()
 
 	const onBackFolder = useCallback(() => {
 		const folder = ArrayUtils.findChildren([data.folders], (folder) => folder.id === state.activeFolder.pid)
@@ -20,26 +21,34 @@ export function HomeSidebarRight() {
 	}, [data.folders, dispatch, state.activeFolder.pid])
 
 	const onRefreshFolder = useCallback(() => {
-		// @TODO
-	}, [])
+		refreshData({
+			folders: getFolders()
+		})
+	}, [refreshData])
 
 	return (
 		<SearcherProvider style={{ '--sidebar-width': sidebarWidth[2] } as React.CSSProperties}>
 			<Sidebar collapsible="none">
 				<SidebarHeader className="border-b gap-0" style={{ width: SIDEBAR_WIDTH[2] }}>
 					<div className="flex w-full items-center justify-center relative h-12">
-						<a
-							href="#"
+						<div
 							title="Go Parent Folder"
-							className={cn('absolute left-0', state.activeFolder.pid ? '' : 'hidden')}
+							className={cn(
+								'absolute left-0 flex items-center w-7 h-7 p-1 cursor-pointer rounded-md hover:bg-sidebar-accent',
+								state.activeFolder.pid ? '' : 'hidden'
+							)}
 							onClick={onBackFolder}
 						>
 							<ChevronLeft />
-						</a>
+						</div>
 						<div className="text-base font-semibold text-foreground">{state.activeFolder.name}</div>
-						<a href="#" title="Refresh Folder" className="absolute right-0" onClick={onRefreshFolder}>
-							<RotateCw className="w-5 h-5" />
-						</a>
+						<div
+							title="Refresh Folder"
+							className="absolute right-0 flex items-center w-7 h-7 p-1 cursor-pointer rounded-md hover:bg-sidebar-accent"
+							onClick={onRefreshFolder}
+						>
+							<RotateCw />
+						</div>
 					</div>
 					<SearcherInput
 						data-sidebar="input"

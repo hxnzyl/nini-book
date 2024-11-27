@@ -95,30 +95,33 @@ export function SearcherInput({
 			<div className="absolute top-0 bottom-0 right-3 flex gap-0.5 items-center">
 				<div
 					className={cn(
-						'flex items-center justify-center w-6 h-6 p-1 rounded-md cursor-pointer hover:bg-sidebar-accent',
+						'flex items-center justify-center w-6 h-6 p-1 cursor-pointer rounded-md hover:bg-sidebar-accent',
 						matchCase ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
 					)}
 					onClick={() => (setMatchCase(!matchCase), onChange({ matchCase: !matchCase }))}
+					title="Match Case"
 				>
 					<ALargeSmall />
 				</div>
 				<div
 					className={cn(
-						'flex items-center justify-center w-6 h-6 p-1 rounded-md cursor-pointer hover:bg-sidebar-accent',
+						'flex items-center justify-center w-6 h-6 p-1 cursor-pointer rounded-md hover:bg-sidebar-accent',
 						matchWholeWord ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
 					)}
 					onClick={() => (setMatchWholeWord(!matchWholeWord), onChange({ matchWholeWord: !matchWholeWord }))}
+					title="Match Whole Word"
 				>
 					<WholeWord />
 				</div>
 				<div
 					className={cn(
-						'flex items-center justify-center w-6 h-6 p-1 rounded-md cursor-pointer hover:bg-sidebar-accent',
+						'flex items-center justify-center w-6 h-6 p-1 cursor-pointer rounded-md hover:bg-sidebar-accent',
 						useRegularExpression ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
 					)}
 					onClick={() => (
 						setUseRegularExpression(!useRegularExpression), onChange({ useRegularExpression: !useRegularExpression })
 					)}
+					title="Use Regular Expression"
 				>
 					<Regex />
 				</div>
@@ -148,15 +151,15 @@ export function SearcherText({
 			</span>
 		)
 	}
-
 	if (!matchCase || matchWholeWord || useRegularExpression) {
-		const regexp = SearcherUtils.regexp(keyword, { matchCase, matchWholeWord, useRegularExpression })
-		if (typeof regexp !== 'string') {
+		const regexp = SearcherUtils.regexp(keyword, true, { matchCase, matchWholeWord, useRegularExpression })
+		if (regexp && typeof regexp !== 'string') {
 			const __html = escape(text).replace(regexp, '<span class="text-red-500 font-semibold">$1</span>')
-			return <span className={cn(className, hidden ? 'hidden' : '')} dangerouslySetInnerHTML={{ __html }} {...props}></span>
+			return (
+				<span className={cn(className, hidden ? 'hidden' : '')} dangerouslySetInnerHTML={{ __html }} {...props}></span>
+			)
 		}
 	}
-
 	return (
 		<span className={cn(className, hidden ? 'hidden' : '')} {...props}>
 			{text.split(keyword).map((txt, key) => (
