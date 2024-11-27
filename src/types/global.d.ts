@@ -1,11 +1,17 @@
 declare global {
-	interface BooleanObject<T = any> {
+	type ArrayTree<T = unknown> = T & {
+		children?: ArrayTree<T>[]
+	}
+
+	interface BooleanObject<T = unknown> {
 		[key: T]: boolean
 	}
-	type ArrayTree<T = any> = T & {
-		children?: ArrayTree<T>[]
+
+	interface UnknownObject {
+		[key: string]: unknown 
 	}
 }
 
 // no module
-export {}
+export { }
+

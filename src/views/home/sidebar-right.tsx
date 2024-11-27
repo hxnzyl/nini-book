@@ -1,4 +1,4 @@
-import { SearchInput, SearchResult } from '@/components/search-input'
+import { SearcherInput, SearcherProvider, SearcherText } from '@/components/searcher'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Sidebar, SidebarContent, SidebarGroup, SidebarHeader } from '@/components/ui/sidebar'
@@ -24,7 +24,7 @@ export function HomeSidebarRight() {
 	}, [])
 
 	return (
-		<div style={{ '--sidebar-width': sidebarWidth[2] } as React.CSSProperties}>
+		<SearcherProvider style={{ '--sidebar-width': sidebarWidth[2] } as React.CSSProperties}>
 			<Sidebar collapsible="none">
 				<SidebarHeader className="border-b gap-0" style={{ width: SIDEBAR_WIDTH[2] }}>
 					<div className="flex w-full items-center justify-center relative h-12">
@@ -41,41 +41,39 @@ export function HomeSidebarRight() {
 							<RotateCw className="w-5 h-5" />
 						</a>
 					</div>
-					<SearchInput
-						value={state.keyword}
-						className="h-10"
-						hidden={!state.activeFiles.length}
+					<SearcherInput
 						data-sidebar="input"
+						value={state.keyword}
+						hidden={!state.activeFiles.length}
 						placeholder="Note to search..."
-						onChange={(e) => dispatch({ type: 'keyword', target: e.target.value })}
+						onSearch={(target, searcher) => dispatch({ type: 'keyword', target, searcher })}
 					/>
 				</SidebarHeader>
 				<SidebarContent style={{ width: SIDEBAR_WIDTH[2] }}>
 					<ScrollArea hidden={!state.filterFiles.length}>
 						<SidebarGroup className="px-0">
 							{state.filterFiles.map((note) => (
-								<a
-									href="#"
+								<div
 									key={note.id}
-									onClick={() => dispatch({ type: note.isFolder ? 'folder' : 'file', target: note })}
 									className={cn(
-										'flex flex-col items-start gap-2 whitespace-nowrap border-b p-4 text-sm leading-tight last:border-b-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors',
+										'flex flex-col items-start gap-2 whitespace-nowrap border-b p-4 text-sm leading-tight transition-colors cursor-pointer',
+										'last:border-b-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
 										note.id === state.activeNote?.id ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
 									)}
+									onClick={() => dispatch({ type: note.isFolder ? 'folder' : 'file', target: note })}
 								>
 									<div className="flex w-full items-center gap-2">
 										<Folder className={note.isFolder ? '' : 'hidden'} />
-										<SearchResult text={note.name} keyword={state.keyword} />
+										<SearcherText text={note.name} keyword={state.keyword} />
 										<span className="ml-auto text-xs">{note.date}</span>
 									</div>
-									{note.isFile && (
-										<SearchResult
-											className="line-clamp-2 w-[260px] whitespace-break-spaces text-xs"
-											text={note.content}
-											keyword={state.keyword}
-										/>
-									)}
-								</a>
+									<SearcherText
+										hidden={!note.isFile}
+										className={'line-clamp-2 w-[260px] whitespace-break-spaces text-xs'}
+										text={note.content}
+										keyword={state.keyword}
+									/>
+								</div>
 							))}
 						</SidebarGroup>
 					</ScrollArea>
@@ -104,6 +102,6 @@ export function HomeSidebarRight() {
 					</div>
 				</SidebarContent>
 			</Sidebar>
-		</div>
+		</SearcherProvider>
 	)
 }

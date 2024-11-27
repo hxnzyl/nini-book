@@ -4,7 +4,7 @@ import { getFolders, getMenus, getNotes, getUser } from '@/api/user'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { HomeAction, HomeContext, HomeData, HomeState, SIDEBAR_WIDTH } from '@/contexts/home'
 import { useIsMobile } from '@/hooks/use-mobile'
-import StringUtils from '@/lib/string'
+import SearcherUtils from '@/lib/searcher'
 import { MenuVO } from '@/types/vo/MenuVO'
 import { UserNoteFileVO } from '@/types/vo/UserNoteFileVO'
 import { UserNoteFilesVO } from '@/types/vo/UserNoteFilesVO'
@@ -43,11 +43,7 @@ const homeReducer: Reducer<HomeState, Required<HomeAction>> = (state: HomeState,
 	} else {
 		// Change from search
 		keyword = target as string
-		filterFiles = keyword
-			? activeFiles.filter(
-					(note) => StringUtils.includes(note.name, keyword) || StringUtils.includes(note.content, keyword)
-			  )
-			: activeFiles
+		filterFiles = SearcherUtils.filter(activeFiles, ['name', 'content'], keyword, action.searcher)
 	}
 	return { activeFolder, activeFiles, filterFiles, activeNote, keyword }
 }

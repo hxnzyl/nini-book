@@ -1,3 +1,4 @@
+import { SearcherProps } from '@/components/searcher'
 import { MenuVO } from '@/types/vo/MenuVO'
 import { UserNoteFileVO } from '@/types/vo/UserNoteFileVO'
 import { UserNoteFilesVO } from '@/types/vo/UserNoteFilesVO'
@@ -27,6 +28,7 @@ export interface HomeAction {
 	type: 'folder' | 'file' | 'menu' | 'keyword'
 	target: UserNoteFolderVO | UserNoteFileVO | Partial<UserNoteFileVO & UserNoteFolderVO> | MenuVO | string
 	data?: HomeData
+	searcher?: Required<SearcherProps>
 }
 
 export interface HomeContext {
