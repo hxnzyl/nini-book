@@ -17,8 +17,8 @@ import { SIDEBAR_ICON_WIDTH, SIDEBAR_WIDTH, useHome } from '@/contexts/home'
 import { cn } from '@/lib/utils'
 import { Columns2, Columns3, Command, PanelLeft } from 'lucide-react'
 import { useCallback } from 'react'
-import { SidebarDropdownMenuFolder } from './sidebar-dropdown-menu-folder'
-import { SidebarMenuFolder } from './sidebar-menu-folder'
+import { HomeSidebarFolder } from './sidebar-folder'
+import { HomeSidebarFolderDropdownMenu } from './sidebar-folder-dropdown-menu'
 import { HomeSidebarUser } from './sidebar-user'
 
 const sideWidthStatic: string[][] = [
@@ -83,17 +83,9 @@ export function HomeSidebarLeft() {
 									</SidebarMenuItem>
 								))}
 								{isColumns(3) ? (
-									<SidebarMenuFolder
-										folders={data.folders}
-										isActive={isActive}
-										onChange={(target) => dispatch({ type: 'folder', target })}
-									/>
+									<HomeSidebarFolder folders={data.folders} />
 								) : (
-									<SidebarDropdownMenuFolder
-										folders={data.folders}
-										isActive={isActive}
-										onChange={(target) => dispatch({ type: 'folder', target })}
-									/>
+									<HomeSidebarFolderDropdownMenu folders={data.folders} />
 								)}
 							</SidebarMenu>
 						</SidebarGroup>

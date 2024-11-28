@@ -1,6 +1,7 @@
 import { UserNoteFolderPO } from '../po/UserNoteFolderPO'
 
 export interface UserNoteFolderVO extends UserNoteFolderPO {
-	isFolder?: number
-	children?: UserNoteFolderVO[]
+	isFolder: number
+	isInput?: number
+	children: UserNoteFolderVO[]
 }

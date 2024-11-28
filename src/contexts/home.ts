@@ -34,6 +34,7 @@ export interface HomeAction {
 
 export interface HomeContext {
 	data: HomeData
+	setData: Dispatch<SetStateAction<HomeData>>
 	refreshData: (fetch: PromiseProps<HomeData>) => void
 	state: HomeState
 	dispatch: (action: HomeAction) => void

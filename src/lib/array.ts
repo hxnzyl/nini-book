@@ -6,20 +6,24 @@ const ArrayUtils = {
 	 * @param predicate
 	 * @returns
 	 */
-	findChildren<T = any>(
+	findChildren<T = unknown>(
 		list: ArrayTree<T>[] | undefined,
 		predicate: (value: ArrayTree<T>, index: number) => boolean
 	): ArrayTree<T> | undefined {
-		let l = list?.length
-		if (list && l) {
-			for (let i = 0; i < l; i++) {
-				if (predicate(list[i], i)) {
-					return list[i]
-				}
-				let findIt = ArrayUtils.findChildren(list[i].children, predicate)
-				if (findIt !== undefined) {
-					return findIt
-				}
+		if (!list) {
+			return
+		}
+		const l = list.length
+		if (!l) {
+			return
+		}
+		for (let i = 0; i < l; i++) {
+			if (predicate(list[i], i)) {
+				return list[i]
+			}
+			const findIt = ArrayUtils.findChildren(list[i].children, predicate)
+			if (findIt !== undefined) {
+				return findIt
 			}
 		}
 	}

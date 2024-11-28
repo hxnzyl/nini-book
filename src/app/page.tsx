@@ -69,8 +69,6 @@ export default function HomePage() {
 		[sidebarWidth]
 	)
 
-	const homeContext = { data, refreshData, state, dispatch, sidebarWidth, setSidebarWidth, isActive, isColumns }
-
 	// watch
 	useEffect(() => {
 		setSidebarWidth(isMobile ? ['0px', '0px', '0px'] : SIDEBAR_WIDTH)
@@ -91,7 +89,19 @@ export default function HomePage() {
 	}, [])
 
 	return (
-		<HomeContext.Provider value={homeContext}>
+		<HomeContext.Provider
+			value={{
+				data,
+				setData,
+				refreshData,
+				state,
+				dispatch,
+				sidebarWidth,
+				setSidebarWidth,
+				isActive,
+				isColumns
+			}}
+		>
 			<SidebarProvider>
 				<HomeSidebar />
 				<SidebarInset>

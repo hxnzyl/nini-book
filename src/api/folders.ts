@@ -20,3 +20,5 @@ export const getFolders = (): Promise<UserNoteFolderVO> => {
 		})
 	})
 }
+
+export const addFolder = () => {}

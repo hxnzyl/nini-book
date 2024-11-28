@@ -3,4 +3,5 @@ export interface UserNoteFolderPO {
 	name: string
 	pid: string
 	lvl: number
+	time: number
 }

@@ -16,13 +16,13 @@ export class LocalTable<PO extends { id: string }> {
 
 	getAll(): Promise<PO[]> {
 		return new Promise((resolve) => {
-			const vos: PO[] = []
+			const pos: PO[] = []
 			this.table.iterate(
 				(value: PO) => {
-					vos.push(value)
+					pos.push(value)
 				},
 				() => {
-					resolve(vos)
+					resolve(pos)
 				}
 			)
 		})

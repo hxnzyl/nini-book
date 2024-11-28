@@ -13,23 +13,16 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { useHome } from '@/contexts/home'
 import { cn } from '@/lib/utils'
-import { UserNoteFilesVO } from '@/types/vo/UserNoteFilesVO'
 import { UserNoteFolderVO } from '@/types/vo/UserNoteFolderVO'
 import { Folder } from 'lucide-react'
 import { useState } from 'react'
 
-export function SidebarDropdownMenuFolder({
-	folders,
-	isActive,
-	onChange
-}: {
-	folders: UserNoteFolderVO
-	isActive: (folders?: UserNoteFilesVO) => boolean
-	onChange: (folders: UserNoteFolderVO) => void
-}) {
+export function HomeSidebarFolderDropdownMenu({ folders }: { folders: UserNoteFolderVO }) {
+	const { isActive, dispatch } = useHome()
 	const [openState, setOpenState] = useState(false)
-	const onChangeSub = (folders: UserNoteFolderVO) => (setOpenState(false), onChange(folders))
+	const onChange = (folders: UserNoteFolderVO) => (setOpenState(false), dispatch({ type: 'folder', target: folders }))
 	return (
 		<DropdownMenu open={openState} onOpenChange={setOpenState}>
 			<DropdownMenuTrigger asChild>
@@ -65,7 +58,7 @@ export function SidebarDropdownMenuFolder({
 				</DropdownMenuGroup>
 				<DropdownMenuGroup className="px-1">
 					{folders.children?.map((children, key) => (
-						<SidebarDropdownMenuFolderSub key={key} folders={children} onChange={onChangeSub} isActive={isActive} />
+						<HomeSidebarFolderSubDropdownMenu key={key} folders={children} onChange={onChange} />
 					))}
 				</DropdownMenuGroup>
 			</DropdownMenuContent>
@@ -73,15 +66,14 @@ export function SidebarDropdownMenuFolder({
 	)
 }
 
-function SidebarDropdownMenuFolderSub({
+export function HomeSidebarFolderSubDropdownMenu({
 	folders,
-	isActive,
 	onChange
 }: {
 	folders: UserNoteFolderVO
-	isActive: (folders?: UserNoteFilesVO) => boolean
 	onChange: (folders: UserNoteFolderVO) => void
 }) {
+	const { isActive } = useHome()
 	const folderChildren: UserNoteFolderVO[] = folders.children || []
 	return !folderChildren.length ? (
 		<DropdownMenuItem
@@ -109,7 +101,7 @@ function SidebarDropdownMenuFolderSub({
 			<DropdownMenuPortal>
 				<DropdownMenuSubContent>
 					{folderChildren.map((children, key) => (
-						<SidebarDropdownMenuFolderSub key={key} folders={children} onChange={onChange} isActive={isActive} />
+						<HomeSidebarFolderSubDropdownMenu key={key} folders={children} onChange={onChange} />
 					))}
 				</DropdownMenuSubContent>
 			</DropdownMenuPortal>

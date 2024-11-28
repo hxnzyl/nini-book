@@ -67,11 +67,12 @@ export function SearcherInput({
 	className,
 	onSearch,
 	...props
-}: ComponentProps<'input'> & {
-	hidden?: boolean
-	className?: string
-	onSearch?: (target: string, searcher: Required<SearcherProps>) => unknown
-}) {
+}: ComponentProps<'input'> &
+	Readonly<{
+		hidden?: boolean
+		className?: string
+		onSearch?: (target: string, searcher: Required<SearcherProps>) => unknown
+	}>) {
 	const { matchCase, setMatchCase, matchWholeWord, setMatchWholeWord, useRegularExpression, setUseRegularExpression } =
 		useSearcher()
 
@@ -136,12 +137,13 @@ export function SearcherText({
 	keyword,
 	className,
 	...props
-}: ComponentProps<'span'> & {
-	hidden?: boolean
-	text?: string
-	keyword?: string
-	className?: string
-}) {
+}: ComponentProps<'span'> &
+	Readonly<{
+		hidden?: boolean
+		text?: string
+		keyword?: string
+		className?: string
+	}>) {
 	const { matchCase, matchWholeWord, useRegularExpression } = useSearcher()
 	if (text == null || text === '' || keyword == null || keyword === '') {
 		// Empty text or Empty keyword
