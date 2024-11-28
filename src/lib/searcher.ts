@@ -26,7 +26,7 @@ const SearcherUtils = {
 	},
 
 	/**
-	 * Filter items based on keyword and SearcherProps
+	 * Return the filtered items based on keyword and SearcherProps
 	 *
 	 * @param items
 	 * @param fields

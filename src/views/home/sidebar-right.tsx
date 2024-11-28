@@ -1,4 +1,4 @@
-import { getFolders } from '@/api/user'
+import { getFolders } from '@/api/folders'
 import { SearcherInput, SearcherProvider, SearcherText } from '@/components/searcher'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -94,7 +94,7 @@ export function HomeSidebarRight() {
 					>
 						<div className="flex flex-col items-center gap-2">
 							<FolderSearch className="w-20 h-20" />
-							<span>Not found note.</span>
+							<span>Not found document.</span>
 						</div>
 					</div>
 					<div
@@ -105,8 +105,8 @@ export function HomeSidebarRight() {
 					>
 						<div className="flex flex-col items-center gap-2">
 							<FolderSearch2 className="w-20 h-20" />
-							<span>Not found note.</span>
-							<Button>Add Note</Button>
+							<span>Not found document.</span>
+							<Button>Add Document</Button>
 						</div>
 					</div>
 				</SidebarContent>

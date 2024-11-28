@@ -53,7 +53,7 @@ export function SidebarDropdownMenuFolder({
 			<DropdownMenuContent side="right" align="start">
 				<DropdownMenuGroup>
 					<DropdownMenuItem
-						onClick={() => onChange(folders)}
+						onSelect={() => onChange(folders)}
 						className={cn(
 							'transition-colors cursor-pointer',
 							isActive(folders) ? '!bg-sidebar-ring !text-sidebar-accent' : ''
@@ -85,7 +85,7 @@ function SidebarDropdownMenuFolderSub({
 	const folderChildren: UserNoteFolderVO[] = folders.children || []
 	return !folderChildren.length ? (
 		<DropdownMenuItem
-			onClick={() => onChange(folders)}
+			onSelect={() => onChange(folders)}
 			className={cn(
 				'transition-colors cursor-pointer',
 				isActive(folders) ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
