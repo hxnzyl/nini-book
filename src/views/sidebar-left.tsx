@@ -60,8 +60,8 @@ export function HomeSidebarLeft() {
 					<ScrollArea>
 						<SidebarGroup>
 							<SidebarMenu>
-								{data.menus.map((menu, key) => (
-									<SidebarMenuItem key={key} onClick={() => dispatch({ type: 'menu', target: menu })}>
+								{data.menus.map((menu) => (
+									<SidebarMenuItem key={menu.id} onClick={() => dispatch({ type: 'menu', target: menu })}>
 										<Tooltip>
 											<TooltipTrigger asChild>
 												<SidebarMenuButton

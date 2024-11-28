@@ -11,10 +11,14 @@ import {
 	ContextMenuSubTrigger,
 	ContextMenuTrigger
 } from '@/components/ui/context-menu'
+import { useHome } from '@/contexts/home'
 import { Folder, Mail, Plus, Trash2 } from 'lucide-react'
 import { ReactNode } from 'react'
 
 export function SidebarContextMenuAction({ children }: { children: ReactNode }) {
+	const { data } = useHome()
+	const addFolder = () => {}
+
 	return (
 		<ContextMenu>
 			<ContextMenuTrigger>{children}</ContextMenuTrigger>
@@ -33,7 +37,7 @@ export function SidebarContextMenuAction({ children }: { children: ReactNode }) 
 									<ContextMenuShortcut>⌘+D</ContextMenuShortcut>
 								</ContextMenuItem>
 								<ContextMenuSeparator />
-								<ContextMenuItem>
+								<ContextMenuItem onSelect={addFolder}>
 									<Folder />
 									<span>New Folder</span>
 								</ContextMenuItem>
