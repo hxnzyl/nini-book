@@ -17,9 +17,9 @@ import { SIDEBAR_ICON_WIDTH, SIDEBAR_WIDTH, useHome } from '@/contexts/home'
 import { cn } from '@/lib/utils'
 import { Columns2, Columns3, Command, PanelLeft } from 'lucide-react'
 import { useCallback } from 'react'
-import { HomeSidebarFolder } from './home-sidebar-folder'
-import { HomeSidebarFolderDropdownMenu } from './home-sidebar-folder-dropdown-menu'
-import { HomeSidebarUser } from './home-sidebar-user'
+import { HomeSidebarFolder } from './sidebar-folder'
+import { HomeSidebarFolderDropdownMenu } from './sidebar-folder-dropdown-menu'
+import { HomeSidebarUser } from './sidebar-user'
 
 const sideWidthStatic: string[][] = [
 	[SIDEBAR_ICON_WIDTH, SIDEBAR_ICON_WIDTH, '0px'],

@@ -14,9 +14,7 @@ export default function HomeHeader() {
 						type="text"
 						placeholder="Note Subject..."
 						className="flex w-full text-2xl text-foreground focus:outline-none"
-						onChange={(e) =>
-							stateDispatch({ key: 'setActiveNote', value: { ...state.activeNote, name: e.target.value } })
-						}
+						onChange={(e) => stateDispatch({ key: 'activeNote', value: { ...state.activeNote, name: e.target.value } })}
 					/>
 				</div>
 			</header>

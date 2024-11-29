@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils'
 import { UserNoteFolderVO } from '@/types/vo/UserNoteFolderVO'
 import { ChevronRight, Folder } from 'lucide-react'
 import { ComponentProps } from 'react'
-import { HomeSidebarFolderActionContextMenu, HomeSidebarFolderActionDropdownMenu } from './home-sidebar-folder-action'
+import { HomeSidebarFolderActionContextMenu, HomeSidebarFolderActionDropdownMenu } from './sidebar-folder-action'
 
 export function HomeSidebarFolder({ folders, ...props }: ComponentProps<'li'> & { folders: UserNoteFolderVO }) {
 	const { stateDispatch, isActive } = useHome()
@@ -75,13 +75,13 @@ export function HomeSidebarFolder({ folders, ...props }: ComponentProps<'li'> & 
 function HomeSidebarFolderInput({ folders }: { folders: UserNoteFolderVO }) {
 	const { stateDispatch } = useHome()
 	const inputRef = useAutoSelect()
-
 	return (
 		<Input
 			ref={inputRef}
 			defaultValue={folders.name}
 			className="h-6 px-2 py-1 my-1 w-full bg-background shadow-none focus-visible:ring-1 focus-visible:ring-sidebar-ring"
 			onBlur={(event) => stateDispatch({ key: 'addFolder', value: folders, event })}
+			onKeyDown={(event) => event.key === 'Enter' && stateDispatch({ key: 'addFolder', value: folders, event })}
 		/>
 	)
 }

@@ -7,26 +7,30 @@ import { SIDEBAR_WIDTH, useHome } from '@/contexts/home'
 import ArrayUtils from '@/lib/array'
 import { cn } from '@/lib/utils'
 import { ChevronLeft, Folder, FolderSearch, FolderSearch2, RotateCw } from 'lucide-react'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 
 export function HomeSidebarRight() {
+	const [disabled, setDisabled] = useState(false)
 	// parent provider
 	const { state, stateDispatch, sidebarWidth } = useHome()
 
 	const onBack = useCallback(() => {
-		const folder = ArrayUtils.findChildren([state.folders], (folder) => folder.id === state.activeFolder.pid)
-		if (folder) {
-			stateDispatch({ key: 'setActiveFolder', value: folder })
+		const folders = ArrayUtils.findChildren([state.folders], (folder) => folder.id === state.activeFolder.pid)
+		if (folders) {
+			stateDispatch({ key: 'setActiveFolder', value: folders })
 		}
 	}, [state.folders, stateDispatch, state.activeFolder.pid])
 
 	const onRefresh = useCallback(() => {
-		getFolders().then((folders) =>
-			stateDispatch({
-				key: 'folders',
-				value: folders
+		setDisabled(true)
+		getFolders()
+			.then((folders) => {
+				stateDispatch({ key: 'folders', value: folders })
+				setDisabled(false)
 			})
-		)
+			.catch(() => {
+				setDisabled(false)
+			})
 	}, [stateDispatch])
 
 	return (
@@ -34,24 +38,27 @@ export function HomeSidebarRight() {
 			<Sidebar collapsible="none">
 				<SidebarHeader className="border-b gap-0" style={{ width: SIDEBAR_WIDTH[2] }}>
 					<div className="flex w-full items-center justify-center relative h-12">
-						<div
+						<Button
+							variant="ghost"
+							size="sm"
 							title="Go Parent Folder"
-							className={cn(
-								'absolute left-0 flex items-center w-7 h-7 p-1 cursor-pointer rounded-md hover:bg-sidebar-accent',
-								state.activeFolder.pid ? '' : 'hidden'
-							)}
+							className={cn('absolute left-0', state.activeFolder.pid ? '' : 'hidden')}
 							onClick={onBack}
+							disabled={disabled}
 						>
 							<ChevronLeft />
-						</div>
+						</Button>
 						<div className="text-base font-semibold text-foreground">{state.activeFolder.name}</div>
-						<div
+						<Button
+							variant="ghost"
+							size="icon"
 							title="Refresh Folder"
-							className="absolute right-0 flex items-center w-7 h-7 p-1 cursor-pointer rounded-md hover:bg-sidebar-accent"
+							className="absolute right-0"
 							onClick={onRefresh}
+							disabled={disabled}
 						>
 							<RotateCw />
-						</div>
+						</Button>
 					</div>
 					<SearcherInput
 						data-sidebar="input"
@@ -72,9 +79,7 @@ export function HomeSidebarRight() {
 										'last:border-b-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
 										note.id === state.activeNote?.id ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
 									)}
-									onClick={() =>
-										stateDispatch({ key: note.isFolder ? 'setActiveFolder' : 'setActiveNote', value: note })
-									}
+									onClick={() => stateDispatch({ key: note.isFolder ? 'setActiveFolder' : 'activeNote', value: note })}
 								>
 									<div className="flex w-full items-center gap-2">
 										<Folder className={note.isFolder ? '' : 'hidden'} />
@@ -111,7 +116,7 @@ export function HomeSidebarRight() {
 						<div className="flex flex-col items-center gap-2">
 							<FolderSearch2 className="w-20 h-20" />
 							<span>Not found document.</span>
-							<Button>Add Document</Button>
+							<Button>New Document</Button>
 						</div>
 					</div>
 				</SidebarContent>

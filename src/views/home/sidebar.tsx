@@ -1,7 +1,7 @@
 import { Sidebar } from '@/components/ui/sidebar'
 import { useHome } from '@/contexts/home'
-import { HomeSidebarLeft } from './home-sidebar-left'
-import { HomeSidebarRight } from './home-sidebar-right'
+import { HomeSidebarLeft } from './sidebar-left'
+import { HomeSidebarRight } from './sidebar-right'
 
 export function HomeSidebar() {
 	const { sidebarWidth } = useHome()

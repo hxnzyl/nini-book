@@ -5,7 +5,6 @@ import {
 	ContextMenuItem,
 	ContextMenuPortal,
 	ContextMenuSeparator,
-	ContextMenuShortcut,
 	ContextMenuSub,
 	ContextMenuSubContent,
 	ContextMenuSubTrigger,
@@ -21,7 +20,7 @@ import {
 import { useHome } from '@/contexts/home'
 import { cn } from '@/lib/utils'
 import { UserNoteFolderVO } from '@/types/vo/UserNoteFolderVO'
-import { FileText, Folder, Mail, MoreHorizontal, Plus, Trash2 } from 'lucide-react'
+import { File, FileText, Folder, MoreHorizontal, Plus, Trash2 } from 'lucide-react'
 import { ReactNode, useState } from 'react'
 
 export function HomeSidebarFolderActionDropdownMenu() {
@@ -71,10 +70,9 @@ export function HomeSidebarFolderActionContextMenu({
 						</ContextMenuSubTrigger>
 						<ContextMenuPortal>
 							<ContextMenuSubContent>
-								<ContextMenuItem>
-									<Mail />
+								<ContextMenuItem onSelect={() => stateDispatch({ key: 'newDocument', value: folders })}>
+									<File />
 									<span>New Document</span>
-									<ContextMenuShortcut>⌘+D</ContextMenuShortcut>
 								</ContextMenuItem>
 								<ContextMenuSeparator />
 								<ContextMenuItem onSelect={() => stateDispatch({ key: 'newFolder', value: folders })}>
