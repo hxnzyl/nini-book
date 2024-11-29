@@ -11,20 +11,23 @@ import { useCallback } from 'react'
 
 export function HomeSidebarRight() {
 	// parent provider
-	const { data, refreshData, state, dispatch, sidebarWidth } = useHome()
+	const { state, stateDispatch, sidebarWidth } = useHome()
 
-	const onBackFolder = useCallback(() => {
-		const folder = ArrayUtils.findChildren([data.folders], (folder) => folder.id === state.activeFolder.pid)
+	const onBack = useCallback(() => {
+		const folder = ArrayUtils.findChildren([state.folders], (folder) => folder.id === state.activeFolder.pid)
 		if (folder) {
-			dispatch({ type: 'folder', target: folder })
+			stateDispatch({ key: 'setActiveFolder', value: folder })
 		}
-	}, [data.folders, dispatch, state.activeFolder.pid])
+	}, [state.folders, stateDispatch, state.activeFolder.pid])
 
-	const onRefreshFolder = useCallback(() => {
-		refreshData({
-			folders: getFolders()
-		})
-	}, [refreshData])
+	const onRefresh = useCallback(() => {
+		getFolders().then((folders) =>
+			stateDispatch({
+				key: 'folders',
+				value: folders
+			})
+		)
+	}, [stateDispatch])
 
 	return (
 		<SearcherProvider style={{ '--sidebar-width': sidebarWidth[2] } as React.CSSProperties}>
@@ -37,7 +40,7 @@ export function HomeSidebarRight() {
 								'absolute left-0 flex items-center w-7 h-7 p-1 cursor-pointer rounded-md hover:bg-sidebar-accent',
 								state.activeFolder.pid ? '' : 'hidden'
 							)}
-							onClick={onBackFolder}
+							onClick={onBack}
 						>
 							<ChevronLeft />
 						</div>
@@ -45,7 +48,7 @@ export function HomeSidebarRight() {
 						<div
 							title="Refresh Folder"
 							className="absolute right-0 flex items-center w-7 h-7 p-1 cursor-pointer rounded-md hover:bg-sidebar-accent"
-							onClick={onRefreshFolder}
+							onClick={onRefresh}
 						>
 							<RotateCw />
 						</div>
@@ -55,7 +58,7 @@ export function HomeSidebarRight() {
 						value={state.keyword}
 						hidden={!state.activeFiles.length}
 						placeholder="Note to search..."
-						onSearch={(target, searcher) => dispatch({ type: 'keyword', target, searcher })}
+						onSearch={(value, searcher) => stateDispatch({ key: 'search', value, searcher })}
 					/>
 				</SidebarHeader>
 				<SidebarContent style={{ width: SIDEBAR_WIDTH[2] }}>
@@ -69,7 +72,9 @@ export function HomeSidebarRight() {
 										'last:border-b-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
 										note.id === state.activeNote?.id ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
 									)}
-									onClick={() => dispatch({ type: note.isFolder ? 'folder' : 'file', target: note })}
+									onClick={() =>
+										stateDispatch({ key: note.isFolder ? 'setActiveFolder' : 'setActiveNote', value: note })
+									}
 								>
 									<div className="flex w-full items-center gap-2">
 										<Folder className={note.isFolder ? '' : 'hidden'} />

@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils'
 import { NotebookPen } from 'lucide-react'
 
 export default function HomeHeader() {
-	const { state, dispatch } = useHome()
+	const { state, stateDispatch } = useHome()
 
 	return (
 		<>
@@ -14,7 +14,9 @@ export default function HomeHeader() {
 						type="text"
 						placeholder="Note Subject..."
 						className="flex w-full text-2xl text-foreground focus:outline-none"
-						onChange={(e) => dispatch({ type: 'file', target: { ...state.activeNote, name: e.target.value } })}
+						onChange={(e) =>
+							stateDispatch({ key: 'setActiveNote', value: { ...state.activeNote, name: e.target.value } })
+						}
 					/>
 				</div>
 			</header>

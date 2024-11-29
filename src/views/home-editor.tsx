@@ -1,3 +1,4 @@
+import '@/assets/views/home-editor.css'
 import { useHome } from '@/contexts/home'
 import { cn } from '@/lib/utils'
 import { Redo2, Undo2 } from 'lucide-react'
@@ -6,7 +7,6 @@ import QuillModuleHistory from 'quill/modules/history'
 import QuillModuleToolbar from 'quill/modules/toolbar'
 import { useEffect, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import './editor.css'
 
 const quillOptions: QuillOptions = {
 	theme: 'snow',

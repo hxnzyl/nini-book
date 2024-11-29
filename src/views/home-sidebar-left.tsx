@@ -17,9 +17,9 @@ import { SIDEBAR_ICON_WIDTH, SIDEBAR_WIDTH, useHome } from '@/contexts/home'
 import { cn } from '@/lib/utils'
 import { Columns2, Columns3, Command, PanelLeft } from 'lucide-react'
 import { useCallback } from 'react'
-import { HomeSidebarFolder } from './sidebar-folder'
-import { HomeSidebarFolderDropdownMenu } from './sidebar-folder-dropdown-menu'
-import { HomeSidebarUser } from './sidebar-user'
+import { HomeSidebarFolder } from './home-sidebar-folder'
+import { HomeSidebarFolderDropdownMenu } from './home-sidebar-folder-dropdown-menu'
+import { HomeSidebarUser } from './home-sidebar-user'
 
 const sideWidthStatic: string[][] = [
 	[SIDEBAR_ICON_WIDTH, SIDEBAR_ICON_WIDTH, '0px'],
@@ -31,7 +31,7 @@ export function HomeSidebarLeft() {
 	const { setOpen } = useSidebar()
 
 	// parent provider
-	const { data, dispatch, sidebarWidth, setSidebarWidth, isActive, isColumns } = useHome()
+	const { state, stateDispatch, sidebarWidth, setSidebarWidth, isActive, isColumns } = useHome()
 
 	const setColumns = useCallback(
 		(type: 1 | 2 | 3) => isColumns(type) || (setSidebarWidth(sideWidthStatic[type - 1]), setOpen(type !== 1)),
@@ -60,8 +60,8 @@ export function HomeSidebarLeft() {
 					<ScrollArea>
 						<SidebarGroup>
 							<SidebarMenu>
-								{data.menus.map((menu) => (
-									<SidebarMenuItem key={menu.id} onClick={() => dispatch({ type: 'menu', target: menu })}>
+								{state.menus.map((menu) => (
+									<SidebarMenuItem key={menu.id} onClick={() => stateDispatch({ key: 'setActiveMenu', value: menu })}>
 										<Tooltip>
 											<TooltipTrigger asChild>
 												<SidebarMenuButton
@@ -83,9 +83,9 @@ export function HomeSidebarLeft() {
 									</SidebarMenuItem>
 								))}
 								{isColumns(3) ? (
-									<HomeSidebarFolder folders={data.folders} />
+									<HomeSidebarFolder folders={state.folders} />
 								) : (
-									<HomeSidebarFolderDropdownMenu folders={data.folders} />
+									<HomeSidebarFolderDropdownMenu folders={state.folders} />
 								)}
 							</SidebarMenu>
 						</SidebarGroup>

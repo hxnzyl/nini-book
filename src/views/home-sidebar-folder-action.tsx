@@ -22,45 +22,7 @@ import { useHome } from '@/contexts/home'
 import { cn } from '@/lib/utils'
 import { UserNoteFolderVO } from '@/types/vo/UserNoteFolderVO'
 import { FileText, Folder, Mail, MoreHorizontal, Plus, Trash2 } from 'lucide-react'
-import { ReactNode, useCallback, useState } from 'react'
-
-export function useSidebarFolderAction(folders: UserNoteFolderVO) {
-	const { data, setData, isActive, dispatch } = useHome()
-
-	const addFolder = useCallback(
-		(event: React.FocusEvent<HTMLInputElement>) => {
-			const { target } = event
-			const { value } = target
-			if (performance.now() - folders.time < 1000 / 3 && value === folders.name) {
-				target.focus()
-				target.select()
-			} else {
-				if (value != null && value !== '') {
-					folders.name = value
-				}
-				folders.isInput = 0
-				setData({ ...data })
-			}
-		},
-		[data, folders, setData]
-	)
-
-	const addInput = useCallback(() => {
-		folders.children.push({
-			id: Math.round(performance.now() * 10) + '',
-			name: `New Folder(${folders.children.length + 1})`,
-			lvl: folders.lvl + 1,
-			isFolder: 1,
-			isInput: 1,
-			children: [],
-			pid: folders.id,
-			time: performance.now()
-		})
-		setData({ ...data })
-	}, [data, folders, setData])
-
-	return { addFolder, addInput, isActive, dispatch }
-}
+import { ReactNode, useState } from 'react'
 
 export function HomeSidebarFolderActionDropdownMenu() {
 	const [openState, setOpenState] = useState(false)
@@ -95,7 +57,7 @@ export function HomeSidebarFolderActionContextMenu({
 	folders: UserNoteFolderVO
 	children: ReactNode
 }>) {
-	const { addInput } = useSidebarFolderAction(folders)
+	const { stateDispatch } = useHome()
 
 	return (
 		<ContextMenu>
@@ -115,7 +77,7 @@ export function HomeSidebarFolderActionContextMenu({
 									<ContextMenuShortcut>⌘+D</ContextMenuShortcut>
 								</ContextMenuItem>
 								<ContextMenuSeparator />
-								<ContextMenuItem onSelect={addInput}>
+								<ContextMenuItem onSelect={() => stateDispatch({ key: 'newFolder', value: folders })}>
 									<Folder />
 									<span>New Folder</span>
 								</ContextMenuItem>

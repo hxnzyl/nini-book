@@ -14,7 +14,14 @@ export const getFolders = (): Promise<UserNoteFolderVO> => {
 			})
 			resolve(
 				PO2VO(
-					pos.find((folder) => folder.lvl == 1) || FoldersTable.insert({ id: '0', name: 'My Folder', lvl: 1, pid: '' })
+					pos.find((folder) => folder.lvl == 1) ||
+						FoldersTable.insert({
+							id: '0',
+							name: 'My Folder',
+							lvl: 1,
+							pid: '',
+							time: Math.round(performance.now() * 10)
+						})
 				)
 			)
 		})

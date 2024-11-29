@@ -10,7 +10,8 @@ const SearcherUtils = {
 	 * @param props
 	 * @returns
 	 */
-	regexp(keyword: string, htmlEscape: boolean, { matchCase, matchWholeWord, useRegularExpression }: SearcherProps) {
+	regexp(keyword: string, htmlEscape: boolean, props: SearcherProps = {}) {
+		const { matchCase, matchWholeWord, useRegularExpression } = props
 		if (!matchCase || matchWholeWord || useRegularExpression) {
 			try {
 				if (htmlEscape) keyword = escape(keyword)
@@ -34,7 +35,7 @@ const SearcherUtils = {
 	 * @param props
 	 * @returns
 	 */
-	filter<T>(items: T[], fields: (keyof T)[], keyword: string, props: SearcherProps) {
+	filter<T>(items: T[], fields: (keyof T)[], keyword: string, props: SearcherProps = {}) {
 		if (keyword != null && keyword !== '') {
 			const regexp = SearcherUtils.regexp(keyword, false, props)
 			return regexp == null
