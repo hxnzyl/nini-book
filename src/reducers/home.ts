@@ -167,7 +167,7 @@ export const HomeVerify = {
 	 * @param state
 	 * @param action
 	 */
-	newDocument(state: HomeState, action: HomeAction) {
+	newDocument(state: HomeState, action: HomeAction): ToasterAction | void {
 		const folders = action.value as UserNoteFolderVO
 		const noteName = `New Document(${state.notes.length + 1})`
 		if (
