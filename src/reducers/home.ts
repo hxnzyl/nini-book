@@ -151,8 +151,8 @@ export const HomeVerify = {
 				key: 'add',
 				value: {
 					duration: 3000,
-					title: 'Nini Book Toast',
-					description: 'The folder name is existing, Please rename.',
+					title: 'Add Folder',
+					description: `The folder name "${folderName}" is existing, Please rename.`,
 					variant: 'destructive'
 				}
 			}
@@ -178,8 +178,8 @@ export const HomeVerify = {
 				key: 'add',
 				value: {
 					duration: 3000,
-					title: 'Nini Book Toast',
-					description: 'The note name is existing, Please rename.',
+					title: 'New Document',
+					description: `The note name "${noteName}" is existing, Please rename.`,
 					variant: 'destructive'
 				}
 			}
