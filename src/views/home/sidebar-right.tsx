@@ -65,7 +65,7 @@ export function HomeSidebarRight() {
 						value={state.keyword}
 						hidden={!state.activeFiles.length}
 						placeholder="Note to search..."
-						onSearch={(value, searcher) => stateDispatch({ key: 'search', value, searcher })}
+						onSearch={(value, searcher) => stateDispatch({ key: 'search', value, ...searcher })}
 					/>
 				</SidebarHeader>
 				<SidebarContent style={{ width: SIDEBAR_WIDTH[2] }}>
