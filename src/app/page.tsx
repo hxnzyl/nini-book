@@ -8,7 +8,7 @@ import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { HomeContext, SIDEBAR_WIDTH } from '@/contexts/home'
 import { ToasterContext } from '@/contexts/toaster'
 import { useIsMobile } from '@/hooks/use-mobile'
-import { HomeAction, HomeReducer, HomeVerify, HomeVerifyKeys } from '@/reducers/home'
+import { HomeAction, HomeReducer, HomeVerify } from '@/reducers/home'
 import { ToasterReducer } from '@/reducers/toaster'
 import { UserNoteFilesVO } from '@/types/vo/UserNoteFilesVO'
 import { UserNoteFolderVO } from '@/types/vo/UserNoteFolderVO'
@@ -34,18 +34,25 @@ export default function HomePage() {
 	})
 
 	const [toaster, toasterDispatch] = useReducer(ToasterReducer, {
-		toasts: []
+		toasts: [],
+		// Max toast size
+		maxToastSize: 3
 	})
 
 	const stateDispatch = useCallback(
 		(action: HomeAction) => {
+			// Pre dispatch verification
 			if (action.key in HomeVerify) {
-				const toaster = HomeVerify[action.key as HomeVerifyKeys](state, action)
+				const toaster = HomeVerify[action.key as keyof typeof HomeVerify](state, action)
 				if (toaster) {
+					// Show toast
 					toasterDispatch(toaster)
 					return
 				}
 			}
+			// Clear all toasts
+			toasterDispatch({ key: 'remove' })
+			// Call original Dispatch
 			_stateDispatch(action)
 		},
 		[state]
@@ -77,7 +84,7 @@ export default function HomePage() {
 	useEffect(() => {
 		Promise.all([getUser(), getMenus(), getNotes(), getFolders()]).then(([user, menus, notes, folders]) => {
 			// Fetch data
-			stateDispatch({
+			_stateDispatch({
 				key: 'all',
 				value: { user, menus, notes, folders }
 			})

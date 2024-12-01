@@ -25,17 +25,11 @@ export interface HomeState {
 	keyword: string
 }
 
-type HomeStateKeys = keyof HomeState
-
 export interface HomeAction extends SearcherProps {
-	key: HomeActionKeys | HomeStateKeys
-	value: Partial<HomeState> | HomeState[HomeStateKeys]
+	key: keyof typeof HomeActions | keyof HomeState
+	value: Partial<HomeState> | HomeState[keyof HomeState]
 	target?: HTMLInputElement
 }
-
-type HomeActionKeys = keyof typeof HomeActions
-
-export type HomeVerifyKeys = keyof typeof HomeVerify
 
 /**
  * Home Actions
@@ -146,11 +140,9 @@ export const HomeVerify = {
 			ArrayUtils.findChildren([state.folders], (folder) => folder.id !== folders.id && folder.name === folderName)
 		) {
 			// The folder name is exist
-			focusInput.select()
 			return {
 				key: 'add',
 				value: {
-					duration: 3000,
 					title: 'Add Folder',
 					description: `The folder name "${folderName}" is existing, Please rename.`,
 					variant: 'destructive'
@@ -170,14 +162,11 @@ export const HomeVerify = {
 	newDocument(state: HomeState, action: HomeAction): ToasterAction | void {
 		const folders = action.value as UserNoteFolderVO
 		const noteName = `New Document(${state.notes.length + 1})`
-		if (
-			ArrayUtils.findChildren(state.notes, (note) => note.userNoteFolderId === folders.id && note.name === noteName)
-		) {
+		if (state.notes.find((note) => note.userNoteFolderId === folders.id && note.name === noteName)) {
 			// The note name is exist
 			return {
 				key: 'add',
 				value: {
-					duration: 3000,
 					title: 'New Document',
 					description: `The note name "${noteName}" is existing, Please rename.`,
 					variant: 'destructive'
@@ -196,10 +185,10 @@ export const HomeVerify = {
  */
 export const HomeReducer: Reducer<HomeState, HomeAction> = (state: HomeState, action: HomeAction) => {
 	if (action.key in HomeActions) {
-		HomeActions[action.key as HomeActionKeys](state, action)
+		HomeActions[action.key as keyof typeof HomeActions](state, action)
 	} else {
 		// Refresh Data, keyof HomeState
-		state[action.key as HomeStateKeys] = action.value as never
+		state[action.key as keyof HomeState] = action.value as never
 	}
 	return { ...state }
 }
