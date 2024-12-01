@@ -1,35 +1,10 @@
+import { SearcherContext, SearcherProps, useSearcher } from '@/contexts/searcher'
 import SearcherUtils from '@/lib/searcher'
 import { cn } from '@/lib/utils'
 import { escape } from 'lodash-es'
 import { ALargeSmall, Regex, WholeWord } from 'lucide-react'
-import { ComponentProps, Dispatch, SetStateAction, createContext, useContext, useRef, useState } from 'react'
+import { ComponentProps, useRef, useState } from 'react'
 import { Input } from './ui/input'
-
-interface SearcherContext {
-	matchCase: boolean
-	setMatchCase: Dispatch<SetStateAction<boolean>>
-	matchWholeWord: boolean
-	setMatchWholeWord: Dispatch<SetStateAction<boolean>>
-	useRegularExpression: boolean
-	setUseRegularExpression: Dispatch<SetStateAction<boolean>>
-}
-
-export interface SearcherProps {
-	matchCase?: boolean
-	matchWholeWord?: boolean
-	useRegularExpression?: boolean
-}
-
-export const SearcherContext = createContext({} as SearcherContext)
-
-export function useSearcher() {
-	const context = useContext(SearcherContext)
-	if (!context) {
-		throw new Error('useSearcher must be used within a SearcherProvider.')
-	}
-
-	return context
-}
 
 export function SearcherProvider({
 	hidden,

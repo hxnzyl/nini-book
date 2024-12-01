@@ -3,10 +3,13 @@
 import { getFolders } from '@/api/folders'
 import { getNotes } from '@/api/notes'
 import { getMenus, getUser } from '@/api/user'
+import { Toaster } from '@/components/toaster'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { HomeContext, SIDEBAR_WIDTH } from '@/contexts/home'
+import { ToasterContext } from '@/contexts/toaster'
 import { useIsMobile } from '@/hooks/use-mobile'
-import { HomeReducer } from '@/reducers/home'
+import { HomeAction, HomeReducer, HomeVerify, HomeVerifyKeys } from '@/reducers/home'
+import { ToasterReducer } from '@/reducers/toaster'
 import { UserNoteFilesVO } from '@/types/vo/UserNoteFilesVO'
 import { UserNoteFolderVO } from '@/types/vo/UserNoteFolderVO'
 import { UserVO } from '@/types/vo/UserVO'
@@ -18,7 +21,7 @@ import { useCallback, useEffect, useReducer, useState } from 'react'
 export default function HomePage() {
 	const isMobile = useIsMobile()
 
-	const [state, stateDispatch] = useReducer(HomeReducer, {
+	const [state, _stateDispatch] = useReducer(HomeReducer, {
 		user: {} as UserVO,
 		menus: [],
 		notes: [],
@@ -29,6 +32,24 @@ export default function HomePage() {
 		filterFiles: [],
 		keyword: ''
 	})
+
+	const [toaster, toasterDispatch] = useReducer(ToasterReducer, {
+		toasts: []
+	})
+
+	const stateDispatch = useCallback(
+		(action: HomeAction) => {
+			if (action.key in HomeVerify) {
+				const toaster = HomeVerify[action.key as HomeVerifyKeys](state, action)
+				if (toaster) {
+					toasterDispatch(toaster)
+					return
+				}
+			}
+			_stateDispatch(action)
+		},
+		[state]
+	)
 
 	const [sidebarWidth, setSidebarWidth] = useState(isMobile ? ['0px', '0px', '0px'] : SIDEBAR_WIDTH)
 
@@ -64,14 +85,17 @@ export default function HomePage() {
 	}, [])
 
 	return (
-		<HomeContext.Provider value={{ state, stateDispatch, sidebarWidth, setSidebarWidth, isActive, isColumns }}>
-			<SidebarProvider>
-				<HomeSidebar />
-				<SidebarInset>
-					<HomeHeader />
-					<HomeEditor />
-				</SidebarInset>
-			</SidebarProvider>
-		</HomeContext.Provider>
+		<ToasterContext.Provider value={{ toaster, toasterDispatch }}>
+			<HomeContext.Provider value={{ state, stateDispatch, sidebarWidth, setSidebarWidth, isActive, isColumns }}>
+				<SidebarProvider>
+					<HomeSidebar />
+					<SidebarInset>
+						<HomeHeader />
+						<HomeEditor />
+					</SidebarInset>
+				</SidebarProvider>
+			</HomeContext.Provider>
+			<Toaster />
+		</ToasterContext.Provider>
 	)
 }

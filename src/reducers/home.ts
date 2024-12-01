@@ -1,4 +1,8 @@
-import { SearcherProps } from '@/components/searcher'
+'use client'
+
+import { addFolder } from '@/api/folders'
+import { SearcherProps } from '@/contexts/searcher'
+import ArrayUtils from '@/lib/array'
 import DateUtils from '@/lib/date'
 import SearcherUtils from '@/lib/searcher'
 import { MenuVO } from '@/types/vo/MenuVO'
@@ -7,6 +11,7 @@ import { UserNoteFileVO } from '@/types/vo/UserNoteFileVO'
 import { UserNoteFolderVO } from '@/types/vo/UserNoteFolderVO'
 import { UserVO } from '@/types/vo/UserVO'
 import { Reducer } from 'react'
+import { ToasterAction } from './toaster'
 
 export interface HomeState {
 	user: UserVO
@@ -20,12 +25,17 @@ export interface HomeState {
 	keyword: string
 }
 
-export interface HomeAction {
-	key: keyof typeof HomeActions | keyof HomeState
-	value: Partial<HomeState> | HomeState[keyof HomeState]
-	searcher?: SearcherProps
-	event?: React.SyntheticEvent
+type HomeStateKeys = keyof HomeState
+
+export interface HomeAction extends SearcherProps {
+	key: HomeActionKeys | HomeStateKeys
+	value: Partial<HomeState> | HomeState[HomeStateKeys]
+	target?: HTMLInputElement
 }
+
+type HomeActionKeys = keyof typeof HomeActions
+
+export type HomeVerifyKeys = keyof typeof HomeVerify
 
 /**
  * Home Actions
@@ -43,7 +53,7 @@ const HomeActions = {
 	},
 	search(state: HomeState, action: HomeAction) {
 		state.keyword = action.value as string
-		state.filterFiles = SearcherUtils.filter(state.activeFiles, ['name', 'content'], state.keyword, action.searcher)
+		state.filterFiles = SearcherUtils.filter(state.activeFiles, ['name', 'content'], state.keyword, action)
 	},
 	setActiveFolder(state: HomeState, action: HomeAction) {
 		const folders = action.value as UserNoteFolderVO
@@ -81,17 +91,9 @@ const HomeActions = {
 	},
 	addFolder(state: HomeState, action: HomeAction) {
 		const folders = action.value as UserNoteFolderVO
-		const focusEvent = action.event as React.FocusEvent<HTMLInputElement>
-		const focusInput = focusEvent.target
-		const folderName = focusInput.value
-		if (folderName == null || folderName === '') {
-			focusInput.value = folders.name
-			focusInput.select()
-		} else {
-			folders.name = folderName
-			folders.isNew = false
-			HomeActions.setActiveFolder(state, action)
-		}
+		folders.isNew = false
+		HomeActions.setActiveFolder(state, action)
+		addFolder(folders)
 	},
 	newDocument(state: HomeState, action: HomeAction) {
 		const folders = action.value as UserNoteFolderVO
@@ -121,6 +123,71 @@ const HomeActions = {
 }
 
 /**
+ * Home verify before dispatch
+ *
+ */
+export const HomeVerify = {
+	/**
+	 * Determine if the folder
+	 *
+	 * @param state
+	 * @param action
+	 * @returns
+	 */
+	addFolder(state: HomeState, action: HomeAction): ToasterAction | void {
+		const folders = action.value as UserNoteFolderVO
+		const focusInput = action.target as HTMLInputElement
+		const folderName = focusInput?.value
+		if (folders.name == null || folders.name === '') {
+			// The folder name is empty
+			focusInput.value = folders.name
+			focusInput.select()
+		} else if (
+			ArrayUtils.findChildren([state.folders], (folder) => folder.id !== folders.id && folder.name === folderName)
+		) {
+			// The folder name is exist
+			focusInput.select()
+			return {
+				key: 'add',
+				value: {
+					duration: 3000,
+					title: 'Nini Book Toast',
+					description: 'The folder name is existing, Please rename.',
+					variant: 'destructive'
+				}
+			}
+		} else {
+			// Set folder name
+			folders.name = folderName
+		}
+	},
+	/**
+	 * Determine if the document
+	 *
+	 * @param state
+	 * @param action
+	 */
+	newDocument(state: HomeState, action: HomeAction) {
+		const folders = action.value as UserNoteFolderVO
+		const noteName = `New Document(${state.notes.length + 1})`
+		if (
+			ArrayUtils.findChildren(state.notes, (note) => note.userNoteFolderId === folders.id && note.name === noteName)
+		) {
+			// The note name is exist
+			return {
+				key: 'add',
+				value: {
+					duration: 3000,
+					title: 'Nini Book Toast',
+					description: 'The note name is existing, Please rename.',
+					variant: 'destructive'
+				}
+			}
+		}
+	}
+}
+
+/**
  * Home Reducer
  *
  * @param state
@@ -129,10 +196,10 @@ const HomeActions = {
  */
 export const HomeReducer: Reducer<HomeState, HomeAction> = (state: HomeState, action: HomeAction) => {
 	if (action.key in HomeActions) {
-		HomeActions[action.key as keyof typeof HomeActions](state, action)
+		HomeActions[action.key as HomeActionKeys](state, action)
 	} else {
 		// Refresh Data, keyof HomeState
-		Object.assign(state, { [action.key]: action.value })
+		state[action.key as HomeStateKeys] = action.value as never
 	}
 	return { ...state }
 }

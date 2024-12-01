@@ -1,4 +1,4 @@
-import { SearcherProps } from '@/components/searcher'
+import { SearcherProps } from '@/contexts/searcher'
 import { escape, escapeRegExp } from 'lodash-es'
 
 const SearcherUtils = {

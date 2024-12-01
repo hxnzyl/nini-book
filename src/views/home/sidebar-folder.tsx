@@ -80,8 +80,10 @@ function HomeSidebarFolderInput({ folders }: { folders: UserNoteFolderVO }) {
 			ref={inputRef}
 			defaultValue={folders.name}
 			className="h-6 px-2 py-1 my-1 w-full bg-background shadow-none focus-visible:ring-1 focus-visible:ring-sidebar-ring"
-			onBlur={(event) => stateDispatch({ key: 'addFolder', value: folders, event })}
-			onKeyDown={(event) => event.key === 'Enter' && stateDispatch({ key: 'addFolder', value: folders, event })}
+			onBlur={(event) => stateDispatch({ key: 'addFolder', value: folders, target: event.currentTarget })}
+			onKeyDown={(event) =>
+				event.key === 'Enter' && stateDispatch({ key: 'addFolder', value: folders, target: event.currentTarget })
+			}
 		/>
 	)
 }

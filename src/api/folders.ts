@@ -1,3 +1,4 @@
+import DateUtils from '@/lib/date'
 import { LocalTable } from '@/lib/local-table'
 import { UserNoteFolderPO } from '@/types/po/UserNoteFolderPO'
 import { UserNoteFolderVO } from '@/types/vo/UserNoteFolderVO'
@@ -20,7 +21,7 @@ export const getFolders = (): Promise<UserNoteFolderVO> => {
 							name: 'My Folder',
 							lvl: 1,
 							pid: '',
-							time: Math.round(performance.now() * 10)
+							date: DateUtils.getCurrentDate()
 						})
 				)
 			)
@@ -28,4 +29,14 @@ export const getFolders = (): Promise<UserNoteFolderVO> => {
 	})
 }
 
-export const addFolder = () => {}
+export const addFolder = (folders: UserNoteFolderVO) => {
+	if (folders.isNew != null) {
+		FoldersTable.insert({
+			id: folders.id,
+			name: folders.name,
+			lvl: folders.lvl,
+			pid: folders.pid,
+			date: folders.date
+		})
+	}
+}
