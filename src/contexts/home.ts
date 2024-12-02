@@ -1,5 +1,6 @@
 import { HomeAction, HomeState } from '@/reducers/home'
-import { UserNoteFilesVO } from '@/types/vo/UserNoteFilesVO'
+import { MenuVO } from '@/types/vo/MenuVO'
+import { UserNoteFolderVO } from '@/types/vo/UserNoteFolderVO'
 import { Dispatch, SetStateAction, createContext, useContext } from 'react'
 
 export const SIDEBAR_WIDTH = ['36rem', '16rem', '20rem']
@@ -12,7 +13,7 @@ export interface HomeContext {
 	stateDispatch: Dispatch<HomeAction>
 	sidebarWidth: string[]
 	setSidebarWidth: Dispatch<SetStateAction<string[]>>
-	isActive: (notes?: UserNoteFilesVO) => boolean
+	isActive: (folders?: UserNoteFolderVO | MenuVO) => boolean
 	isColumns: (type: 1 | 2 | 3) => boolean
 }
 

@@ -1,7 +1,8 @@
-export interface UserNoteFolderPO {
-	id: string
+import { BasePO } from './BasePO'
+
+export interface UserNoteFolderPO extends BasePO {
 	name: string
 	pid: string
 	lvl: number
-	date: string
+	isFavorite: number
 }

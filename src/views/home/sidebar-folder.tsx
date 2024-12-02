@@ -13,10 +13,12 @@ import { HomeSidebarFolderActionContextMenu, HomeSidebarFolderActionDropdownMenu
 
 export function HomeSidebarFolder({ folders, ...props }: ComponentProps<'li'> & { folders: UserNoteFolderVO }) {
 	const { stateDispatch, isActive } = useHome()
-	return (
+	return folders.isRecycle ? (
+		<></>
+	) : (
 		<SidebarMenuItem {...props}>
-			{folders.isNew ? (
-				<HomeSidebarFolderInput folders={folders} />
+			{folders.isAdd || folders.isEdit ? (
+				<HomeSidebarFolderInput folders={folders} action={folders.isAdd ? 'addFolder' : 'updateFolder'} />
 			) : folders.children?.length ? (
 				<Collapsible className="group/collapsible [&[data-state=open]>button>svg]:rotate-90" defaultOpen>
 					<HomeSidebarFolderActionContextMenu folders={folders}>
@@ -72,7 +74,13 @@ export function HomeSidebarFolder({ folders, ...props }: ComponentProps<'li'> & 
 	)
 }
 
-function HomeSidebarFolderInput({ folders }: { folders: UserNoteFolderVO }) {
+function HomeSidebarFolderInput({
+	folders,
+	action
+}: {
+	folders: UserNoteFolderVO
+	action: 'addFolder' | 'updateFolder'
+}) {
 	const { stateDispatch } = useHome()
 	const inputRef = useAutoSelect()
 	return (
@@ -80,9 +88,9 @@ function HomeSidebarFolderInput({ folders }: { folders: UserNoteFolderVO }) {
 			ref={inputRef}
 			defaultValue={folders.name}
 			className="h-6 px-2 py-1 my-1 w-full bg-background shadow-none focus-visible:ring-1 focus-visible:ring-sidebar-ring"
-			onBlur={(event) => stateDispatch({ key: 'addFolder', value: folders, target: event.currentTarget })}
+			onBlur={(event) => stateDispatch({ key: action, value: folders, target: event.currentTarget })}
 			onKeyDown={(event) =>
-				event.key === 'Enter' && stateDispatch({ key: 'addFolder', value: folders, target: event.currentTarget })
+				event.key === 'Enter' && stateDispatch({ key: action, value: folders, target: event.currentTarget })
 			}
 		/>
 	)

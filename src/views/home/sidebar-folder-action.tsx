@@ -20,7 +20,7 @@ import {
 import { useHome } from '@/contexts/home'
 import { cn } from '@/lib/utils'
 import { UserNoteFolderVO } from '@/types/vo/UserNoteFolderVO'
-import { File, FileText, Folder, MoreHorizontal, Plus, Trash2 } from 'lucide-react'
+import { File, FileText, Folder, FolderPen, MoreHorizontal, Plus, Trash2 } from 'lucide-react'
 import { ReactNode, useState } from 'react'
 
 export function HomeSidebarFolderActionDropdownMenu() {
@@ -84,9 +84,19 @@ export function HomeSidebarFolderActionContextMenu({
 					</ContextMenuSub>
 				</ContextMenuGroup>
 				<ContextMenuGroup>
-					<ContextMenuItem>
+					<ContextMenuItem
+						className={folders.lvl == 1 ? 'hidden' : ''}
+						onSelect={() => stateDispatch({ key: 'renameFolder', value: folders })}
+					>
+						<FolderPen />
+						<span>Rename</span>
+					</ContextMenuItem>
+					<ContextMenuItem
+						className={cn('bg-red-50 text-red-500', folders.lvl == 1 ? 'hidden' : '')}
+						onSelect={() => stateDispatch({ key: 'removeFolder', value: folders })}
+					>
 						<Trash2 />
-						<span>Delete</span>
+						<span>Remove</span>
 					</ContextMenuItem>
 				</ContextMenuGroup>
 			</ContextMenuContent>

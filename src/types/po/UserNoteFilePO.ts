@@ -1,10 +1,9 @@
-export interface UserNoteFilePO {
-	id: string
+import { BasePO } from './BasePO'
+
+export interface UserNoteFilePO extends BasePO {
 	name: string
-	date: string
 	content: string
 	isLatest: number
-	isRecycle: number
 	isFavorite: number
 	userNoteFolderId: string
 }

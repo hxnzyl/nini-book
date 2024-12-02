@@ -105,11 +105,11 @@ export default function HomeEditor() {
 
 	// watch
 	useEffect(() => {
-		quill?.setText(state.activeNote?.content || '')
-	}, [quill, state.activeNote?.content])
+		quill?.setText(state.activeFile?.content || '')
+	}, [quill, state.activeFile?.content])
 
 	return (
-		<div ref={editorRef} className={cn('home-editor w-full h-full overflow-hidden', state.activeNote ? '' : 'hidden')}>
+		<div ref={editorRef} className={cn('home-editor w-full h-full overflow-hidden', state.activeFile ? '' : 'hidden')}>
 			{/** the contents will be replaced by Quill. */}
 		</div>
 	)

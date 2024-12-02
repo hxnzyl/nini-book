@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Sidebar, SidebarContent, SidebarGroup, SidebarHeader } from '@/components/ui/sidebar'
 import { SIDEBAR_WIDTH, useHome } from '@/contexts/home'
-import ArrayUtils from '@/lib/array'
 import { cn } from '@/lib/utils'
 import { ChevronLeft, Folder, FolderSearch, FolderSearch2, RotateCw } from 'lucide-react'
 import { useCallback, useState } from 'react'
@@ -13,13 +12,6 @@ export function HomeSidebarRight() {
 	const [disabled, setDisabled] = useState(false)
 	// parent provider
 	const { state, stateDispatch, sidebarWidth } = useHome()
-
-	const onBack = useCallback(() => {
-		const folders = ArrayUtils.findChildren([state.folders], (folder) => folder.id === state.activeFolder.pid)
-		if (folders) {
-			stateDispatch({ key: 'setActiveFolder', value: folders })
-		}
-	}, [state.folders, stateDispatch, state.activeFolder.pid])
 
 	const onRefresh = useCallback(() => {
 		setDisabled(true)
@@ -43,7 +35,7 @@ export function HomeSidebarRight() {
 							size="sm"
 							title="Go Parent Folder"
 							className={cn('absolute left-0', state.activeFolder.pid ? '' : 'hidden')}
-							onClick={onBack}
+							onClick={() => stateDispatch({ key: 'setActiveFolderAsParent', value: state.activeFolder })}
 							disabled={disabled}
 						>
 							<ChevronLeft />
@@ -77,9 +69,9 @@ export function HomeSidebarRight() {
 									className={cn(
 										'flex flex-col items-start gap-2 whitespace-nowrap border-b p-4 text-sm leading-tight transition-colors cursor-pointer',
 										'last:border-b-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-										note.id === state.activeNote?.id ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
+										note.id === state.activeFile?.id ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
 									)}
-									onClick={() => stateDispatch({ key: note.isFolder ? 'setActiveFolder' : 'activeNote', value: note })}
+									onClick={() => stateDispatch({ key: note.isFolder ? 'setActiveFolder' : 'activeFile', value: note })}
 								>
 									<div className="flex w-full items-center gap-2">
 										<Folder className={note.isFolder ? '' : 'hidden'} />

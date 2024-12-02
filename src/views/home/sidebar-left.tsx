@@ -83,9 +83,9 @@ export function HomeSidebarLeft() {
 									</SidebarMenuItem>
 								))}
 								{isColumns(3) ? (
-									<HomeSidebarFolder folders={state.folders} />
+									<HomeSidebarFolder folders={state.folders[0]} />
 								) : (
-									<HomeSidebarFolderDropdownMenu folders={state.folders} />
+									<HomeSidebarFolderDropdownMenu folders={state.folders[0]} />
 								)}
 							</SidebarMenu>
 						</SidebarGroup>

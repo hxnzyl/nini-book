@@ -20,10 +20,14 @@ import { Folder } from 'lucide-react'
 import { useState } from 'react'
 
 export function HomeSidebarFolderDropdownMenu({ folders }: { folders: UserNoteFolderVO }) {
-	const { isActive, stateDispatch: dispatch } = useHome()
+	const { isActive, stateDispatch } = useHome()
 	const [openState, setOpenState] = useState(false)
-	const onChange = (folders: UserNoteFolderVO) => (setOpenState(false), dispatch({ type: 'folder', target: folders }))
-	return (
+	const onChange = (folders: UserNoteFolderVO) => (
+		setOpenState(false), stateDispatch({ key: 'folders', value: folders })
+	)
+	return folders.isRecycle ? (
+		<></>
+	) : (
 		<DropdownMenu open={openState} onOpenChange={setOpenState}>
 			<DropdownMenuTrigger asChild>
 				<SidebarMenuItem>
@@ -74,8 +78,9 @@ function HomeSidebarFolderDropdownMenuSub({
 	onChange: (folders: UserNoteFolderVO) => void
 }) {
 	const { isActive } = useHome()
-	const folderChildren: UserNoteFolderVO[] = folders.children || []
-	return !folderChildren.length ? (
+	return folders.isRecycle ? (
+		<></>
+	) : !folders.children?.length ? (
 		<DropdownMenuItem
 			onSelect={() => onChange(folders)}
 			className={cn(
@@ -100,7 +105,7 @@ function HomeSidebarFolderDropdownMenuSub({
 			</DropdownMenuSubTrigger>
 			<DropdownMenuPortal>
 				<DropdownMenuSubContent>
-					{folderChildren.map((children, key) => (
+					{folders.children.map((children, key) => (
 						<HomeSidebarFolderDropdownMenuSub key={key} folders={children} onChange={onChange} />
 					))}
 				</DropdownMenuSubContent>

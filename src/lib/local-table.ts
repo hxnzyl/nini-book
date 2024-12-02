@@ -1,7 +1,7 @@
 import localforage from 'localforage'
 
 export const createLocalTable = (storeName: string) =>
-	localforage.createInstance({ driver: localforage.INDEXEDDB, name: 'nini-book', version: 3, storeName })
+	localforage.createInstance({ driver: localforage.INDEXEDDB, name: 'nini-book', storeName })
 
 export class LocalTable<PO extends { id: string }> {
 	private table: LocalForage
@@ -18,8 +18,8 @@ export class LocalTable<PO extends { id: string }> {
 		return new Promise((resolve) => {
 			const pos: PO[] = []
 			this.table.iterate(
-				(value: PO) => {
-					pos.push(value)
+				(po: PO) => {
+					pos.push(po)
 				},
 				() => {
 					resolve(pos)
@@ -28,8 +28,23 @@ export class LocalTable<PO extends { id: string }> {
 		})
 	}
 
-	insert(dto: PO): PO {
+	async insert(dto: PO): Promise<PO> {
 		this.table.setItem(dto.id, dto)
 		return dto
+	}
+
+	async update(dto: PO): Promise<PO> {
+		const po = await this.getOne(dto.id)
+		const newPo = { ...po, ...dto }
+		this.table.setItem(dto.id, newPo)
+		return newPo
+	}
+
+	remove(dto: PO) {
+		this.table.removeItem(dto.id)
+	}
+
+	removeById(id: string) {
+		this.table.removeItem(id)
 	}
 }

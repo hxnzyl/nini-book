@@ -1,5 +1,8 @@
 declare global {
 	type ArrayTree<T = unknown> = T & {
+		id: string
+		pid: string
+		lvl: number
 		children?: ArrayTree<T>[]
 	}
 

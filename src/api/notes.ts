@@ -16,3 +16,18 @@ export const getNotes = (): Promise<UserNoteFileVO[]> => {
 		})
 	})
 }
+
+export const updateNote = (note: UserNoteFileVO) => {
+	if (note.id != null) {
+		return NotesTable.update({
+			id: note.id,
+			name: note.name,
+			date: note.date,
+			content: note.content,
+			isLatest: note.isLatest,
+			isRecycle: note.isRecycle,
+			isFavorite: note.isFavorite,
+			userNoteFolderId: note.userNoteFolderId
+		})
+	}
+}

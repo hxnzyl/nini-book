@@ -10,7 +10,7 @@ import { ToasterContext } from '@/contexts/toaster'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { HomeAction, HomeReducer, HomeVerify } from '@/reducers/home'
 import { ToasterReducer } from '@/reducers/toaster'
-import { UserNoteFilesVO } from '@/types/vo/UserNoteFilesVO'
+import { MenuVO } from '@/types/vo/MenuVO'
 import { UserNoteFolderVO } from '@/types/vo/UserNoteFolderVO'
 import { UserVO } from '@/types/vo/UserVO'
 import HomeEditor from '@/views/home/editor'
@@ -25,8 +25,8 @@ export default function HomePage() {
 		user: {} as UserVO,
 		menus: [],
 		notes: [],
-		folders: {} as UserNoteFolderVO,
-		activeNote: { name: '', content: '' },
+		folders: [],
+		activeFile: { name: '', content: '' },
 		activeFolder: {},
 		activeFiles: [],
 		filterFiles: [],
@@ -61,7 +61,8 @@ export default function HomePage() {
 	const [sidebarWidth, setSidebarWidth] = useState(isMobile ? ['0px', '0px', '0px'] : SIDEBAR_WIDTH)
 
 	const isActive = useCallback(
-		(notes?: UserNoteFilesVO) => (notes ? notes.id === state.activeFolder.id : !!state.activeFolder.isFolder),
+		(folders?: UserNoteFolderVO | MenuVO) =>
+			folders ? folders.id === state.activeFolder.id : !!state.activeFolder.isFolder,
 		[state.activeFolder]
 	)
 
