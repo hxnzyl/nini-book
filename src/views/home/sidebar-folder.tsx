@@ -13,9 +13,7 @@ import { HomeSidebarFolderActionContextMenu, HomeSidebarFolderActionDropdownMenu
 
 export function HomeSidebarFolder({ folders, ...props }: ComponentProps<'li'> & { folders: UserNoteFolderVO }) {
 	const { stateDispatch, isActive } = useHome()
-	return folders.isRecycle ? (
-		<></>
-	) : (
+	return (
 		<SidebarMenuItem {...props}>
 			{folders.isAdd || folders.isEdit ? (
 				<HomeSidebarFolderInput folders={folders} action={folders.isAdd ? 'addFolder' : 'updateFolder'} />

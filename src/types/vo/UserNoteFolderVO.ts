@@ -5,5 +5,5 @@ export interface UserNoteFolderVO extends UserNoteFolderPO {
 	isMenu: number
 	isAdd?: boolean
 	isEdit?: boolean
-	children?: UserNoteFolderVO[]
+	children: UserNoteFolderVO[]
 }

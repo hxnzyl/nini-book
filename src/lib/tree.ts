@@ -55,11 +55,11 @@ const TreeUtils = {
 		if (list != null) {
 			const l = list.length
 			if (l > 0) {
-				const each = (t: ArrayTree<T>, i: number): ArrayTree<V> => ({
-					...map(t, i),
-					children: list.filter((t) => t.pid === t.id).map(each)
-				})
-				return list.filter((t) => t.lvl === 1).map(each)
+				const concat = (t: ArrayTree<T>, i: number, v?: ArrayTree<V>): ArrayTree<V> | [] =>
+					(v = map(t, i))
+						? { ...v, children: list.reduce((s, c, j) => (c.pid === t.id ? s.concat(concat(c, j) as []) : s), []) }
+						: []
+				return list.reduce((s, t, i) => (t.lvl === 1 ? s.concat(concat(t, i) as []) : s), [])
 			}
 		}
 		return []

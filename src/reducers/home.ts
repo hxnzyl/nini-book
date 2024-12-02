@@ -84,10 +84,12 @@ const HomeActions = {
 			id: Math.round(performance.now() * 10) + '',
 			name: `New Folder(${folders.children.length + 1})`,
 			lvl: folders.lvl + 1,
-			children: [],
 			pid: folders.id,
 			date: DateUtils.getCurrentDate(),
+			children: [],
+			isFavorite: 0,
 			isFolder: 1,
+			isMenu: 0,
 			isAdd: true
 		})
 	},

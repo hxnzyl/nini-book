@@ -6,7 +6,7 @@ import { UserNoteFolderVO } from '@/types/vo/UserNoteFolderVO'
 
 export const FoldersTable = new LocalTable<UserNoteFolderPO>('folders')
 
-export const getFolders = async () => {
+export const getFolders = async (): Promise<UserNoteFolderVO[]> => {
 	const pos = await FoldersTable.getAll()
 	if (!pos.length) {
 		// Initialization
@@ -25,7 +25,8 @@ export const getFolders = async () => {
 		(po: UserNoteFolderPO): UserNoteFolderVO => ({
 			...po,
 			isFolder: 1,
-			isMenu: 0
+			isMenu: 0,
+			children: []
 		})
 	)
 }

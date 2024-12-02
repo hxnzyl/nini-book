@@ -25,9 +25,7 @@ export function HomeSidebarFolderDropdownMenu({ folders }: { folders: UserNoteFo
 	const onChange = (folders: UserNoteFolderVO) => (
 		setOpenState(false), stateDispatch({ key: 'folders', value: folders })
 	)
-	return folders.isRecycle ? (
-		<></>
-	) : (
+	return (
 		<DropdownMenu open={openState} onOpenChange={setOpenState}>
 			<DropdownMenuTrigger asChild>
 				<SidebarMenuItem>
@@ -78,9 +76,7 @@ function HomeSidebarFolderDropdownMenuSub({
 	onChange: (folders: UserNoteFolderVO) => void
 }) {
 	const { isActive } = useHome()
-	return folders.isRecycle ? (
-		<></>
-	) : !folders.children?.length ? (
+	return !folders.children?.length ? (
 		<DropdownMenuItem
 			onSelect={() => onChange(folders)}
 			className={cn(
