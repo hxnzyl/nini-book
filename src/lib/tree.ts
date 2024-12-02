@@ -25,21 +25,20 @@ const TreeUtils = {
 	 * @param map
 	 * @returns
 	 */
-	map<T = unknown, V = unknown>(
-		list: ArrayTree<T>[] | undefined,
-		map: (value: ArrayTree<T>, index: number) => ArrayTree<V>
-	) {
-		const values: ArrayTree<V>[] = []
+	map<T = unknown, V = unknown>(list: ArrayTree<T>[] | undefined, map: (value: ArrayTree<T>, index: number) => V) {
+		const vs: V[] = []
 		if (list != null) {
 			const l = list.length
 			if (l > 0) {
 				for (let i = 0; i < l; i++) {
-					values[i] = map(list[i], i)
-					values[i].children = TreeUtils.map(list[i].children, map)
+					vs[i] = {
+						...map(list[i], i),
+						children: TreeUtils.map(list[i].children, map)
+					}
 				}
 			}
 		}
-		return values
+		return vs
 	},
 	/**
 	 * Generator Tree
@@ -48,14 +47,11 @@ const TreeUtils = {
 	 * @param map
 	 * @returns
 	 */
-	from<T = unknown, V = unknown>(
-		list: ArrayTree<T>[] | undefined,
-		map: (value: T, index: number) => ArrayTree<V>
-	): ArrayTree<V>[] {
+	from<T = unknown, V = unknown>(list: ArrayTree<T>[] | undefined, map: (value: T, index: number) => V): V[] {
 		if (list != null) {
 			const l = list.length
 			if (l > 0) {
-				const concat = (t: ArrayTree<T>, i: number, v?: ArrayTree<V>): ArrayTree<V> | [] =>
+				const concat = (t: ArrayTree<T>, i: number, v?: V): V | [] =>
 					(v = map(t, i))
 						? { ...v, children: list.reduce((s, c, j) => (c.pid === t.id ? s.concat(concat(c, j) as []) : s), []) }
 						: []
