@@ -31,10 +31,11 @@ export function HomeSidebarLeft() {
 	const { setOpen } = useSidebar()
 
 	// parent provider
-	const { state, stateDispatch, sidebarWidth, setSidebarWidth, isActive, isColumns } = useHome()
+	const { state, stateDispatch, sidebarWidth, setSidebarWidth, isColumns } = useHome()
 
 	const setColumns = useCallback(
-		(type: 1 | 2 | 3) => isColumns(type) || (setSidebarWidth(sideWidthStatic[type - 1]), setOpen(type !== 1)),
+		(columnType: 1 | 2 | 3) =>
+			isColumns(columnType) || (setSidebarWidth(sideWidthStatic[columnType - 1]), setOpen(columnType !== 1)),
 		[isColumns, setOpen, setSidebarWidth]
 	)
 
@@ -67,7 +68,9 @@ export function HomeSidebarLeft() {
 												<SidebarMenuButton
 													className={cn(
 														'transition-colors',
-														isActive(menu) ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
+														menu.id === state.activeMenu.id
+															? '!bg-sidebar-primary !text-sidebar-primary-foreground'
+															: ''
 													)}
 												>
 													{menu.icon && <LucideIcon name={menu.icon} />}
@@ -83,9 +86,9 @@ export function HomeSidebarLeft() {
 									</SidebarMenuItem>
 								))}
 								{isColumns(3) ? (
-									<HomeSidebarFolder folders={state.folders[0]} />
+									<HomeSidebarFolder folders={state.folders} />
 								) : (
-									<HomeSidebarFolderDropdownMenu folders={state.folders[0]} />
+									<HomeSidebarFolderDropdownMenu folders={state.folders} />
 								)}
 							</SidebarMenu>
 						</SidebarGroup>

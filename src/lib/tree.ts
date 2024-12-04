@@ -19,6 +19,30 @@ const TreeUtils = {
 		}
 	},
 	/**
+	 * Recursive Pull for Tree
+	 *
+	 * @param list
+	 * @param value
+	 * @returns
+	 */
+	pull<T = unknown>(list: ArrayTree<T>[] | undefined, value: ArrayTree<T>) {
+		if (list != null) {
+			const l = list.length
+			if (l > 0) {
+				for (let i = 0; i < l; i++) {
+					if (list[i] === value) {
+						list.splice(i, 1)
+						return true
+					}
+					if (TreeUtils.pull(list[i].children, value) === true) {
+						return true
+					}
+				}
+			}
+		}
+		return false
+	},
+	/**
 	 * Recursive Map for Tree
 	 *
 	 * @param list

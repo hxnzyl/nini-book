@@ -13,8 +13,8 @@ export interface HomeContext {
 	stateDispatch: Dispatch<HomeAction>
 	sidebarWidth: string[]
 	setSidebarWidth: Dispatch<SetStateAction<string[]>>
-	isActive: (folders?: UserNoteFolderVO | MenuVO) => boolean
-	isColumns: (type: 1 | 2 | 3) => boolean
+	isActive: (folderOrMenu?: UserNoteFolderVO | MenuVO) => boolean
+	isColumns: (columnType: 1 | 2 | 3) => boolean
 }
 
 /**

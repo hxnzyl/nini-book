@@ -15,8 +15,8 @@ export async function getUser(): Promise<UserVO> {
 
 export async function getMenus(): Promise<MenuVO[]> {
 	return Promise.resolve([
-		{ id: '1', name: 'Latest', icon: 'sparkles', date: '', isRecycle: 0 },
-		{ id: '2', name: 'Recycle', icon: 'recycle', date: '', isRecycle: 0 },
-		{ id: '3', name: 'Favorite', icon: 'star', date: '', isRecycle: 0 }
+		{ id: '1', name: 'Latest', icon: 'sparkles', date: '', isMenu: 1, isFolder: 0, isRecycle: 0 },
+		{ id: '2', name: 'Recycle', icon: 'recycle', date: '', isMenu: 1, isFolder: 0, isRecycle: 0 },
+		{ id: '3', name: 'Favorite', icon: 'star', date: '', isMenu: 1, isFolder: 0, isRecycle: 0 }
 	])
 }

@@ -6,7 +6,7 @@ import { UserNoteFolderVO } from '@/types/vo/UserNoteFolderVO'
 
 export const FoldersTable = new LocalTable<UserNoteFolderPO>('folders')
 
-export const getFolders = async (): Promise<UserNoteFolderVO[]> => {
+export const getFolders = async (): Promise<[UserNoteFolderVO[], UserNoteFolderVO[]]> => {
 	const pos = await FoldersTable.getAll()
 	if (!pos.length) {
 		// Initialization
@@ -20,15 +20,19 @@ export const getFolders = async (): Promise<UserNoteFolderVO[]> => {
 			isFavorite: 0
 		})
 	}
-	return TreeUtils.from(
-		pos,
-		(po: UserNoteFolderPO): UserNoteFolderVO => ({
-			...po,
-			isFolder: 1,
-			isMenu: 0,
-			children: []
-		})
-	)
+	const map = (po: UserNoteFolderPO): UserNoteFolderVO => ({
+		...po,
+		isFolder: 1,
+		isMenu: 0,
+		children: []
+	})
+	return [
+		TreeUtils.from(
+			pos.filter((po) => !po.isRecycle),
+			map
+		),
+		pos.filter((po) => po.isRecycle).map(map)
+	]
 }
 
 export const addFolder = (folders: UserNoteFolderVO) => {

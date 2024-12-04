@@ -19,14 +19,14 @@ import { UserNoteFolderVO } from '@/types/vo/UserNoteFolderVO'
 import { Folder } from 'lucide-react'
 import { useState } from 'react'
 
-export function HomeSidebarFolderDropdownMenu({ folders }: { folders: UserNoteFolderVO }) {
+export function HomeSidebarFolderDropdownMenu({ folders }: { folders: UserNoteFolderVO[] }) {
 	const { isActive, stateDispatch } = useHome()
 	const [openState, setOpenState] = useState(false)
 	const onChange = (folders: UserNoteFolderVO) => (
 		setOpenState(false), stateDispatch({ key: 'folders', value: folders })
 	)
-	return (
-		<DropdownMenu open={openState} onOpenChange={setOpenState}>
+	return folders.map((folder) => (
+		<DropdownMenu key={folder.id} open={openState} onOpenChange={setOpenState}>
 			<DropdownMenuTrigger asChild>
 				<SidebarMenuItem>
 					<Tooltip>
@@ -40,7 +40,7 @@ export function HomeSidebarFolderDropdownMenu({ folders }: { folders: UserNoteFo
 						<TooltipContent side="right" align="center" className="relative overflow-visible" sideOffset={10}>
 							{/** left arrow */}
 							<div className="absolute -left-[6px] w-2 h-2 border-t-8 border-b-8 border-r-8 border-t-transparent border-b-transparent border-r-primary"></div>
-							<div>{folders.name}</div>
+							<div>{folder.name}</div>
 						</TooltipContent>
 					</Tooltip>
 				</SidebarMenuItem>
@@ -48,64 +48,63 @@ export function HomeSidebarFolderDropdownMenu({ folders }: { folders: UserNoteFo
 			<DropdownMenuContent side="right" align="start">
 				<DropdownMenuGroup>
 					<DropdownMenuItem
-						onSelect={() => onChange(folders)}
+						onSelect={() => onChange(folder)}
 						className={cn(
 							'transition-colors cursor-pointer',
-							isActive(folders) ? '!bg-sidebar-ring !text-sidebar-accent' : ''
+							isActive(folder) ? '!bg-sidebar-ring !text-sidebar-accent' : ''
 						)}
 					>
 						<Folder />
-						<span>{folders.name}</span>
+						<span>{folder.name}</span>
 					</DropdownMenuItem>
 				</DropdownMenuGroup>
 				<DropdownMenuGroup className="px-1">
-					{folders.children?.map((children, key) => (
-						<HomeSidebarFolderDropdownMenuSub key={key} folders={children} onChange={onChange} />
-					))}
+					<HomeSidebarFolderDropdownMenuSub folders={folder.children} onChange={onChange} />
 				</DropdownMenuGroup>
 			</DropdownMenuContent>
 		</DropdownMenu>
-	)
+	))
 }
 
 function HomeSidebarFolderDropdownMenuSub({
 	folders,
 	onChange
 }: {
-	folders: UserNoteFolderVO
-	onChange: (folders: UserNoteFolderVO) => void
+	folders: UserNoteFolderVO[]
+	onChange: (folder: UserNoteFolderVO) => void
 }) {
 	const { isActive } = useHome()
-	return !folders.children?.length ? (
-		<DropdownMenuItem
-			onSelect={() => onChange(folders)}
-			className={cn(
-				'transition-colors cursor-pointer',
-				isActive(folders) ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
-			)}
-		>
-			<Folder />
-			<span>{folders.name}</span>
-		</DropdownMenuItem>
-	) : (
-		<DropdownMenuSub>
-			<DropdownMenuSubTrigger
-				onClick={() => onChange(folders)}
+	return folders.map((folder) =>
+		!folder.children?.length ? (
+			<DropdownMenuItem
+				key={folder.id}
+				onSelect={() => onChange(folder)}
 				className={cn(
 					'transition-colors cursor-pointer',
-					isActive(folders) ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
+					isActive(folder) ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
 				)}
 			>
 				<Folder />
-				<span>{folders.name}</span>
-			</DropdownMenuSubTrigger>
-			<DropdownMenuPortal>
-				<DropdownMenuSubContent>
-					{folders.children.map((children, key) => (
-						<HomeSidebarFolderDropdownMenuSub key={key} folders={children} onChange={onChange} />
-					))}
-				</DropdownMenuSubContent>
-			</DropdownMenuPortal>
-		</DropdownMenuSub>
+				<span>{folder.name}</span>
+			</DropdownMenuItem>
+		) : (
+			<DropdownMenuSub key={folder.id}>
+				<DropdownMenuSubTrigger
+					onClick={() => onChange(folder)}
+					className={cn(
+						'transition-colors cursor-pointer',
+						isActive(folder) ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
+					)}
+				>
+					<Folder />
+					<span>{folder.name}</span>
+				</DropdownMenuSubTrigger>
+				<DropdownMenuPortal>
+					<DropdownMenuSubContent>
+						<HomeSidebarFolderDropdownMenuSub folders={folder.children} onChange={onChange} />
+					</DropdownMenuSubContent>
+				</DropdownMenuPortal>
+			</DropdownMenuSub>
+		)
 	)
 }

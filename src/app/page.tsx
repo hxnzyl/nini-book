@@ -8,7 +8,7 @@ import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { HomeContext, SIDEBAR_WIDTH } from '@/contexts/home'
 import { ToasterContext } from '@/contexts/toaster'
 import { useIsMobile } from '@/hooks/use-mobile'
-import { HomeAction, HomeReducer, HomeVerify } from '@/reducers/home'
+import { HomeAction, HomeHook, HomeHooks, HomeReducer } from '@/reducers/home'
 import { ToasterReducer } from '@/reducers/toaster'
 import { MenuVO } from '@/types/vo/MenuVO'
 import { UserNoteFolderVO } from '@/types/vo/UserNoteFolderVO'
@@ -25,7 +25,10 @@ export default function HomePage() {
 		user: {} as UserVO,
 		menus: [],
 		notes: [],
+		recycleNotes: [],
 		folders: [],
+		recycleFolders: [],
+		activeMenu: {} as MenuVO,
 		activeFile: { name: '', content: '' },
 		activeFolder: {},
 		activeFiles: [],
@@ -41,9 +44,10 @@ export default function HomePage() {
 
 	const stateDispatch = useCallback(
 		(action: HomeAction) => {
-			// Pre dispatch verification
-			if (action.key in HomeVerify) {
-				const toaster = HomeVerify[action.key as keyof typeof HomeVerify](state, action)
+			const hook = HomeHooks[action.key as keyof HomeHook]
+			// Before dispatch verification
+			if (hook && hook.before) {
+				const toaster = hook.before(state, action)
 				if (toaster) {
 					// Show toast
 					toasterDispatch(toaster)
@@ -54,6 +58,15 @@ export default function HomePage() {
 			toasterDispatch({ key: 'remove' })
 			// Call original Dispatch
 			_stateDispatch(action)
+			// After dispatch verification
+			if (hook && hook.after) {
+				const toaster = hook.after(state, action)
+				if (toaster) {
+					// Show toast
+					toasterDispatch(toaster)
+					return
+				}
+			}
 		},
 		[state]
 	)
@@ -61,16 +74,16 @@ export default function HomePage() {
 	const [sidebarWidth, setSidebarWidth] = useState(isMobile ? ['0px', '0px', '0px'] : SIDEBAR_WIDTH)
 
 	const isActive = useCallback(
-		(folders?: UserNoteFolderVO | MenuVO) =>
-			folders ? folders.id === state.activeFolder.id : !!state.activeFolder.isFolder,
+		(folderOrMenu?: UserNoteFolderVO | MenuVO) =>
+			folderOrMenu ? folderOrMenu.id === state.activeFolder.id : !!state.activeFolder.isFolder,
 		[state.activeFolder]
 	)
 
 	const isColumns = useCallback(
-		(type: 1 | 2 | 3) =>
-			type === 1
+		(columnType: 1 | 2 | 3) =>
+			columnType === 1
 				? sidebarWidth[2] === '0px'
-				: type === 2
+				: columnType === 2
 				? sidebarWidth[1] !== SIDEBAR_WIDTH[1] && sidebarWidth[2] === SIDEBAR_WIDTH[2]
 				: sidebarWidth[0] === SIDEBAR_WIDTH[0],
 		[sidebarWidth]
@@ -86,8 +99,8 @@ export default function HomePage() {
 		Promise.all([getUser(), getMenus(), getNotes(), getFolders()]).then(([user, menus, notes, folders]) => {
 			// Fetch data
 			_stateDispatch({
-				key: 'all',
-				value: { user, menus, notes, folders }
+				key: 'refresh',
+				value: { user, menus, notes: notes[0], recycleNotes: notes[1], folders: folders[0], recycleFolders: folders[1] }
 			})
 		})
 	}, [])

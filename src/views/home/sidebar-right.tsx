@@ -17,7 +17,7 @@ export function HomeSidebarRight() {
 		setDisabled(true)
 		getFolders()
 			.then((folders) => {
-				stateDispatch({ key: 'folders', value: folders })
+				stateDispatch({ key: 'refresh', value: { folders: folders[0], recycleFolders: folders[1] } })
 				setDisabled(false)
 			})
 			.catch(() => {
@@ -63,25 +63,25 @@ export function HomeSidebarRight() {
 				<SidebarContent style={{ width: SIDEBAR_WIDTH[2] }}>
 					<ScrollArea hidden={!state.filterFiles.length}>
 						<SidebarGroup className="px-0">
-							{state.filterFiles.map((note) => (
+							{state.filterFiles.map((file) => (
 								<div
-									key={note.id}
+									key={file.id}
 									className={cn(
 										'flex flex-col items-start gap-2 whitespace-nowrap border-b p-4 text-sm leading-tight transition-colors cursor-pointer',
 										'last:border-b-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-										note.id === state.activeFile?.id ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
+										file.id === state.activeFile?.id ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
 									)}
-									onClick={() => stateDispatch({ key: note.isFolder ? 'setActiveFolder' : 'activeFile', value: note })}
+									onClick={() => stateDispatch({ key: file.isFolder ? 'setActiveFolder' : 'activeFile', value: file })}
 								>
 									<div className="flex w-full items-center gap-2">
-										<Folder className={note.isFolder ? '' : 'hidden'} />
-										<SearcherText text={note.name} keyword={state.keyword} />
-										<span className="ml-auto text-xs">{note.date}</span>
+										<Folder className={file.isFolder ? '' : 'hidden'} />
+										<SearcherText text={file.name} keyword={state.keyword} />
+										<span className="ml-auto text-xs">{file.date}</span>
 									</div>
 									<SearcherText
-										hidden={!note.isFile}
+										hidden={!file.isFile}
 										className={'line-clamp-2 w-[260px] whitespace-break-spaces text-xs'}
-										text={note.content}
+										text={file.content}
 										keyword={state.keyword}
 									/>
 								</div>

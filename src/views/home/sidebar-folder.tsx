@@ -11,19 +11,19 @@ import { ChevronRight, Folder } from 'lucide-react'
 import { ComponentProps } from 'react'
 import { HomeSidebarFolderActionContextMenu, HomeSidebarFolderActionDropdownMenu } from './sidebar-folder-action'
 
-export function HomeSidebarFolder({ folders, ...props }: ComponentProps<'li'> & { folders: UserNoteFolderVO }) {
+export function HomeSidebarFolder({ folders, ...props }: ComponentProps<'li'> & { folders: UserNoteFolderVO[] }) {
 	const { stateDispatch, isActive } = useHome()
-	return (
-		<SidebarMenuItem {...props}>
-			{folders.isAdd || folders.isEdit ? (
-				<HomeSidebarFolderInput folders={folders} action={folders.isAdd ? 'addFolder' : 'updateFolder'} />
-			) : folders.children?.length ? (
+	return folders.map((folder) => (
+		<SidebarMenuItem key={folder.id} {...props}>
+			{folder.isAdd || folder.isEdit ? (
+				<HomeSidebarFolderInput folder={folder} action={folder.isAdd ? 'addFolder' : 'updateFolder'} />
+			) : folder.children?.length ? (
 				<Collapsible className="group/collapsible [&[data-state=open]>button>svg]:rotate-90" defaultOpen>
-					<HomeSidebarFolderActionContextMenu folders={folders}>
+					<HomeSidebarFolderActionContextMenu folders={folder}>
 						<SidebarMenuButton
 							className={cn(
 								'group/action transition-colors py-0',
-								isActive(folders) ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
+								isActive(folder) ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
 							)}
 						>
 							<CollapsibleTrigger asChild>
@@ -31,52 +31,50 @@ export function HomeSidebarFolder({ folders, ...props }: ComponentProps<'li'> & 
 							</CollapsibleTrigger>
 							<div
 								className="flex items-center flex-1 gap-2 py-2 text-sm"
-								onClick={() => stateDispatch({ key: 'setActiveFolder', value: folders })}
+								onClick={() => stateDispatch({ key: 'setActiveFolderAsMenu', value: folder })}
 							>
 								<Folder className="w-4 h-4" />
-								<span>{folders.name}</span>
+								<span>{folder.name}</span>
 							</div>
 							<HomeSidebarFolderActionDropdownMenu />
 						</SidebarMenuButton>
 					</HomeSidebarFolderActionContextMenu>
 					<CollapsibleContent>
 						<SidebarMenuSub className="mr-0 pr-0">
-							{folders.children.map((children) => (
-								<HomeSidebarFolder key={children.id} folders={children} />
-							))}
+							<HomeSidebarFolder folders={folder.children} />
 						</SidebarMenuSub>
 					</CollapsibleContent>
 				</Collapsible>
 			) : (
-				<HomeSidebarFolderActionContextMenu folders={folders}>
+				<HomeSidebarFolderActionContextMenu folders={folder}>
 					{/** button.py-0 and div.py-2.text-sm: issue clicking padding is invalid */}
 					<SidebarMenuButton
-						onClick={() => stateDispatch({ key: 'setActiveFolder', value: folders })}
+						onClick={() => stateDispatch({ key: 'setActiveFolderAsMenu', value: folder })}
 						className={cn(
 							'group/action transition-colors py-0',
-							isActive(folders) ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
+							isActive(folder) ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
 						)}
 					>
 						<div
 							className="flex items-center flex-1 gap-2 py-2 text-sm"
-							onClick={() => stateDispatch({ key: 'setActiveFolder', value: folders })}
+							onClick={() => stateDispatch({ key: 'setActiveFolderAsMenu', value: folder })}
 						>
 							<Folder className="w-4 h-4" />
-							<span>{folders.name}</span>
+							<span>{folder.name}</span>
 						</div>
 						<HomeSidebarFolderActionDropdownMenu />
 					</SidebarMenuButton>
 				</HomeSidebarFolderActionContextMenu>
 			)}
 		</SidebarMenuItem>
-	)
+	))
 }
 
 function HomeSidebarFolderInput({
-	folders,
+	folder,
 	action
 }: {
-	folders: UserNoteFolderVO
+	folder: UserNoteFolderVO
 	action: 'addFolder' | 'updateFolder'
 }) {
 	const { stateDispatch } = useHome()
@@ -84,11 +82,11 @@ function HomeSidebarFolderInput({
 	return (
 		<Input
 			ref={inputRef}
-			defaultValue={folders.name}
+			defaultValue={folder.name}
 			className="h-6 px-2 py-1 my-1 w-full bg-background shadow-none focus-visible:ring-1 focus-visible:ring-sidebar-ring"
-			onBlur={(event) => stateDispatch({ key: action, value: folders, target: event.currentTarget })}
+			onBlur={(event) => stateDispatch({ key: action, value: folder, target: event.currentTarget })}
 			onKeyDown={(event) =>
-				event.key === 'Enter' && stateDispatch({ key: action, value: folders, target: event.currentTarget })
+				event.key === 'Enter' && stateDispatch({ key: action, value: folder, target: event.currentTarget })
 			}
 		/>
 	)
