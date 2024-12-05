@@ -199,7 +199,8 @@ const HomeActions = {
 		state.activeFolder = { id: folders.id, pid: folders.pid, name: folders.name, isFolder: 1 }
 		state.keyword = ''
 		addNote(newNote)
-	}
+	},
+	moveFolder(state: HomeState, action: HomeAction) {}
 }
 
 type HomeActionKeys = keyof typeof HomeActions

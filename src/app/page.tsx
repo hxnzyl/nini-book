@@ -13,9 +13,9 @@ import { ToasterReducer } from '@/reducers/toaster'
 import { MenuVO } from '@/types/vo/MenuVO'
 import { UserNoteFolderVO } from '@/types/vo/UserNoteFolderVO'
 import { UserVO } from '@/types/vo/UserVO'
-import HomeEditor from '@/views/home/editor'
-import HomeHeader from '@/views/home/header'
-import { HomeSidebar } from '@/views/home/sidebar'
+import HomeEditor from '@/views/editor'
+import HomeHeader from '@/views/header'
+import { HomeSidebar } from '@/views/sidebar'
 import { useCallback, useEffect, useReducer, useState } from 'react'
 
 export default function HomePage() {
