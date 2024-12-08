@@ -11,7 +11,14 @@ import { ChevronRight, Folder } from 'lucide-react'
 import { ComponentProps } from 'react'
 import { HomeSidebarFolderActionContextMenu, HomeSidebarFolderActionDropdownMenu } from './sidebar-folder-action'
 
-export function HomeSidebarFolder({ folders, ...props }: ComponentProps<'li'> & { folders: UserNoteFolderVO[] }) {
+export function HomeSidebarFolder({
+	parent,
+	folders,
+	...props
+}: ComponentProps<'li'> & {
+	parent?: UserNoteFolderVO
+	folders: UserNoteFolderVO[]
+}) {
 	const { stateDispatch, isActive } = useHome()
 	return folders.map((folder) => (
 		<SidebarMenuItem key={folder.id} {...props}>
@@ -19,7 +26,7 @@ export function HomeSidebarFolder({ folders, ...props }: ComponentProps<'li'> & 
 				<HomeSidebarFolderInput folder={folder} action={folder.isAdd ? 'addFolder' : 'updateFolder'} />
 			) : folder.children?.length ? (
 				<Collapsible className="group/collapsible [&[data-state=open]>button>svg]:rotate-90" defaultOpen>
-					<HomeSidebarFolderActionContextMenu folders={folder}>
+					<HomeSidebarFolderActionContextMenu parent={parent} folder={folder}>
 						<SidebarMenuButton
 							className={cn(
 								'group/action transition-colors py-0',
@@ -41,12 +48,12 @@ export function HomeSidebarFolder({ folders, ...props }: ComponentProps<'li'> & 
 					</HomeSidebarFolderActionContextMenu>
 					<CollapsibleContent>
 						<SidebarMenuSub className="mr-0 pr-0">
-							<HomeSidebarFolder folders={folder.children} />
+							<HomeSidebarFolder parent={folder} folders={folder.children} />
 						</SidebarMenuSub>
 					</CollapsibleContent>
 				</Collapsible>
 			) : (
-				<HomeSidebarFolderActionContextMenu folders={folder}>
+				<HomeSidebarFolderActionContextMenu parent={parent} folder={folder}>
 					{/** button.py-0 and div.py-2.text-sm: issue clicking padding is invalid */}
 					<SidebarMenuButton
 						onClick={() => stateDispatch({ key: 'setActiveFolderAsMenu', value: folder })}

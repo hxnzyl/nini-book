@@ -51,7 +51,7 @@ const HomeActions = {
 			action.value = state.activeMenu
 			HomeActions.setActiveMenu(state, action)
 		} else {
-			action.value = state.folders[0]
+			action.value = state.activeFolder
 			HomeActions.setActiveFolder(state, action)
 		}
 	},
@@ -64,7 +64,6 @@ const HomeActions = {
 		const files = (folders.children || [])
 			.filter((folder) => !folder.isAdd)
 			.concat(state.notes.filter((note) => note.userNoteFolderId === folders.id) as [])
-		console.log(files, state)
 		state.activeFile = files.find((file) => !file.isFolder)
 		state.activeFiles = files
 		state.filterFiles = files
@@ -200,7 +199,28 @@ const HomeActions = {
 		state.keyword = ''
 		addNote(newNote)
 	},
-	moveFolder(state: HomeState, action: HomeAction) {}
+	moveFolder(state: HomeState, action: HomeAction) {
+		const [parent, target, destination] = action.value as UserNoteFolderVO[]
+		// Remove it
+		TreeUtils.pull(parent.children, target)
+		// Push end
+		destination.children.push(target)
+		// Update pid
+		if (target.pid !== destination.id) {
+			target.pid = destination.id
+			// Update lvl
+			target.lvl = destination.lvl + 1
+			updateFolder(target)
+			TreeUtils.forEach(
+				target.children,
+				(child, index, parent) => {
+					child.lvl = parent!.lvl + 1
+					updateFolder(child)
+				},
+				target
+			)
+		}
+	}
 }
 
 type HomeActionKeys = keyof typeof HomeActions

@@ -32,7 +32,6 @@ export function HomeSidebarRight() {
 					<div className="flex w-full items-center justify-center relative h-12">
 						<Button
 							variant="ghost"
-							size="sm"
 							title="Go Parent Folder"
 							className={cn('absolute left-0', state.activeFolder.pid ? '' : 'hidden')}
 							onClick={() => stateDispatch({ key: 'setActiveFolderAsParent', value: state.activeFolder })}

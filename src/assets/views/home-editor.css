@@ -1,13 +1,12 @@
 @import 'quill/dist/quill.snow.css';
 
 .home-editor .ql-container {
-	border: none;
+	@apply border-none;
 }
 
 .home-editor .ql-toolbar {
-	border: none;
+	@apply border-none min-h-10 py-1.5 gap-1.5;
 	border-bottom: 1px solid hsl(var(--border));
-	@apply min-h-10 py-1.5 gap-1.5;
 }
 
 .home-editor .ql-container {

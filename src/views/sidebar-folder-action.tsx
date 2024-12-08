@@ -50,18 +50,20 @@ export function HomeSidebarFolderActionDropdownMenu() {
 }
 
 export function HomeSidebarFolderActionContextMenu({
-	folders,
+	parent,
+	folder,
 	children
 }: Readonly<{
-	folders: UserNoteFolderVO
+	parent?: UserNoteFolderVO
+	folder: UserNoteFolderVO
 	children: ReactNode
 }>) {
-	const { stateDispatch } = useHome()
-
+	const { state, stateDispatch } = useHome()
+	const [openState, setOpenState] = useState(false)
 	return (
-		<ContextMenu>
+		<ContextMenu onOpenChange={setOpenState}>
 			<ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
-			<ContextMenuContent>
+			<ContextMenuContent className={openState ? '' : 'hidden'}>
 				<ContextMenuGroup>
 					<ContextMenuSub>
 						<ContextMenuSubTrigger>
@@ -70,12 +72,12 @@ export function HomeSidebarFolderActionContextMenu({
 						</ContextMenuSubTrigger>
 						<ContextMenuPortal>
 							<ContextMenuSubContent>
-								<ContextMenuItem onSelect={() => stateDispatch({ key: 'newDocument', value: folders })}>
+								<ContextMenuItem onSelect={() => stateDispatch({ key: 'newDocument', value: folder })}>
 									<File />
 									<span>New Document</span>
 								</ContextMenuItem>
 								<ContextMenuSeparator />
-								<ContextMenuItem onSelect={() => stateDispatch({ key: 'newFolder', value: folders })}>
+								<ContextMenuItem onSelect={() => stateDispatch({ key: 'newFolder', value: folder })}>
 									<Folder />
 									<span>New Folder</span>
 								</ContextMenuItem>
@@ -83,8 +85,8 @@ export function HomeSidebarFolderActionContextMenu({
 						</ContextMenuPortal>
 					</ContextMenuSub>
 				</ContextMenuGroup>
-				<ContextMenuGroup className={folders.lvl == 1 ? 'hidden' : ''}>
-					<ContextMenuItem onSelect={() => stateDispatch({ key: 'renameFolder', value: folders })}>
+				<ContextMenuGroup className={folder.lvl == 1 ? 'hidden' : ''}>
+					<ContextMenuItem onSelect={() => stateDispatch({ key: 'renameFolder', value: folder })}>
 						<FolderPen />
 						<span>Rename</span>
 					</ContextMenuItem>
@@ -93,18 +95,18 @@ export function HomeSidebarFolderActionContextMenu({
 							<MoveRight />
 							<span>Move</span>
 						</ContextMenuSubTrigger>
-						<ContextMenuPortal>
-							<ContextMenuSubContent>
-								<ContextMenuItem>
-									<Folder />
-									<span>Folder</span>
-								</ContextMenuItem>
-							</ContextMenuSubContent>
-						</ContextMenuPortal>
+						<ContextMenuSubContent>
+							<HomeSidebarFolderActionContextMenuSub
+								parent={parent}
+								target={folder}
+								folders={state.folders}
+								onClose={() => setOpenState(false)}
+							/>
+						</ContextMenuSubContent>
 					</ContextMenuSub>
 					<ContextMenuItem
 						className="bg-red-50 text-red-500"
-						onSelect={() => stateDispatch({ key: 'removeFolder', value: folders })}
+						onSelect={() => stateDispatch({ key: 'removeFolder', value: folder })}
 					>
 						<Trash2 />
 						<span>Remove</span>
@@ -112,5 +114,47 @@ export function HomeSidebarFolderActionContextMenu({
 				</ContextMenuGroup>
 			</ContextMenuContent>
 		</ContextMenu>
+	)
+}
+
+function HomeSidebarFolderActionContextMenuSub({
+	parent,
+	target,
+	folders,
+	onClose
+}: Readonly<{
+	parent?: UserNoteFolderVO
+	target: UserNoteFolderVO
+	folders: UserNoteFolderVO[]
+	onClose: () => void
+}>) {
+	const { stateDispatch } = useHome()
+	return folders.map((folder) =>
+		!folder.children.length ? (
+			<ContextMenuItem
+				key={folder.id}
+				onSelect={() => stateDispatch({ key: 'moveFolder', value: [parent || folder, target, folder] })}
+			>
+				<Folder />
+				<span>{folder.name}</span>
+			</ContextMenuItem>
+		) : (
+			<ContextMenuSub key={folder.id}>
+				<ContextMenuSubTrigger
+					onClick={() => (onClose(), stateDispatch({ key: 'moveFolder', value: [parent || folder, target, folder] }))}
+				>
+					<Folder />
+					<span>{folder.name}</span>
+				</ContextMenuSubTrigger>
+				<ContextMenuSubContent>
+					<HomeSidebarFolderActionContextMenuSub
+						target={target}
+						parent={parent}
+						folders={folder.children}
+						onClose={onClose}
+					/>
+				</ContextMenuSubContent>
+			</ContextMenuSub>
+		)
 	)
 }
