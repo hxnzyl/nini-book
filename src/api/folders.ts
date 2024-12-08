@@ -28,7 +28,7 @@ export const getFolders = async (): Promise<[UserNoteFolderVO[], UserNoteFolderV
 	})
 	return [
 		TreeUtils.from(
-			pos.filter((po) => !po.isRecycle),
+			pos.filter((po) => !po.isRecycle).sort((prev, next) => prev.name.localeCompare(next.name)),
 			map
 		),
 		pos.filter((po) => po.isRecycle).map(map)
