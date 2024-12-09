@@ -7,6 +7,8 @@ import { SIDEBAR_WIDTH, useHome } from '@/contexts/home'
 import { cn } from '@/lib/utils'
 import { ChevronLeft, Folder, FolderSearch, FolderSearch2, RotateCw } from 'lucide-react'
 import { useCallback, useState } from 'react'
+import { HomeSidebarFolderInput } from './sidebar-folder'
+import { HomeSidebarFolderActionContextMenu } from './sidebar-folder-action'
 
 export function HomeSidebarRight() {
 	const [disabled, setDisabled] = useState(false)
@@ -63,27 +65,34 @@ export function HomeSidebarRight() {
 					<ScrollArea hidden={!state.filterFiles.length}>
 						<SidebarGroup className="px-0">
 							{state.filterFiles.map((file) => (
-								<div
-									key={file.id}
-									className={cn(
-										'flex flex-col items-start gap-2 whitespace-nowrap border-b p-4 text-sm leading-tight transition-colors cursor-pointer',
-										'last:border-b-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-										file.id === state.activeFile?.id ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
-									)}
-									onClick={() => stateDispatch({ key: file.isFolder ? 'setActiveFolder' : 'activeFile', value: file })}
-								>
-									<div className="flex w-full items-center gap-2">
-										<Folder className={file.isFolder ? '' : 'hidden'} />
-										<SearcherText text={file.name} keyword={state.keyword} />
-										<span className="ml-auto text-xs">{file.date}</span>
+								<HomeSidebarFolderActionContextMenu key={file.id} file={file}>
+									<div
+										className={cn(
+											'flex flex-col items-start gap-2 whitespace-nowrap border-b p-4 text-sm leading-tight transition-colors cursor-pointer',
+											'last:border-b-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+											file.id === state.activeFile?.id ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
+										)}
+										onClick={() =>
+											stateDispatch({ key: file.isFolder ? 'setActiveFolder' : 'activeFile', value: file })
+										}
+									>
+										<div className="flex w-full items-center gap-2">
+											<Folder className={file.isFolder ? '' : 'hidden'} />
+											{file.isAdd || file.isEdit ? (
+												<HomeSidebarFolderInput file={file} />
+											) : (
+												<SearcherText text={file.name} keyword={state.keyword} />
+											)}
+											<span className="ml-auto text-xs">{file.date}</span>
+										</div>
+										<SearcherText
+											hidden={!file.isFile}
+											className={'line-clamp-2 w-[260px] whitespace-break-spaces text-xs'}
+											text={file.content}
+											keyword={state.keyword}
+										/>
 									</div>
-									<SearcherText
-										hidden={!file.isFile}
-										className={'line-clamp-2 w-[260px] whitespace-break-spaces text-xs'}
-										text={file.content}
-										keyword={state.keyword}
-									/>
-								</div>
+								</HomeSidebarFolderActionContextMenu>
 							))}
 						</SidebarGroup>
 					</ScrollArea>
@@ -95,7 +104,7 @@ export function HomeSidebarRight() {
 					>
 						<div className="flex flex-col items-center gap-2">
 							<FolderSearch className="w-20 h-20" />
-							<span>Not found document.</span>
+							<span>Not found file.</span>
 						</div>
 					</div>
 					<div
@@ -106,8 +115,8 @@ export function HomeSidebarRight() {
 					>
 						<div className="flex flex-col items-center gap-2">
 							<FolderSearch2 className="w-20 h-20" />
-							<span>Not found document.</span>
-							<Button>New Document</Button>
+							<span>Not found file.</span>
+							<Button>New File</Button>
 						</div>
 					</div>
 				</SidebarContent>

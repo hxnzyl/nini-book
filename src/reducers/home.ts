@@ -1,5 +1,3 @@
-'use client'
-
 import { addFolder, updateFolder } from '@/api/folders'
 import { addNote, updateNote } from '@/api/notes'
 import { SearcherProps } from '@/contexts/searcher'
@@ -7,10 +5,10 @@ import DateUtils from '@/lib/date'
 import SearcherUtils from '@/lib/searcher'
 import TreeUtils from '@/lib/tree'
 import { MenuVO } from '@/types/vo/MenuVO'
-import { UserNoteFileVO } from '@/types/vo/UserNoteFileVO'
 import { UserNoteFolderVO } from '@/types/vo/UserNoteFolderVO'
 import { UserVO } from '@/types/vo/UserVO'
 import { Reducer } from 'react'
+import { UserNoteFileVO } from './../types/vo/UserNoteFileVO'
 import { ToasterAction } from './toaster'
 
 export interface HomeState {
@@ -51,7 +49,7 @@ const HomeActions = {
 			action.value = state.activeMenu
 			HomeActions.setActiveMenu(state, action)
 		} else {
-			action.value = state.activeFolder
+			action.value = state.activeFolder.id ? state.activeFolder : state.folders[0]
 			HomeActions.setActiveFolder(state, action)
 		}
 	},
@@ -162,43 +160,6 @@ const HomeActions = {
 		// Set activity folder as parent if the folder is active
 		HomeActions.setActiveFolderAsParent(state, action)
 	},
-	removeFile(state: HomeState, action: HomeAction) {
-		const note = action.value as UserNoteFileVO
-		// Add recycle note
-		state.recycleNotes.push(note)
-		// Update storage note
-		note.isRecycle = 1
-		updateNote(note)
-		// Set activity folder as it's folder
-		action.value = TreeUtils.find(state.folders, (folder) => folder.id === note.userNoteFolderId) || state.folders[0]
-		HomeActions.setActiveFolder(state, action)
-	},
-	newDocument(state: HomeState, action: HomeAction) {
-		const folders = action.value as UserNoteFolderVO
-		const newNote = {
-			id: Math.round(performance.now() * 10) + '',
-			name: `New Document(${state.notes.length + 1})`,
-			content: '',
-			date: DateUtils.getCurrentDate(),
-			isLatest: 0,
-			isRecycle: 0,
-			isFavorite: 0,
-			userNoteFolderId: folders.id,
-			isFile: 1,
-			isAdd: true
-		}
-		state.notes.push(newNote)
-		const files = (folders.children || []).concat(
-			state.notes.filter((note) => !note.isRecycle && note.userNoteFolderId === folders.id) as []
-		)
-		state.notes = state.notes
-		state.activeFile = newNote
-		state.activeFiles = files
-		state.filterFiles = files
-		state.activeFolder = { id: folders.id, pid: folders.pid, name: folders.name, isFolder: 1 }
-		state.keyword = ''
-		addNote(newNote)
-	},
 	moveFolder(state: HomeState, action: HomeAction) {
 		const [parent, target, destination] = action.value as UserNoteFolderVO[]
 		// Remove it
@@ -220,6 +181,66 @@ const HomeActions = {
 				target
 			)
 		}
+	},
+	newFile(state: HomeState, action: HomeAction) {
+		const folders = action.value as UserNoteFolderVO
+		const newNote: UserNoteFileVO = {
+			id: Math.round(performance.now() * 10) + '',
+			name: `New File(${state.notes.length + 1})`,
+			content: '',
+			date: DateUtils.getCurrentDate(),
+			isLatest: 0,
+			isRecycle: 0,
+			isFavorite: 0,
+			userNoteFolderId: folders.id,
+			isFile: 1,
+			isAdd: true
+		}
+		state.notes.push(newNote)
+		const files: Partial<UserNoteFileVO & UserNoteFolderVO>[] = folders.children || []
+		files.push(newNote)
+		state.notes = state.notes
+		state.activeFile = newNote
+		state.activeFiles = files
+		state.filterFiles = files
+		state.activeFolder = folders
+		state.keyword = ''
+	},
+	addFile(state: HomeState, action: HomeAction) {
+		const file = action.value as UserNoteFileVO
+		file.isAdd = false
+		addNote(file)
+	},
+	renameFile(state: HomeState, action: HomeAction) {
+		const file = action.value as UserNoteFileVO
+		file.isEdit = true
+	},
+	updateFile(state: HomeState, action: HomeAction) {
+		const file = action.value as UserNoteFileVO
+		file.isEdit = false
+		updateNote(file)
+	},
+	removeFile(state: HomeState, action: HomeAction) {
+		const note = action.value as UserNoteFileVO
+		// Add recycle note
+		state.recycleNotes.push(note)
+		// Update storage note
+		note.isRecycle = 1
+		updateNote(note)
+		// Set activity folder as it's folder
+		action.value = state.activeFolder
+		HomeActions.setActiveFolder(state, action)
+	},
+	moveFile(state: HomeState, action: HomeAction) {
+		const values = action.value as unknown[]
+		const target = values[0] as UserNoteFileVO
+		const destination = values[1] as UserNoteFolderVO
+		// Update folder id
+		target.userNoteFolderId = destination.id
+		updateNote(target)
+		// Refresh Active Folder
+		action.value = state.activeFolder
+		HomeActions.setActiveFolder(state, action)
 	}
 }
 
@@ -279,23 +300,6 @@ export const HomeHooks: HomeHook = {
 			}
 		}
 	},
-	newDocument: {
-		before(state: HomeState, action: HomeAction): ToasterAction | void {
-			const folders = action.value as UserNoteFolderVO
-			const noteName = `New Document(${state.notes.length + 1})`
-			if (state.notes.find((note) => note.userNoteFolderId === folders.id && note.name === noteName)) {
-				// The note name is exist
-				return {
-					key: 'add',
-					value: {
-						title: 'New Document',
-						description: `The note name "${noteName}" is existing, Please rename.`,
-						variant: 'destructive'
-					}
-				}
-			}
-		}
-	},
 	removeFolder: {
 		after(state: HomeState, action: HomeAction): ToasterAction | void {
 			const folders = action.value as UserNoteFolderVO
@@ -305,6 +309,48 @@ export const HomeHooks: HomeHook = {
 					title: 'Remove Folder Notification',
 					description: `The folder "${folders.name}" is removed.`
 				}
+			}
+		}
+	},
+	addFile: {
+		before(state: HomeState, action: HomeAction): ToasterAction | void {
+			const folders = action.value as UserNoteFolderVO
+			const noteName = `New File(${state.notes.length + 1})`
+			if (state.notes.find((note) => note.userNoteFolderId === folders.id && note.name === noteName)) {
+				// The note name is exist
+				return {
+					key: 'add',
+					value: {
+						title: 'New File',
+						description: `The note name "${noteName}" is existing, Please rename.`,
+						variant: 'destructive'
+					}
+				}
+			}
+		}
+	},
+	updateFile: {
+		before(state: HomeState, action: HomeAction): ToasterAction | void {
+			const file = action.value as UserNoteFileVO
+			const focusInput = action.target as HTMLInputElement
+			const fileName = focusInput?.value
+			if (file.name == null || file.name === '') {
+				// The file name is empty
+				focusInput.value = file.name
+				focusInput.select()
+			} else if (state.notes.find((note) => note.id !== file.id && note.name === fileName)) {
+				// The file name is exist
+				return {
+					key: 'add',
+					value: {
+						title: 'Rename File',
+						description: `The file name "${fileName}" is existing, Please rename.`,
+						variant: 'destructive'
+					}
+				}
+			} else {
+				// Set file name
+				file.name = fileName
 			}
 		}
 	},
