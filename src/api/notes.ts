@@ -18,6 +18,12 @@ export const getNotes = async (): Promise<[UserNoteFileVO[], UserNoteFileVO[]]> 
 	)
 }
 
+export const deleteNote = (note: UserNoteFileVO) => {
+	if (note.id != null) {
+		NotesTable.removeById(note.id)
+	}
+}
+
 export const addNote = (note: UserNoteFileVO) => {
 	if (note.id != null) {
 		return NotesTable.insert({

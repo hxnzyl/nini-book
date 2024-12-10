@@ -78,7 +78,7 @@ export function HomeSidebarRight() {
 									>
 										<div className="flex w-full items-center gap-2">
 											<Folder className={file.isFolder ? '' : 'hidden'} />
-											{file.isAdd || file.isEdit ? (
+											{file.isFile && (file.isAdd || file.isEdit) ? (
 												<HomeSidebarFolderInput file={file} />
 											) : (
 												<SearcherText text={file.name} keyword={state.keyword} />
@@ -116,7 +116,12 @@ export function HomeSidebarRight() {
 						<div className="flex flex-col items-center gap-2">
 							<FolderSearch2 className="w-20 h-20" />
 							<span>Not found file.</span>
-							<Button>New File</Button>
+							<Button
+								className={state.activeFolder.isMenu ? 'hidden' : ''}
+								onClick={() => stateDispatch({ key: 'newFile', value: state.activeFolder })}
+							>
+								New File
+							</Button>
 						</div>
 					</div>
 				</SidebarContent>

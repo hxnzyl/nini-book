@@ -21,7 +21,17 @@ import { useHome } from '@/contexts/home'
 import { cn } from '@/lib/utils'
 import { UserNoteFileVO } from '@/types/vo/UserNoteFileVO'
 import { UserNoteFolderVO } from '@/types/vo/UserNoteFolderVO'
-import { File, FileText, Folder, FolderPen, MoreHorizontal, MoveRight, Plus, Trash2 } from 'lucide-react'
+import {
+	ArchiveRestore,
+	File,
+	FileText,
+	Folder,
+	FolderPen,
+	MoreHorizontal,
+	MoveRight,
+	Plus,
+	Trash2
+} from 'lucide-react'
 import { ReactNode, useState } from 'react'
 
 export function HomeSidebarFolderActionDropdownMenu() {
@@ -64,7 +74,7 @@ export function HomeSidebarFolderActionContextMenu({
 		<ContextMenu>
 			<ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
 			<ContextMenuContent>
-				<ContextMenuGroup>
+				<ContextMenuGroup className={file.isRecycle ? 'hidden' : ''}>
 					<ContextMenuSub>
 						<ContextMenuSubTrigger>
 							<Plus />
@@ -89,7 +99,7 @@ export function HomeSidebarFolderActionContextMenu({
 						</ContextMenuPortal>
 					</ContextMenuSub>
 				</ContextMenuGroup>
-				<ContextMenuGroup className={file.lvl == 1 ? 'hidden' : ''}>
+				<ContextMenuGroup className={file.isRecycle || file.lvl == 1 ? 'hidden' : ''}>
 					<ContextMenuItem
 						onSelect={() => stateDispatch({ key: file.isFolder ? 'renameFolder' : 'renameFile', value: file })}
 					>
@@ -116,6 +126,26 @@ export function HomeSidebarFolderActionContextMenu({
 					>
 						<Trash2 />
 						<span>Remove</span>
+					</ContextMenuItem>
+				</ContextMenuGroup>
+				<ContextMenuGroup className={file.isRecycle ? '' : 'hidden'}>
+					<ContextMenuItem
+						onSelect={() => stateDispatch({ key: file.isFolder ? 'restoreFolder' : 'restoreFile', value: file })}
+					>
+						<ArchiveRestore />
+						<span>Restore</span>
+					</ContextMenuItem>
+					<ContextMenuItem
+						className="bg-red-50 text-red-500"
+						onSelect={() =>
+							stateDispatch({
+								key: file.isFolder ? 'deleteFolder' : 'deleteFile',
+								value: file
+							})
+						}
+					>
+						<Trash2 />
+						<span>Delete</span>
 					</ContextMenuItem>
 				</ContextMenuGroup>
 			</ContextMenuContent>

@@ -35,30 +35,36 @@ export const getFolders = async (): Promise<[UserNoteFolderVO[], UserNoteFolderV
 	]
 }
 
-export const addFolder = (folders: UserNoteFolderVO) => {
-	if (folders.isAdd != null) {
+export const deleteFolder = (folder: UserNoteFolderVO) => {
+	if (folder.id != null) {
+		FoldersTable.removeById(folder.id)
+	}
+}
+
+export const addFolder = (folder: UserNoteFolderVO) => {
+	if (folder.isAdd != null) {
 		return FoldersTable.insert({
-			id: folders.id,
-			name: folders.name,
-			lvl: folders.lvl,
-			pid: folders.pid,
-			date: folders.date,
+			id: folder.id,
+			name: folder.name,
+			lvl: folder.lvl,
+			pid: folder.pid,
+			date: folder.date,
 			isRecycle: 0,
 			isFavorite: 0
 		})
 	}
 }
 
-export const updateFolder = (folders: UserNoteFolderVO) => {
-	if (folders.id != null) {
+export const updateFolder = (folder: UserNoteFolderVO) => {
+	if (folder.id != null) {
 		return FoldersTable.update({
-			id: folders.id,
-			name: folders.name,
-			lvl: folders.lvl,
-			pid: folders.pid,
-			date: folders.date,
-			isRecycle: folders.isRecycle,
-			isFavorite: folders.isFavorite
+			id: folder.id,
+			name: folder.name,
+			lvl: folder.lvl,
+			pid: folder.pid,
+			date: folder.date,
+			isRecycle: folder.isRecycle,
+			isFavorite: folder.isFavorite
 		})
 	}
 }
