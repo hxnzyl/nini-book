@@ -18,6 +18,7 @@ import { cn } from '@/lib/utils'
 import { Columns2, Columns3, Command, PanelLeft } from 'lucide-react'
 import { useCallback } from 'react'
 import { HomeSidebarFolder } from './sidebar-folder'
+import { HomeSidebarFolderNewContextMenu } from './sidebar-folder-action'
 import { HomeSidebarFolderDropdownMenu } from './sidebar-folder-dropdown-menu'
 import { HomeSidebarUser } from './sidebar-user'
 
@@ -93,6 +94,9 @@ export function HomeSidebarLeft() {
 							</SidebarMenu>
 						</SidebarGroup>
 					</ScrollArea>
+					<HomeSidebarFolderNewContextMenu file={state.activeFolder}>
+						<div className="flex-1"></div>
+					</HomeSidebarFolderNewContextMenu>
 				</SidebarContent>
 				<SidebarFooter>
 					<div className={cn('flex items-center justify-center', isColumns(3) ? 'flex-row' : 'flex-col')}>

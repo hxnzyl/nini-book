@@ -1,6 +1,5 @@
-import { BasePO } from './BasePO'
-
-export interface UserPO extends BasePO {
+export interface UserPO {
+	id: string
 	name: string
 	email: string
 	avatar: string

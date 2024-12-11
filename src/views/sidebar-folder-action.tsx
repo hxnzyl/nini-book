@@ -3,7 +3,6 @@ import {
 	ContextMenuContent,
 	ContextMenuGroup,
 	ContextMenuItem,
-	ContextMenuPortal,
 	ContextMenuSeparator,
 	ContextMenuSub,
 	ContextMenuSubContent,
@@ -74,32 +73,19 @@ export function HomeSidebarFolderActionContextMenu({
 		<ContextMenu>
 			<ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
 			<ContextMenuContent>
-				<ContextMenuGroup className={file.isRecycle ? 'hidden' : ''}>
+				<ContextMenuGroup className={file.deleteFlag ? 'hidden' : ''}>
 					<ContextMenuSub>
 						<ContextMenuSubTrigger>
 							<Plus />
 							<span>New</span>
 						</ContextMenuSubTrigger>
-						<ContextMenuPortal>
-							<ContextMenuSubContent>
-								<ContextMenuItem
-									onSelect={() => stateDispatch({ key: 'newFile', value: file.isFolder ? file : state.activeFolder })}
-								>
-									<File />
-									<span>New File</span>
-								</ContextMenuItem>
-								<ContextMenuSeparator />
-								<ContextMenuItem
-									onSelect={() => stateDispatch({ key: 'newFolder', value: file.isFolder ? file : state.activeFolder })}
-								>
-									<Folder />
-									<span>New Folder</span>
-								</ContextMenuItem>
-							</ContextMenuSubContent>
-						</ContextMenuPortal>
+						<ContextMenuSubContent>
+							<HomeSidebarFolderNewContextMenuItems file={file} />
+						</ContextMenuSubContent>
 					</ContextMenuSub>
 				</ContextMenuGroup>
-				<ContextMenuGroup className={file.isRecycle || file.lvl == 1 ? 'hidden' : ''}>
+				<ContextMenuGroup className={file.deleteFlag || file.lvl == 1 ? 'hidden' : ''}>
+					<ContextMenuSeparator />
 					<ContextMenuItem
 						onSelect={() => stateDispatch({ key: file.isFolder ? 'renameFolder' : 'renameFile', value: file })}
 					>
@@ -112,9 +98,10 @@ export function HomeSidebarFolderActionContextMenu({
 							<span>Move</span>
 						</ContextMenuSubTrigger>
 						<ContextMenuSubContent>
-							<HomeSidebarFolderActionContextMenuSub parent={parent} target={file} folders={state.folders} />
+							<HomeSidebarFolderMoveContextMenuItems parent={parent} target={file} folders={state.folders} />
 						</ContextMenuSubContent>
 					</ContextMenuSub>
+					<ContextMenuSeparator />
 					<ContextMenuItem
 						className="bg-red-50 text-red-500"
 						onSelect={() =>
@@ -128,7 +115,7 @@ export function HomeSidebarFolderActionContextMenu({
 						<span>Remove</span>
 					</ContextMenuItem>
 				</ContextMenuGroup>
-				<ContextMenuGroup className={file.isRecycle ? '' : 'hidden'}>
+				<ContextMenuGroup className={file.deleteFlag ? '' : 'hidden'}>
 					<ContextMenuItem
 						onSelect={() => stateDispatch({ key: file.isFolder ? 'restoreFolder' : 'restoreFile', value: file })}
 					>
@@ -153,7 +140,50 @@ export function HomeSidebarFolderActionContextMenu({
 	)
 }
 
-function HomeSidebarFolderActionContextMenuSub({
+export function HomeSidebarFolderNewContextMenu({
+	file,
+	children
+}: Readonly<{
+	file: Partial<UserNoteFolderVO & UserNoteFileVO>
+	children: ReactNode
+}>) {
+	return file.isMenu ? (
+		<></>
+	) : (
+		<ContextMenu>
+			<ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
+			<ContextMenuContent>
+				<HomeSidebarFolderNewContextMenuItems file={file} />
+			</ContextMenuContent>
+		</ContextMenu>
+	)
+}
+
+export function HomeSidebarFolderNewContextMenuItems({
+	file
+}: Readonly<{
+	file: Partial<UserNoteFolderVO & UserNoteFileVO>
+}>) {
+	const { state, stateDispatch } = useHome()
+	return (
+		<>
+			<ContextMenuItem
+				onSelect={() => stateDispatch({ key: 'newFile', value: file.isFolder ? file : state.activeFolder })}
+			>
+				<File />
+				<span>New File</span>
+			</ContextMenuItem>
+			<ContextMenuItem
+				onSelect={() => stateDispatch({ key: 'newFolder', value: file.isFolder ? file : state.activeFolder })}
+			>
+				<Folder />
+				<span>New Folder</span>
+			</ContextMenuItem>
+		</>
+	)
+}
+
+export function HomeSidebarFolderMoveContextMenuItems({
 	parent,
 	target,
 	folders
@@ -164,10 +194,8 @@ function HomeSidebarFolderActionContextMenuSub({
 }>) {
 	const { stateDispatch } = useHome()
 	return folders.map((folder) => (
-		<>
+		<div key={folder.id}>
 			<ContextMenuItem
-				key={folder.id + '_item'}
-				style={{ marginLeft: folder.lvl - 1 + 'rem' }}
 				disabled={target.isFolder ? target.id === folder.id : target.userNoteFolderId === folder.id}
 				onSelect={() =>
 					target.isFolder
@@ -175,15 +203,10 @@ function HomeSidebarFolderActionContextMenuSub({
 						: stateDispatch({ key: 'moveFile', value: [target, folder] })
 				}
 			>
-				<Folder />
+				<Folder style={{ marginLeft: folder.lvl - 1 + 'rem' }} />
 				<span>{folder.name}</span>
 			</ContextMenuItem>
-			<HomeSidebarFolderActionContextMenuSub
-				key={folder.id + '_sub'}
-				target={target}
-				parent={parent}
-				folders={folder.children}
-			/>
-		</>
+			<HomeSidebarFolderMoveContextMenuItems target={target} parent={parent} folders={folder.children} />
+		</div>
 	))
 }

@@ -1,7 +1,6 @@
-import { addFolder, updateFolder } from '@/api/folders'
-import { addNote, deleteNote, updateNote } from '@/api/notes'
+import { FoldersTable } from '@/api/folders'
+import { NotesTable } from '@/api/notes'
 import { SearcherProps } from '@/contexts/searcher'
-import DateUtils from '@/lib/date'
 import SearcherUtils from '@/lib/searcher'
 import TreeUtils from '@/lib/tree'
 import { MenuVO } from '@/types/vo/MenuVO'
@@ -16,9 +15,9 @@ export interface HomeState {
 	user: UserVO
 	menus: MenuVO[]
 	notes: UserNoteFileVO[]
-	recycleNotes: UserNoteFileVO[]
+	removedNotes: UserNoteFileVO[]
 	folders: UserNoteFolderVO[]
-	recycleFolders: UserNoteFolderVO[]
+	removedFolders: UserNoteFolderVO[]
 	activeMenu: MenuVO
 	activeFile?: Partial<UserNoteFileVO>
 	activeFolder: Partial<UserNoteFolderVO>
@@ -50,6 +49,7 @@ const HomeActions = {
 			action.value = state.activeMenu
 			HomeActions.setActiveMenu(state, action)
 		} else {
+			console.log(state)
 			action.value = state.activeFolder.id ? state.activeFolder : state.folders[0]
 			HomeActions.setActiveFolder(state, action)
 		}
@@ -73,24 +73,29 @@ const HomeActions = {
 		HomeActions.setActiveFolder(state, action)
 		state.activeMenu = state.activeFolder as MenuVO
 	},
-	setActiveFolderAsParent(state: HomeState, action: HomeAction) {
-		const { pid } = action.value as UserNoteFolderVO
-		if (state.activeMenu.isMenu) {
-			action.value =
-				(state.activeMenu.name == 'Recycle' && state.recycleFolders.find((folder) => folder.id === pid)) ||
-				state.activeMenu
-			HomeActions.setActiveMenu(state, action)
-		} else {
+	goParentFolder(state: HomeState, action: HomeAction) {
+		const { pid, deleteFlag } = action.value as UserNoteFolderVO
+		const { isMenu } = state.activeMenu
+		if (!isMenu) {
 			action.value = TreeUtils.find(state.folders, (folder) => folder.id === pid) || state.folders[0]
 			HomeActions.setActiveFolder(state, action)
+		} else {
+			const activeFolder = deleteFlag && state.removedFolders.find((folder) => folder.id === pid)
+			if (activeFolder) {
+				action.value = activeFolder
+				HomeActions.setActiveFolder(state, action)
+			} else {
+				action.value = state.activeMenu
+				HomeActions.setActiveMenu(state, action)
+			}
 		}
 	},
 	setActiveMenu(state: HomeState, action: HomeAction) {
 		const menu = action.value as MenuVO
 		const noteField = ('is' + menu.name) as keyof UserNoteFileVO
 		const files =
-			noteField === 'isRecycle'
-				? state.recycleFolders.concat(state.recycleNotes as [])
+			noteField === 'deleteFlag'
+				? state.removedFolders.concat(state.removedNotes as [])
 				: (state.notes.filter((note) => note[noteField]) as [])
 		state.activeFile = files.find((file) => !file.isFolder)
 		state.activeFiles = files
@@ -106,19 +111,19 @@ const HomeActions = {
 			name: `New Folder(${folder.children.length + 1})`,
 			lvl: folder.lvl + 1,
 			pid: folder.id,
-			date: DateUtils.getCurrentDate(),
 			children: [],
 			isFavorite: 0,
-			isFolder: 1,
-			isMenu: 0,
-			isAdd: true
+			isFolder: true,
+			isMenu: false,
+			isAdd: true,
+			isEdit: false
 		})
 	},
 	addFolder(state: HomeState, action: HomeAction) {
 		const folder = action.value as UserNoteFolderVO
 		folder.isAdd = false
 		HomeActions.setActiveFolder(state, action)
-		addFolder(folder)
+		FoldersTable.insert(folder)
 	},
 	renameFolder(state: HomeState, action: HomeAction) {
 		const folder = action.value as UserNoteFolderVO
@@ -127,26 +132,23 @@ const HomeActions = {
 	updateFolder(state: HomeState, action: HomeAction) {
 		const folder = action.value as UserNoteFolderVO
 		folder.isEdit = false
-		updateFolder(folder)
+		FoldersTable.update(folder)
 	},
 	restoreFolder(state: HomeState, action: HomeAction) {
 		const folder = action.value as UserNoteFolderVO
 		// Get parent folder
 		const parentFolder = TreeUtils.find(state.folders, (f) => f.id === folder.pid)
-		// Remove recycle folder
-		pull(state.recycleFolders, folder)
+		// Remove removed folder
+		pull(state.removedFolders, folder)
 		// Update storage folder
-		folder.isRecycle = 0
-		updateFolder(folder)
+		FoldersTable.restore(folder)
 		// Add folder
 		parentFolder!.children.push(folder)
-		// Remove recycle notes
-		state.recycleNotes = state.recycleNotes.filter((note) => {
+		// Remove removed notes
+		state.removedNotes = state.removedNotes.filter((note) => {
 			const restored = folder.id === note.userNoteFolderId
 			if (restored) {
-				// Update storage note
-				note.isRecycle = 0
-				updateNote(note)
+				NotesTable.restore(note)
 			}
 			return !restored
 		})
@@ -157,13 +159,13 @@ const HomeActions = {
 	deleteFolder(state: HomeState, action: HomeAction) {
 		const folder = action.value as UserNoteFolderVO
 		// Delete folder
-		pull(state.recycleFolders, folder)
-		updateFolder(folder)
+		pull(state.removedFolders, folder)
+		FoldersTable.dispose(folder)
 		// Delete note
-		state.recycleNotes = state.recycleNotes.filter((note) => {
+		state.removedNotes = state.removedNotes.filter((note) => {
 			const deleted = folder.id === note.userNoteFolderId
 			if (deleted) {
-				deleteNote(note)
+				NotesTable.dispose(note)
 			}
 			return !deleted
 		})
@@ -175,27 +177,25 @@ const HomeActions = {
 		TreeUtils.forEach([folder], (folder) => {
 			// Remove current folder
 			TreeUtils.pull(state.folders, folder)
-			// Add recycle folder
-			state.recycleFolders.push(folder)
+			// Add removed folder
+			state.removedFolders.push(folder)
 			// Update storage folder
-			folder.isRecycle = 1
+			FoldersTable.remove(folder)
 			removedFolderIds.push(folder.id)
-			updateFolder(folder)
 		})
 		// Remove notes
 		state.notes = state.notes.filter((note) => {
 			const removed = removedFolderIds.includes(note.userNoteFolderId)
 			if (removed) {
-				// Add recycle note
-				state.recycleNotes.push(note)
+				// Add removed note
+				state.removedNotes.push(note)
 				// Update storage note
-				note.isRecycle = 1
-				updateNote(note)
+				NotesTable.remove(note)
 			}
 			return !removed
 		})
 		// Set activity folder as parent if the folder is active
-		HomeActions.setActiveFolderAsParent(state, action)
+		HomeActions.goParentFolder(state, action)
 	},
 	moveFolder(state: HomeState, action: HomeAction) {
 		const [parent, target, destination] = action.value as UserNoteFolderVO[]
@@ -208,12 +208,12 @@ const HomeActions = {
 			target.pid = destination.id
 			// Update lvl
 			target.lvl = destination.lvl + 1
-			updateFolder(target)
+			FoldersTable.update(target)
 			TreeUtils.forEach(
 				target.children,
 				(child, index, parent) => {
 					child.lvl = parent!.lvl + 1
-					updateFolder(child)
+					FoldersTable.update(child)
 				},
 				target
 			)
@@ -225,17 +225,18 @@ const HomeActions = {
 			id: Math.round(performance.now() * 10) + '',
 			name: `New File(${state.notes.length + 1})`,
 			content: '',
-			date: DateUtils.getCurrentDate(),
 			isLatest: 0,
-			isRecycle: 0,
+			deleteFlag: 0,
 			isFavorite: 0,
 			userNoteFolderId: folder.id,
-			isFile: 1,
-			isAdd: true
+			isFile: true,
+			isAdd: true,
+			isEdit: false
 		}
 		state.notes.push(newNote)
-		const folders: Partial<UserNoteFileVO & UserNoteFolderVO>[] = folder.children || []
-		const files = folders.concat(newNote)
+		const files = (folder.children || []).concat(
+			state.notes.filter((note) => note.userNoteFolderId === folder.id) as []
+		)
 		state.activeFile = newNote
 		state.activeFiles = files
 		state.filterFiles = files
@@ -245,7 +246,7 @@ const HomeActions = {
 	addFile(state: HomeState, action: HomeAction) {
 		const file = action.value as UserNoteFileVO
 		file.isAdd = false
-		addNote(file)
+		NotesTable.insert(file)
 	},
 	renameFile(state: HomeState, action: HomeAction) {
 		const file = action.value as UserNoteFileVO
@@ -254,15 +255,14 @@ const HomeActions = {
 	updateFile(state: HomeState, action: HomeAction) {
 		const file = action.value as UserNoteFileVO
 		file.isEdit = false
-		updateNote(file)
+		NotesTable.update(file)
 	},
 	restoreFile(state: HomeState, action: HomeAction) {
 		const file = action.value as UserNoteFileVO
-		// Remove recycle note
-		pull(state.recycleNotes, file)
+		// Remove removed note
+		pull(state.removedNotes, file)
 		// Update storage folder
-		file.isRecycle = 0
-		updateNote(file)
+		NotesTable.restore(file)
 		// Add note
 		state.notes.push(file)
 		// Refresh
@@ -271,18 +271,17 @@ const HomeActions = {
 	},
 	deleteFile(state: HomeState, action: HomeAction) {
 		const file = action.value as UserNoteFileVO
-		pull(state.recycleNotes, file)
-		deleteNote(file)
+		pull(state.removedNotes, file)
+		NotesTable.dispose(file)
 	},
 	removeFile(state: HomeState, action: HomeAction) {
-		const note = action.value as UserNoteFileVO
-		// Add recycle note
-		state.recycleNotes.push(note)
+		const file = action.value as UserNoteFileVO
+		// Add removed note
+		state.removedNotes.push(file)
 		// Remove note
-		note.isRecycle = 1
-		pull(state.notes, note)
+		pull(state.notes, file)
 		// Update note
-		updateNote(note)
+		NotesTable.remove(file)
 		// Set activity folder as it's folder
 		action.value = state.activeFolder
 		HomeActions.setActiveFolder(state, action)
@@ -293,7 +292,7 @@ const HomeActions = {
 		const destination = values[1] as UserNoteFolderVO
 		// Update folder id
 		target.userNoteFolderId = destination.id
-		updateNote(target)
+		NotesTable.update(target)
 		// Refresh Active Folder
 		action.value = state.activeFolder
 		HomeActions.setActiveFolder(state, action)
@@ -321,7 +320,7 @@ export const HomeHooks: HomeHook = {
 					key: 'add',
 					value: {
 						title: 'Add Folder Failure',
-						description: `The folder "${folderName}" is existing, Please rename.`,
+						description: `The folder name "${folderName}" is existing, Please rename.`,
 						variant: 'destructive'
 					}
 				}
@@ -346,12 +345,12 @@ export const HomeHooks: HomeHook = {
 					key: 'add',
 					value: {
 						title: 'Rename Folder Failure',
-						description: `The folder "${folderName}" is existing, Please rename.`,
+						description: `The folder name "${folderName}" is existing, Please rename.`,
 						variant: 'destructive'
 					}
 				}
 			} else {
-				// Set folder
+				// Set folder name
 				folder.name = folderName
 			}
 		}
@@ -359,15 +358,22 @@ export const HomeHooks: HomeHook = {
 	restoreFolder: {
 		before(state: HomeState, action: HomeAction): ToasterAction | void {
 			const folder = action.value as UserNoteFolderVO
-			// Get parent folder
-			const parentFolder = TreeUtils.find(state.folders, (f) => f.id === folder.pid)
-			if (!parentFolder) {
-				// The folder is not exists
+			if (!TreeUtils.find(state.folders, (f) => f.id === folder.pid)) {
 				return {
 					key: 'add',
 					value: {
 						title: 'Restore Folder Failure',
-						description: `The folder "${folder.name}" is not exists, Please try again.`,
+						description: `The parent folder of this folder "${folder.name}" is not exists, Please try again.`,
+						variant: 'destructive'
+					}
+				}
+			}
+			if (TreeUtils.find(state.folders, (f) => f.name === folder.name)) {
+				return {
+					key: 'add',
+					value: {
+						title: 'Restore Folder Failure',
+						description: `The folder name "${folder.name}" is exists, Please rename.`,
 						variant: 'destructive'
 					}
 				}
@@ -379,7 +385,8 @@ export const HomeHooks: HomeHook = {
 				key: 'add',
 				value: {
 					title: 'Restore Folder Success',
-					description: `The folder "${folder.name}" is restored.`
+					description: `The folder "${folder.name}" is restored.`,
+					variant: 'primary'
 				}
 			}
 		}
@@ -391,7 +398,8 @@ export const HomeHooks: HomeHook = {
 				key: 'add',
 				value: {
 					title: 'Remove Folder Success',
-					description: `The folder "${folder.name}" is removed.`
+					description: `The folder "${folder.name}" is removed.`,
+					variant: 'primary'
 				}
 			}
 		}
@@ -406,7 +414,7 @@ export const HomeHooks: HomeHook = {
 					key: 'add',
 					value: {
 						title: 'New File Failure',
-						description: `The note name "${noteName}" is existing, Please rename.`,
+						description: `The file name "${noteName}" is existing, Please rename.`,
 						variant: 'destructive'
 					}
 				}
@@ -441,15 +449,22 @@ export const HomeHooks: HomeHook = {
 	restoreFile: {
 		before(state: HomeState, action: HomeAction): ToasterAction | void {
 			const file = action.value as UserNoteFileVO
-			// Get folder
-			const folder = TreeUtils.find(state.folders, (f) => f.id === file.userNoteFolderId)
-			if (!folder) {
-				// The folder is not exists
+			if (!TreeUtils.find(state.folders, (f) => f.id === file.userNoteFolderId)) {
 				return {
 					key: 'add',
 					value: {
 						title: 'Restore File Failure',
-						description: `The file "${file.name}" folder is not exists, Please try again.`,
+						description: `The folder of this file "${file.name}" is not exists, Please try again.`,
+						variant: 'destructive'
+					}
+				}
+			}
+			if (state.notes.find((f) => f.name === file.name)) {
+				return {
+					key: 'add',
+					value: {
+						title: 'Restore File Failure',
+						description: `The file name "${file.name}" is exists, Please rename.`,
 						variant: 'destructive'
 					}
 				}
@@ -461,7 +476,8 @@ export const HomeHooks: HomeHook = {
 				key: 'add',
 				value: {
 					title: 'Restore File Success',
-					description: `The file "${file.name}" is restored.`
+					description: `The file "${file.name}" is restored.`,
+					variant: 'primary'
 				}
 			}
 		}
@@ -473,7 +489,8 @@ export const HomeHooks: HomeHook = {
 				key: 'add',
 				value: {
 					title: 'Remove File Success',
-					description: `The file "${file.name}" is removed.`
+					description: `The file "${file.name}" is removed.`,
+					variant: 'primary'
 				}
 			}
 		}

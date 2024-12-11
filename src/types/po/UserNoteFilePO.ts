@@ -1,9 +1,11 @@
-import { BasePO } from './BasePO'
+import { LocalTableBasePO } from '@/lib/local-table'
 
-export interface UserNoteFilePO extends BasePO {
-	name: string
-	content: string
-	isLatest: number
-	isFavorite: number
-	userNoteFolderId: string
+class UserNoteFilePO extends LocalTableBasePO {
+	name: string = ''
+	content: string = ''
+	isLatest: number = 0
+	isFavorite: number = 0
+	userNoteFolderId: string = ''
 }
+
+export { UserNoteFilePO }

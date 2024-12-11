@@ -1,8 +1,10 @@
-import { BasePO } from './BasePO'
+import { LocalTableBasePO } from '@/lib/local-table'
 
-export interface UserNoteFolderPO extends BasePO {
-	name: string
-	pid: string
-	lvl: number
-	isFavorite: number
+class UserNoteFolderPO extends LocalTableBasePO {
+	name: string = ''
+	pid: string = ''
+	lvl: number = 0
+	isFavorite: number = 0
 }
+
+export { UserNoteFolderPO }

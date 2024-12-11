@@ -1,6 +1,5 @@
-import { BasePO } from './BasePO'
-
-export interface MenuPO extends BasePO {
+export interface MenuPO {
+	id: string
 	name: string
 	icon?: string
 }

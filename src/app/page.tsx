@@ -25,9 +25,9 @@ export default function HomePage() {
 		user: {} as UserVO,
 		menus: [],
 		notes: [],
-		recycleNotes: [],
+		removedNotes: [],
 		folders: [],
-		recycleFolders: [],
+		removedFolders: [],
 		activeMenu: {} as MenuVO,
 		activeFile: { name: '', content: '' },
 		activeFolder: {},
@@ -100,7 +100,7 @@ export default function HomePage() {
 			// Fetch data
 			_stateDispatch({
 				key: 'refresh',
-				value: { user, menus, notes: notes[0], recycleNotes: notes[1], folders: folders[0], recycleFolders: folders[1] }
+				value: { user, menus, notes: notes[0], removedNotes: notes[1], folders: folders[0], removedFolders: folders[1] }
 			})
 		})
 	}, [])

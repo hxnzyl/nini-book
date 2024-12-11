@@ -28,7 +28,7 @@ const ToasterActions = {
 	add(state: ToasterState, action: ToasterAction) {
 		const { value } = action
 		if (value) {
-			if (value.id == null) {
+			if (!value.id) {
 				// Auto generator id
 				value.id = Math.round(performance.now() * 10 + state.toasts.length) + ''
 			}
