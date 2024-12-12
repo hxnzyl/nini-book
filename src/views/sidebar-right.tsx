@@ -98,36 +98,33 @@ export function HomeSidebarRight() {
 							))}
 						</SidebarGroup>
 					</ScrollArea>
-					<div
-						className={cn(
-							'flex flex-1 items-center justify-center',
-							!state.activeFiles.length || state.filterFiles.length ? 'hidden' : ''
-						)}
-					>
-						<div className="flex flex-col items-center gap-2">
-							<FolderSearch className="w-20 h-20" />
-							<span>Not found file.</span>
-						</div>
-					</div>
-					<div
-						className={cn(
-							'flex flex-1 items-center justify-center',
-							!state.activeFolder.id || state.activeFiles.length ? 'hidden' : ''
-						)}
-					>
-						<div className="flex flex-col items-center gap-2">
-							<FolderSearch2 className="w-20 h-20" />
-							<span>Not found file.</span>
-							<Button
-								className={state.activeMenu.isMenu ? 'hidden' : ''}
-								onClick={() => stateDispatch({ key: 'newFile', value: state.activeFolder })}
-							>
-								New File
-							</Button>
-						</div>
-					</div>
 					<HomeSidebarFolderNewContextMenu file={state.activeFolder}>
-						<div className="flex-1"></div>
+						<div className="flex flex-1 items-center justify-center">
+							<div
+								className={cn(
+									'flex flex-col items-center gap-2',
+									!state.activeFiles.length || state.filterFiles.length ? 'hidden' : ''
+								)}
+							>
+								<FolderSearch className="w-20 h-20" />
+								<span>Not found file.</span>
+							</div>
+							<div
+								className={cn(
+									'flex flex-col items-center gap-2',
+									!state.activeFolder.id || state.activeFiles.length ? 'hidden' : ''
+								)}
+							>
+								<FolderSearch2 className="w-20 h-20" />
+								<span>Not found file.</span>
+								<Button
+									className={state.activeMenu.isMenu ? 'hidden' : ''}
+									onClick={() => stateDispatch({ key: 'newFile', value: state.activeFolder })}
+								>
+									New File
+								</Button>
+							</div>
+						</div>
 					</HomeSidebarFolderNewContextMenu>
 				</SidebarContent>
 			</Sidebar>

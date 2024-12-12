@@ -49,7 +49,6 @@ const HomeActions = {
 			action.value = state.activeMenu
 			HomeActions.setActiveMenu(state, action)
 		} else {
-			console.log(state)
 			action.value = state.activeFolder.id ? state.activeFolder : state.folders[0]
 			HomeActions.setActiveFolder(state, action)
 		}
@@ -310,7 +309,7 @@ export const HomeHooks: HomeHook = {
 			const folder = action.value as UserNoteFolderVO
 			const focusInput = action.target as HTMLInputElement
 			const folderName = focusInput?.value
-			if (folder.name == null || folder.name === '') {
+			if (folderName == null || folderName === '') {
 				// The folder is empty
 				focusInput.value = folder.name
 				focusInput.select()
@@ -335,7 +334,7 @@ export const HomeHooks: HomeHook = {
 			const folder = action.value as UserNoteFolderVO
 			const focusInput = action.target as HTMLInputElement
 			const folderName = focusInput?.value
-			if (folder.name == null || folder.name === '') {
+			if (folderName == null || folderName === '') {
 				// The folder is empty
 				focusInput.value = folder.name
 				focusInput.select()
@@ -426,7 +425,7 @@ export const HomeHooks: HomeHook = {
 			const file = action.value as UserNoteFileVO
 			const focusInput = action.target as HTMLInputElement
 			const fileName = focusInput?.value
-			if (file.name == null || file.name === '') {
+			if (fileName == null || fileName === '') {
 				// The file name is empty
 				focusInput.value = file.name
 				focusInput.select()

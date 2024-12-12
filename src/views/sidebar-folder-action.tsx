@@ -20,20 +20,10 @@ import { useHome } from '@/contexts/home'
 import { cn } from '@/lib/utils'
 import { UserNoteFileVO } from '@/types/vo/UserNoteFileVO'
 import { UserNoteFolderVO } from '@/types/vo/UserNoteFolderVO'
-import {
-	ArchiveRestore,
-	File,
-	FileText,
-	Folder,
-	FolderPen,
-	MoreHorizontal,
-	MoveRight,
-	Plus,
-	Trash2
-} from 'lucide-react'
+import { ArchiveRestore, File, Folder, FolderPen, MoreHorizontal, MoveRight, Plus, Trash2 } from 'lucide-react'
 import { ReactNode, useState } from 'react'
 
-export function HomeSidebarFolderActionDropdownMenu() {
+export function HomeSidebarFolderActionDropdownMenu({ file }: { file: UserNoteFolderVO }) {
 	const [openState, setOpenState] = useState(false)
 	return (
 		<DropdownMenu open={openState} onOpenChange={setOpenState}>
@@ -49,10 +39,7 @@ export function HomeSidebarFolderActionDropdownMenu() {
 			</DropdownMenuTrigger>
 			<DropdownMenuContent side="right" align="start">
 				<DropdownMenuGroup>
-					<DropdownMenuItem>
-						<FileText />
-						<span>Add Note</span>
-					</DropdownMenuItem>
+					<HomeSidebarFolderNewMenuItems comp="DropdownMenu" file={file} />
 				</DropdownMenuGroup>
 			</DropdownMenuContent>
 		</DropdownMenu>
@@ -73,14 +60,17 @@ export function HomeSidebarFolderActionContextMenu({
 		<ContextMenu>
 			<ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
 			<ContextMenuContent>
-				<ContextMenuGroup className={file.deleteFlag ? 'hidden' : ''}>
+				<ContextMenuGroup className={file.lvl == 1 ? '' : 'hidden'}>
+					<HomeSidebarFolderNewMenuItems comp="ContextMenu" file={file} />
+				</ContextMenuGroup>
+				<ContextMenuGroup className={file.deleteFlag || file.lvl == 1 ? 'hidden' : ''}>
 					<ContextMenuSub>
 						<ContextMenuSubTrigger>
 							<Plus />
 							<span>New</span>
 						</ContextMenuSubTrigger>
 						<ContextMenuSubContent>
-							<HomeSidebarFolderNewContextMenuItems file={file} />
+							<HomeSidebarFolderNewMenuItems comp="ContextMenu" file={file} />
 						</ContextMenuSubContent>
 					</ContextMenuSub>
 				</ContextMenuGroup>
@@ -98,7 +88,7 @@ export function HomeSidebarFolderActionContextMenu({
 							<span>Move</span>
 						</ContextMenuSubTrigger>
 						<ContextMenuSubContent>
-							<HomeSidebarFolderMoveContextMenuItems parent={parent} target={file} folders={state.folders} />
+							<HomeSidebarFolderMoveMenuItems parent={parent} target={file} folders={state.folders} />
 						</ContextMenuSubContent>
 					</ContextMenuSub>
 					<ContextMenuSeparator />
@@ -148,42 +138,41 @@ export function HomeSidebarFolderNewContextMenu({
 	children: ReactNode
 }>) {
 	return file.isMenu ? (
-		<></>
+		children
 	) : (
 		<ContextMenu>
 			<ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
 			<ContextMenuContent>
-				<HomeSidebarFolderNewContextMenuItems file={file} />
+				<HomeSidebarFolderNewMenuItems comp="ContextMenu" file={file} />
 			</ContextMenuContent>
 		</ContextMenu>
 	)
 }
 
-export function HomeSidebarFolderNewContextMenuItems({
-	file
+function HomeSidebarFolderNewMenuItems({
+	file,
+	comp
 }: Readonly<{
 	file: Partial<UserNoteFolderVO & UserNoteFileVO>
+	comp: 'DropdownMenu' | 'ContextMenu'
 }>) {
 	const { state, stateDispatch } = useHome()
+	const ItemComp = comp === 'DropdownMenu' ? DropdownMenuItem : ContextMenuItem
 	return (
 		<>
-			<ContextMenuItem
-				onSelect={() => stateDispatch({ key: 'newFile', value: file.isFolder ? file : state.activeFolder })}
-			>
+			<ItemComp onSelect={() => stateDispatch({ key: 'newFile', value: file.isFolder ? file : state.activeFolder })}>
 				<File />
 				<span>New File</span>
-			</ContextMenuItem>
-			<ContextMenuItem
-				onSelect={() => stateDispatch({ key: 'newFolder', value: file.isFolder ? file : state.activeFolder })}
-			>
+			</ItemComp>
+			<ItemComp onSelect={() => stateDispatch({ key: 'newFolder', value: file.isFolder ? file : state.activeFolder })}>
 				<Folder />
 				<span>New Folder</span>
-			</ContextMenuItem>
+			</ItemComp>
 		</>
 	)
 }
 
-export function HomeSidebarFolderMoveContextMenuItems({
+function HomeSidebarFolderMoveMenuItems({
 	parent,
 	target,
 	folders
@@ -206,7 +195,7 @@ export function HomeSidebarFolderMoveContextMenuItems({
 				<Folder style={{ marginLeft: folder.lvl - 1 + 'rem' }} />
 				<span>{folder.name}</span>
 			</ContextMenuItem>
-			<HomeSidebarFolderMoveContextMenuItems target={target} parent={parent} folders={folder.children} />
+			<HomeSidebarFolderMoveMenuItems target={target} parent={parent} folders={folder.children} />
 		</div>
 	))
 }

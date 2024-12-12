@@ -44,7 +44,7 @@ export function HomeSidebarFolder({
 								<Folder className="w-4 h-4" />
 								<span>{folder.name}</span>
 							</div>
-							<HomeSidebarFolderActionDropdownMenu />
+							<HomeSidebarFolderActionDropdownMenu file={folder} />
 						</SidebarMenuButton>
 					</HomeSidebarFolderActionContextMenu>
 					<CollapsibleContent>
@@ -70,7 +70,7 @@ export function HomeSidebarFolder({
 							<Folder className="w-4 h-4" />
 							<span>{folder.name}</span>
 						</div>
-						<HomeSidebarFolderActionDropdownMenu />
+						<HomeSidebarFolderActionDropdownMenu file={folder} />
 					</SidebarMenuButton>
 				</HomeSidebarFolderActionContextMenu>
 			)}

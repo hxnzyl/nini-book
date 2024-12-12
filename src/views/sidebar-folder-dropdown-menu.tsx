@@ -22,9 +22,11 @@ import { useState } from 'react'
 export function HomeSidebarFolderDropdownMenu({ folders }: { folders: UserNoteFolderVO[] }) {
 	const { isActive, stateDispatch } = useHome()
 	const [openState, setOpenState] = useState(false)
+
 	const onChange = (folders: UserNoteFolderVO) => (
 		setOpenState(false), stateDispatch({ key: 'folders', value: folders })
 	)
+
 	return folders.map((folder) => (
 		<DropdownMenu key={folder.id} open={openState} onOpenChange={setOpenState}>
 			<DropdownMenuTrigger asChild>
@@ -32,7 +34,10 @@ export function HomeSidebarFolderDropdownMenu({ folders }: { folders: UserNoteFo
 					<Tooltip>
 						<TooltipTrigger asChild>
 							<SidebarMenuButton
-								className={cn('transition-colors', isActive() ? '!bg-sidebar-ring !text-sidebar-accent' : '')}
+								className={cn(
+									'transition-colors',
+									isActive() ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
+								)}
 							>
 								<Folder />
 							</SidebarMenuButton>
@@ -51,7 +56,7 @@ export function HomeSidebarFolderDropdownMenu({ folders }: { folders: UserNoteFo
 						onSelect={() => onChange(folder)}
 						className={cn(
 							'transition-colors cursor-pointer',
-							isActive(folder) ? '!bg-sidebar-ring !text-sidebar-accent' : ''
+							isActive(folder) ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
 						)}
 					>
 						<Folder />
