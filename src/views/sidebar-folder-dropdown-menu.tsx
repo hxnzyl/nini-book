@@ -1,14 +1,8 @@
-'use client'
-
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuGroup,
 	DropdownMenuItem,
-	DropdownMenuPortal,
-	DropdownMenuSub,
-	DropdownMenuSubContent,
-	DropdownMenuSubTrigger,
 	DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
@@ -16,19 +10,13 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useHome } from '@/contexts/home'
 import { cn } from '@/lib/utils'
 import { UserNoteFolderVO } from '@/types/vo/UserNoteFolderVO'
-import { Folder } from 'lucide-react'
-import { useState } from 'react'
+import { File, Folder } from 'lucide-react'
 
-export function HomeSidebarFolderDropdownMenu({ folders }: { folders: UserNoteFolderVO[] }) {
-	const { isActive, stateDispatch } = useHome()
-	const [openState, setOpenState] = useState(false)
+export function HomeSidebarFolderDropdownMenu() {
+	const { state, isActive } = useHome()
 
-	const onChange = (folders: UserNoteFolderVO) => (
-		setOpenState(false), stateDispatch({ key: 'folders', value: folders })
-	)
-
-	return folders.map((folder) => (
-		<DropdownMenu key={folder.id} open={openState} onOpenChange={setOpenState}>
+	return state.folders.map((folder) => (
+		<DropdownMenu key={folder.id}>
 			<DropdownMenuTrigger asChild>
 				<SidebarMenuItem>
 					<Tooltip>
@@ -51,65 +39,45 @@ export function HomeSidebarFolderDropdownMenu({ folders }: { folders: UserNoteFo
 				</SidebarMenuItem>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent side="right" align="start">
-				<DropdownMenuGroup>
-					<DropdownMenuItem
-						onSelect={() => onChange(folder)}
-						className={cn(
-							'transition-colors cursor-pointer',
-							isActive(folder) ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
-						)}
-					>
-						<Folder />
-						<span>{folder.name}</span>
-					</DropdownMenuItem>
-				</DropdownMenuGroup>
-				<DropdownMenuGroup className="px-1">
-					<HomeSidebarFolderDropdownMenuSub folders={folder.children} onChange={onChange} />
-				</DropdownMenuGroup>
+				<HomeSidebarFolderDropdownMenuGroup folder={folder} />
 			</DropdownMenuContent>
 		</DropdownMenu>
 	))
 }
 
-function HomeSidebarFolderDropdownMenuSub({
-	folders,
-	onChange
-}: {
-	folders: UserNoteFolderVO[]
-	onChange: (folder: UserNoteFolderVO) => void
-}) {
-	const { isActive } = useHome()
-	return folders.map((folder) =>
-		!folder.children?.length ? (
+function HomeSidebarFolderDropdownMenuGroup({ folder }: { folder: UserNoteFolderVO }) {
+	const { state, dispatch, isActive } = useHome()
+
+	return (
+		<DropdownMenuGroup>
 			<DropdownMenuItem
-				key={folder.id}
-				onSelect={() => onChange(folder)}
+				onSelect={() => dispatch({ key: 'setActiveFolder', value: folder })}
 				className={cn(
 					'transition-colors cursor-pointer',
-					isActive(folder) ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
+					!state.activeFile && isActive(folder) ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
 				)}
 			>
-				<Folder />
+				<Folder style={{ marginLeft: (folder.lvl - 1) / 2 + 'rem' }} />
 				<span>{folder.name}</span>
 			</DropdownMenuItem>
-		) : (
-			<DropdownMenuSub key={folder.id}>
-				<DropdownMenuSubTrigger
-					onClick={() => onChange(folder)}
-					className={cn(
-						'transition-colors cursor-pointer',
-						isActive(folder) ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
-					)}
-				>
-					<Folder />
-					<span>{folder.name}</span>
-				</DropdownMenuSubTrigger>
-				<DropdownMenuPortal>
-					<DropdownMenuSubContent>
-						<HomeSidebarFolderDropdownMenuSub folders={folder.children} onChange={onChange} />
-					</DropdownMenuSubContent>
-				</DropdownMenuPortal>
-			</DropdownMenuSub>
-		)
+			{folder.children.map((child) => (
+				<HomeSidebarFolderDropdownMenuGroup key={child.id} folder={child} />
+			))}
+			{state.notes
+				.filter((note) => note.userNoteFolderId === folder.id)
+				.map((note) => (
+					<DropdownMenuItem
+						key={note.id}
+						onSelect={() => dispatch({ key: 'activeFile', value: note })}
+						className={cn(
+							'transition-colors cursor-pointer',
+							note.id === state.activeFile?.id ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
+						)}
+					>
+						<File style={{ marginLeft: folder.lvl / 2 + 'rem' }} />
+						<span>{note.name}</span>
+					</DropdownMenuItem>
+				))}
+		</DropdownMenuGroup>
 	)
 }

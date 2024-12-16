@@ -26,18 +26,11 @@ export interface HomeState {
 	keyword: string
 }
 
-export interface HomeAction extends SearcherProps {
-	key: HomeActionKeys | keyof HomeState
-	value: Partial<HomeState> | HomeState[keyof HomeState]
-	target?: HTMLInputElement
-}
+export type HomeAction = ReducerAction<HomeState, HomeActionKeys, HTMLInputElement> & SearcherProps
 
-export type HomeHook = {
-	[key in HomeActionKeys]?: {
-		before?: (state: HomeState, action: HomeAction) => ToasterAction | void
-		after?: (state: HomeState, action: HomeAction) => ToasterAction | void
-	}
-}
+export type HomeHook = ReducerHook<HomeState, HomeAction, HomeActionKeys, ToasterAction>
+
+type HomeActionKeys = keyof typeof HomeActions
 
 /**
  * Home Actions
@@ -117,6 +110,7 @@ const HomeActions = {
 			isAdd: true,
 			isEdit: false
 		})
+		state.activeMenu = folder
 	},
 	addFolder(state: HomeState, action: HomeAction) {
 		const folder = action.value as UserNoteFolderVO
@@ -240,6 +234,7 @@ const HomeActions = {
 		state.activeFiles = files
 		state.filterFiles = files
 		state.activeFolder = folder
+		state.activeMenu = folder
 		state.keyword = ''
 	},
 	addFile(state: HomeState, action: HomeAction) {
@@ -297,8 +292,6 @@ const HomeActions = {
 		HomeActions.setActiveFolder(state, action)
 	}
 }
-
-type HomeActionKeys = keyof typeof HomeActions
 
 /**
  * Home Hooks

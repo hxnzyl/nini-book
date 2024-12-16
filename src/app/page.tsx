@@ -21,7 +21,7 @@ import { useCallback, useEffect, useReducer, useState } from 'react'
 export default function HomePage() {
 	const isMobile = useIsMobile()
 
-	const [state, _stateDispatch] = useReducer(HomeReducer, {
+	const [state, _dispatch] = useReducer(HomeReducer, {
 		user: {} as UserVO,
 		menus: [],
 		notes: [],
@@ -42,7 +42,7 @@ export default function HomePage() {
 		maxToastSize: 3
 	})
 
-	const stateDispatch = useCallback(
+	const dispatch = useCallback(
 		(action: HomeAction) => {
 			const hook = HomeHooks[action.key as keyof HomeHook]
 			// Before dispatch verification
@@ -57,7 +57,7 @@ export default function HomePage() {
 			// Clear all toasts
 			toasterDispatch({ key: 'remove' })
 			// Call original Dispatch
-			_stateDispatch(action)
+			_dispatch(action)
 			// After dispatch verification
 			if (hook && hook.after) {
 				const toaster = hook.after(state, action)
@@ -98,7 +98,7 @@ export default function HomePage() {
 	useEffect(() => {
 		Promise.all([getUser(), getMenus(), getNotes(), getFolders()]).then(([user, menus, notes, folders]) => {
 			// Fetch data
-			_stateDispatch({
+			_dispatch({
 				key: 'refresh',
 				value: { user, menus, notes: notes[0], removedNotes: notes[1], folders: folders[0], removedFolders: folders[1] }
 			})
@@ -107,7 +107,7 @@ export default function HomePage() {
 
 	return (
 		<ToasterContext.Provider value={{ toaster, toasterDispatch }}>
-			<HomeContext.Provider value={{ state, stateDispatch, sidebarWidth, setSidebarWidth, isActive, isColumns }}>
+			<HomeContext.Provider value={{ state, dispatch, sidebarWidth, setSidebarWidth, isActive, isColumns }}>
 				<SidebarProvider>
 					<HomeSidebar />
 					<SidebarInset>

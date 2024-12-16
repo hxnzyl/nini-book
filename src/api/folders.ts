@@ -26,8 +26,9 @@ export const getFolders = async (): Promise<[UserNoteFolderVO[], UserNoteFolderV
 		children: []
 	})
 	return [
+		// .sort((prev, next) => prev.name.localeCompare(next.name))
 		TreeUtils.from(
-			pos.filter((po) => !po.deleteFlag).sort((prev, next) => prev.name.localeCompare(next.name)),
+			pos.filter((po) => !po.deleteFlag),
 			map
 		),
 		pos.filter((po) => po.deleteFlag).map(map)

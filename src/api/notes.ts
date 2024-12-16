@@ -15,6 +15,6 @@ export const getNotes = async (): Promise<[UserNoteFileVO[], UserNoteFileVO[]]> 
 			isEdit: false
 		})
 	}
-	ret[0].sort((prev, next) => prev.name.localeCompare(next.name))
+	// ret[0].sort((prev, next) => prev.name.localeCompare(next.name))
 	return ret
 }

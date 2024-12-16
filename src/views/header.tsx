@@ -4,7 +4,7 @@ import { CircleCheckBig } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 export default function HomeHeader() {
-	const { state, stateDispatch } = useHome()
+	const { state, dispatch } = useHome()
 	const [value, setValue] = useState('')
 	const [defaultValue, setDefaultValue] = useState('')
 
@@ -17,7 +17,7 @@ export default function HomeHeader() {
 		if (value === '') {
 			setValue(defaultValue)
 		}
-		stateDispatch({
+		dispatch({
 			key: 'updateFile',
 			value: state.activeFile,
 			target: e.currentTarget

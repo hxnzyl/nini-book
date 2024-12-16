@@ -1,28 +1,20 @@
 'use client'
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { Input } from '@/components/ui/input'
 import { SidebarMenuButton, SidebarMenuItem, SidebarMenuSub } from '@/components/ui/sidebar'
 import { useHome } from '@/contexts/home'
-import { useAutoSelect } from '@/hooks/use-auto-select'
 import { cn } from '@/lib/utils'
-import { UserNoteFileVO } from '@/types/vo/UserNoteFileVO'
 import { UserNoteFolderVO } from '@/types/vo/UserNoteFolderVO'
 import { ChevronRight, Folder } from 'lucide-react'
-import { ComponentProps } from 'react'
-import { HomeSidebarFolderActionContextMenu, HomeSidebarFolderActionDropdownMenu } from './sidebar-folder-action'
+import { HomeSidebarFolderActionContextMenu } from './sidebar-folder-action-context-menu'
+import { HomeSidebarFolderActionDropdownMenu } from './sidebar-folder-action-dropdown-menu'
+import { HomeSidebarFolderInput } from './sidebar-folder-input'
 
-export function HomeSidebarFolder({
-	parent,
-	folders,
-	...props
-}: ComponentProps<'li'> & {
-	parent?: UserNoteFolderVO
-	folders: UserNoteFolderVO[]
-}) {
-	const { stateDispatch, isActive } = useHome()
+export function HomeSidebarFolder({ parent, folders }: { parent?: UserNoteFolderVO; folders: UserNoteFolderVO[] }) {
+	const { dispatch, isActive } = useHome()
+
 	return folders.map((folder) => (
-		<SidebarMenuItem key={folder.id} {...props}>
+		<SidebarMenuItem key={folder.id}>
 			{folder.isAdd || folder.isEdit ? (
 				<HomeSidebarFolderInput file={folder} />
 			) : folder.children?.length ? (
@@ -39,7 +31,7 @@ export function HomeSidebarFolder({
 							</CollapsibleTrigger>
 							<div
 								className="flex items-center flex-1 gap-2 py-2 text-sm"
-								onClick={() => stateDispatch({ key: 'setActiveFolderAsMenu', value: folder })}
+								onClick={() => dispatch({ key: 'setActiveFolderAsMenu', value: folder })}
 							>
 								<Folder className="w-4 h-4" />
 								<span>{folder.name}</span>
@@ -57,7 +49,7 @@ export function HomeSidebarFolder({
 				<HomeSidebarFolderActionContextMenu parent={parent} file={folder}>
 					{/** button.py-0 and div.py-2.text-sm: issue clicking padding is invalid */}
 					<SidebarMenuButton
-						onClick={() => stateDispatch({ key: 'setActiveFolderAsMenu', value: folder })}
+						onClick={() => dispatch({ key: 'setActiveFolderAsMenu', value: folder })}
 						className={cn(
 							'group/action transition-colors py-0',
 							isActive(folder) ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
@@ -65,7 +57,7 @@ export function HomeSidebarFolder({
 					>
 						<div
 							className="flex items-center flex-1 gap-2 py-2 text-sm"
-							onClick={() => stateDispatch({ key: 'setActiveFolderAsMenu', value: folder })}
+							onClick={() => dispatch({ key: 'setActiveFolderAsMenu', value: folder })}
 						>
 							<Folder className="w-4 h-4" />
 							<span>{folder.name}</span>
@@ -76,19 +68,4 @@ export function HomeSidebarFolder({
 			)}
 		</SidebarMenuItem>
 	))
-}
-
-export function HomeSidebarFolderInput({ file }: { file: Partial<UserNoteFolderVO & UserNoteFileVO> }) {
-	const { stateDispatch } = useHome()
-	const inputRef = useAutoSelect()
-	const key = file.isAdd ? (file.isFolder ? 'addFolder' : 'addFile') : file.isFolder ? 'updateFolder' : 'updateFile'
-	return (
-		<Input
-			ref={inputRef}
-			defaultValue={file.name}
-			className="h-6 px-2 py-1 my-1 w-full text-primary bg-primary-foreground shadow-none focus-visible:ring-1 focus-visible:ring-sidebar-ring"
-			onBlur={(event) => stateDispatch({ key, value: file, target: event.currentTarget })}
-			onKeyDown={(event) => event.key === 'Enter' && stateDispatch({ key, value: file, target: event.currentTarget })}
-		/>
-	)
 }

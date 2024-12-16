@@ -18,7 +18,7 @@ import { cn } from '@/lib/utils'
 import { Columns2, Columns3, Command, PanelLeft } from 'lucide-react'
 import { useCallback } from 'react'
 import { HomeSidebarFolder } from './sidebar-folder'
-import { HomeSidebarFolderNewContextMenu } from './sidebar-folder-action'
+import { HomeSidebarFolderActionNewContextMenu } from './sidebar-folder-action-new-context-menu'
 import { HomeSidebarFolderDropdownMenu } from './sidebar-folder-dropdown-menu'
 import { HomeSidebarUser } from './sidebar-user'
 
@@ -32,7 +32,7 @@ export function HomeSidebarLeft() {
 	const { setOpen } = useSidebar()
 
 	// parent provider
-	const { state, stateDispatch, sidebarWidth, setSidebarWidth, isColumns } = useHome()
+	const { state, dispatch, sidebarWidth, setSidebarWidth, isColumns } = useHome()
 
 	const setColumns = useCallback(
 		(columnType: 1 | 2 | 3) =>
@@ -63,7 +63,7 @@ export function HomeSidebarLeft() {
 						<SidebarGroup>
 							<SidebarMenu>
 								{state.menus.map((menu) => (
-									<SidebarMenuItem key={menu.id} onClick={() => stateDispatch({ key: 'setActiveMenu', value: menu })}>
+									<SidebarMenuItem key={menu.id} onClick={() => dispatch({ key: 'setActiveMenu', value: menu })}>
 										<Tooltip>
 											<TooltipTrigger asChild>
 												<SidebarMenuButton
@@ -75,7 +75,7 @@ export function HomeSidebarLeft() {
 													)}
 												>
 													{menu.icon && <LucideIcon name={menu.icon} />}
-													<span hidden={isColumns(1) || isColumns(2)}>{menu.name}</span>
+													<span>{menu.name}</span>
 												</SidebarMenuButton>
 											</TooltipTrigger>
 											<TooltipContent side="right" align="center" className="relative overflow-visible" sideOffset={10}>
@@ -86,17 +86,15 @@ export function HomeSidebarLeft() {
 										</Tooltip>
 									</SidebarMenuItem>
 								))}
-								{isColumns(3) ? (
-									<HomeSidebarFolder folders={state.folders} />
-								) : (
-									<HomeSidebarFolderDropdownMenu folders={state.folders} />
-								)}
+								{isColumns(3) ? <HomeSidebarFolder folders={state.folders} /> : <HomeSidebarFolderDropdownMenu />}
 							</SidebarMenu>
 						</SidebarGroup>
 					</ScrollArea>
-					<HomeSidebarFolderNewContextMenu file={state.activeFolder}>
+					<HomeSidebarFolderActionNewContextMenu
+						file={state.activeFolder.isMenu ? state.folders[0] : state.activeFolder}
+					>
 						<div className="flex-1"></div>
-					</HomeSidebarFolderNewContextMenu>
+					</HomeSidebarFolderActionNewContextMenu>
 				</SidebarContent>
 				<SidebarFooter>
 					<div className={cn('flex items-center justify-center', isColumns(3) ? 'flex-row' : 'flex-col')}>

@@ -10,7 +10,7 @@ export const HomeContext = createContext({} as HomeContext)
 
 export interface HomeContext {
 	state: HomeState
-	stateDispatch: Dispatch<HomeAction>
+	dispatch: Dispatch<HomeAction>
 	sidebarWidth: string[]
 	setSidebarWidth: Dispatch<SetStateAction<string[]>>
 	isActive: (folderOrMenu?: UserNoteFolderVO | MenuVO) => boolean

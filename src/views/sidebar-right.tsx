@@ -7,25 +7,25 @@ import { SIDEBAR_WIDTH, useHome } from '@/contexts/home'
 import { cn } from '@/lib/utils'
 import { ChevronLeft, Folder, FolderSearch, FolderSearch2, RotateCw } from 'lucide-react'
 import { useCallback, useState } from 'react'
-import { HomeSidebarFolderInput } from './sidebar-folder'
-import { HomeSidebarFolderActionContextMenu, HomeSidebarFolderNewContextMenu } from './sidebar-folder-action'
+import { HomeSidebarFolderActionContextMenu } from './sidebar-folder-action-context-menu'
+import { HomeSidebarFolderActionNewContextMenu } from './sidebar-folder-action-new-context-menu'
+import { HomeSidebarFolderInput } from './sidebar-folder-input'
 
 export function HomeSidebarRight() {
 	const [disabled, setDisabled] = useState(false)
 	// parent provider
-	const { state, stateDispatch, sidebarWidth } = useHome()
+	const { state, dispatch, sidebarWidth } = useHome()
 
 	const onRefresh = useCallback(() => {
 		setDisabled(true)
 		getFolders()
 			.then(
 				(folders) => (
-					stateDispatch({ key: 'refresh', value: { folders: folders[0], removedFolders: folders[1] } }),
-					setDisabled(false)
+					dispatch({ key: 'refresh', value: { folders: folders[0], removedFolders: folders[1] } }), setDisabled(false)
 				)
 			)
 			.catch(() => setDisabled(false))
-	}, [stateDispatch])
+	}, [dispatch])
 
 	return (
 		<SearcherProvider style={{ '--sidebar-width': sidebarWidth[2] } as React.CSSProperties}>
@@ -36,7 +36,7 @@ export function HomeSidebarRight() {
 							variant="ghost"
 							title="Go Parent Folder"
 							className={cn('absolute left-0', state.activeFolder.pid ? '' : 'hidden')}
-							onClick={() => stateDispatch({ key: 'goParentFolder', value: state.activeFolder })}
+							onClick={() => dispatch({ key: 'goParentFolder', value: state.activeFolder })}
 							disabled={disabled}
 						>
 							<ChevronLeft />
@@ -58,7 +58,7 @@ export function HomeSidebarRight() {
 						value={state.keyword}
 						hidden={!state.activeFiles.length}
 						placeholder="Note to search..."
-						onSearch={(value, searcher) => stateDispatch({ key: 'search', value, ...searcher })}
+						onSearch={(value, searcher) => dispatch({ key: 'search', value, ...searcher })}
 					/>
 				</SidebarHeader>
 				<SidebarContent style={{ width: SIDEBAR_WIDTH[2] }}>
@@ -72,9 +72,7 @@ export function HomeSidebarRight() {
 											'last:border-b-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
 											state.activeFile?.id === file.id ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
 										)}
-										onClick={() =>
-											stateDispatch({ key: file.isFolder ? 'setActiveFolder' : 'activeFile', value: file })
-										}
+										onClick={() => dispatch({ key: file.isFolder ? 'setActiveFolder' : 'activeFile', value: file })}
 									>
 										<div className="flex w-full items-center gap-2">
 											<Folder className={file.isFolder ? '' : 'hidden'} />
@@ -98,7 +96,7 @@ export function HomeSidebarRight() {
 							))}
 						</SidebarGroup>
 					</ScrollArea>
-					<HomeSidebarFolderNewContextMenu file={state.activeFolder}>
+					<HomeSidebarFolderActionNewContextMenu file={state.activeFolder}>
 						<div className="flex flex-1 items-center justify-center">
 							<div
 								className={cn(
@@ -119,13 +117,13 @@ export function HomeSidebarRight() {
 								<span>Not found file.</span>
 								<Button
 									className={state.activeMenu.isMenu ? 'hidden' : ''}
-									onClick={() => stateDispatch({ key: 'newFile', value: state.activeFolder })}
+									onClick={() => dispatch({ key: 'newFile', value: state.activeFolder })}
 								>
 									New File
 								</Button>
 							</div>
 						</div>
-					</HomeSidebarFolderNewContextMenu>
+					</HomeSidebarFolderActionNewContextMenu>
 				</SidebarContent>
 			</Sidebar>
 		</SearcherProvider>
