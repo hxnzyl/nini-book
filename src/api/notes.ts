@@ -4,7 +4,7 @@ import { UserNoteFileVO } from '@/types/vo/UserNoteFileVO'
 
 export const NotesTable = new LocalTable('notes', UserNoteFilePO)
 
-export const getNotes = async (): Promise<[UserNoteFileVO[], UserNoteFileVO[]]> => {
+export const getNotes = async () => {
 	const pos = await NotesTable.getAll()
 	const ret: [UserNoteFileVO[], UserNoteFileVO[]] = [[], []]
 	for (const po of pos) {
@@ -15,6 +15,5 @@ export const getNotes = async (): Promise<[UserNoteFileVO[], UserNoteFileVO[]]> 
 			isEdit: false
 		})
 	}
-	// ret[0].sort((prev, next) => prev.name.localeCompare(next.name))
 	return ret
 }

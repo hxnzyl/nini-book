@@ -49,7 +49,7 @@ function HomeSidebarFolderDropdownMenuGroup({ folder }: { folder: UserNoteFolder
 	const { state, dispatch, isActive } = useHome()
 
 	return (
-		<DropdownMenuGroup>
+		<DropdownMenuGroup className={folder.pid ? 'border-l border-sidebar-border ml-3.5 pl-2' : ''}>
 			<DropdownMenuItem
 				onSelect={() => dispatch({ key: 'setActiveFolder', value: folder })}
 				className={cn(
@@ -57,27 +57,29 @@ function HomeSidebarFolderDropdownMenuGroup({ folder }: { folder: UserNoteFolder
 					!state.activeFile && isActive(folder) ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
 				)}
 			>
-				<Folder style={{ marginLeft: (folder.lvl - 1) / 2 + 'rem' }} />
+				<Folder />
 				<span>{folder.name}</span>
 			</DropdownMenuItem>
 			{folder.children.map((child) => (
 				<HomeSidebarFolderDropdownMenuGroup key={child.id} folder={child} />
 			))}
-			{state.notes
-				.filter((note) => note.userNoteFolderId === folder.id)
-				.map((note) => (
-					<DropdownMenuItem
-						key={note.id}
-						onSelect={() => dispatch({ key: 'activeFile', value: note })}
-						className={cn(
-							'transition-colors cursor-pointer',
-							note.id === state.activeFile?.id ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
-						)}
-					>
-						<File style={{ marginLeft: folder.lvl / 2 + 'rem' }} />
-						<span>{note.name}</span>
-					</DropdownMenuItem>
-				))}
+			<DropdownMenuGroup className="border-l border-sidebar-border ml-3.5 pl-2">
+				{state.notes
+					.filter((note) => note.userNoteFolderId === folder.id)
+					.map((note) => (
+						<DropdownMenuItem
+							key={note.id}
+							onSelect={() => dispatch({ key: 'activeFile', value: note })}
+							className={cn(
+								'transition-colors cursor-pointer',
+								note.id === state.activeFile?.id ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
+							)}
+						>
+							<File />
+							<span>{note.name}</span>
+						</DropdownMenuItem>
+					))}
+			</DropdownMenuGroup>
 		</DropdownMenuGroup>
 	)
 }
