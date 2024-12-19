@@ -5,7 +5,7 @@ import { getNotes } from '@/api/notes'
 import { getMenus, getUser } from '@/api/user'
 import { Toaster } from '@/components/toaster'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
-import { HomeContext, SIDEBAR_WIDTH } from '@/contexts/home'
+import { HomeContext, SIDEBAR_COLUMNS, SIDEBAR_WIDTH } from '@/contexts/home'
 import { ToasterContext } from '@/contexts/toaster'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { HomeAction, HomeHook, HomeHooks, HomeReducer } from '@/reducers/home'
@@ -71,22 +71,21 @@ export default function HomePage() {
 		[state]
 	)
 
-	const [sidebarWidth, setSidebarWidth] = useState(isMobile ? ['0px', '0px', '0px'] : SIDEBAR_WIDTH)
+	const [sidebarWidth, setSidebarWidth] = useState(isMobile ? SIDEBAR_COLUMNS[0] : SIDEBAR_WIDTH)
+	const [sidebarColumns, _setSidebarColumns] = useState<0 | 1 | 2 | 3>(isMobile ? 0 : 3)
+
+	const setSidebarColumns = useCallback(
+		(columns: 0 | 1 | 2 | 3) => {
+			setSidebarWidth(SIDEBAR_COLUMNS[columns])
+			_setSidebarColumns(columns)
+		},
+		[setSidebarWidth]
+	)
 
 	const isActive = useCallback(
 		(folderOrMenu?: UserNoteFolderVO | MenuVO) =>
 			folderOrMenu ? folderOrMenu.id === state.activeFolder.id : !!state.activeFolder.isFolder,
 		[state.activeFolder]
-	)
-
-	const isColumns = useCallback(
-		(columnType: 1 | 2 | 3) =>
-			columnType === 1
-				? sidebarWidth[2] === '0px'
-				: columnType === 2
-				? sidebarWidth[1] !== SIDEBAR_WIDTH[1] && sidebarWidth[2] === SIDEBAR_WIDTH[2]
-				: sidebarWidth[0] === SIDEBAR_WIDTH[0],
-		[sidebarWidth]
 	)
 
 	// watch
@@ -107,7 +106,9 @@ export default function HomePage() {
 
 	return (
 		<ToasterContext.Provider value={{ toaster, toasterDispatch }}>
-			<HomeContext.Provider value={{ state, dispatch, sidebarWidth, setSidebarWidth, isActive, isColumns }}>
+			<HomeContext.Provider
+				value={{ state, dispatch, sidebarWidth, setSidebarWidth, sidebarColumns, setSidebarColumns, isActive }}
+			>
 				<SidebarProvider>
 					<HomeSidebar />
 					<SidebarInset>

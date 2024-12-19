@@ -12,21 +12,16 @@ import { cn } from '@/lib/utils'
 import { UserNoteFolderVO } from '@/types/vo/UserNoteFolderVO'
 import { File, Folder } from 'lucide-react'
 
-export function HomeSidebarFolderDropdownMenu() {
+export function HomeSidebarFolderDropdownMenu({ className }: { className?: string }) {
 	const { state, isActive } = useHome()
 
 	return state.folders.map((folder) => (
 		<DropdownMenu key={folder.id}>
 			<DropdownMenuTrigger asChild>
-				<SidebarMenuItem>
+				<SidebarMenuItem className={className}>
 					<Tooltip>
 						<TooltipTrigger asChild>
-							<SidebarMenuButton
-								className={cn(
-									'transition-colors',
-									isActive() ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
-								)}
-							>
+							<SidebarMenuButton className="transition-colors" isActive={isActive()}>
 								<Folder />
 							</SidebarMenuButton>
 						</TooltipTrigger>
@@ -54,7 +49,7 @@ function HomeSidebarFolderDropdownMenuGroup({ folder }: { folder: UserNoteFolder
 				onSelect={() => dispatch({ key: 'setActiveFolder', value: folder })}
 				className={cn(
 					'transition-colors cursor-pointer',
-					!state.activeFile && isActive(folder) ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
+					!state.activeFile && isActive(folder) ? '!bg-sidebar-accent !text-sidebar-accent-foreground' : ''
 				)}
 			>
 				<Folder />

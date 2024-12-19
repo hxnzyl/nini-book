@@ -71,7 +71,7 @@ export function HomeSidebarRight() {
 									className={cn(
 										'relative border-b p-4 text-sm transition-colors cursor-pointer',
 										'group/action last:border-b-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-										state.activeFile?.id === file.id ? '!bg-sidebar-primary !text-sidebar-primary-foreground' : ''
+										state.activeFile?.id === file.id ? '!bg-sidebar-accent !text-sidebar-accent-foreground' : ''
 									)}
 								>
 									<HomeSidebarFolderActionContextMenu file={file}>
@@ -79,7 +79,7 @@ export function HomeSidebarRight() {
 											className="flex flex-col gap-2 whitespace-nowrap leading-tight"
 											onClick={() => dispatch({ key: file.isFolder ? 'setActiveFolder' : 'activeFile', value: file })}
 										>
-											<div className="flex w-full items-center  gap-2">
+											<div className="flex w-full items-center gap-2">
 												<Folder className={file.isFolder ? '' : 'hidden'} />
 												{file.isFile && (file.isAdd || file.isEdit) ? (
 													<HomeSidebarFolderInput file={file} />

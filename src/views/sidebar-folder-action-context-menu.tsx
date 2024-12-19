@@ -63,7 +63,7 @@ export function HomeSidebarFolderActionContextMenu({
 					</ContextMenuSub>
 					<ContextMenuSeparator />
 					<ContextMenuItem
-						className="bg-red-50 text-red-500"
+						className="text-red-500"
 						onSelect={() => dispatch({ key: file.isFolder ? 'removeFolder' : 'removeFile', value: file })}
 					>
 						<Trash2 />
@@ -93,15 +93,17 @@ export function HomeSidebarFolderActionContextMenu({
 function HomeSidebarFolderActionMoveContextMenuGroup({
 	parent,
 	target,
+	current,
 	folders
 }: Readonly<{
 	parent?: UserNoteFolderVO
 	target: Partial<UserNoteFolderVO & UserNoteFileVO>
+	current?: UserNoteFolderVO
 	folders: UserNoteFolderVO[]
 }>) {
 	const { dispatch } = useHome()
 	return folders.map((folder) => (
-		<ContextMenuGroup key={folder.id}>
+		<ContextMenuGroup key={folder.id} className={current ? 'border-l border-sidebar-border ml-3.5 pl-2' : ''}>
 			<ContextMenuItem
 				disabled={target.isFolder ? target.id === folder.id : target.userNoteFolderId === folder.id}
 				onSelect={() =>
@@ -110,10 +112,15 @@ function HomeSidebarFolderActionMoveContextMenuGroup({
 						: dispatch({ key: 'moveFile', value: [target, folder] })
 				}
 			>
-				<Folder style={{ marginLeft: (folder.lvl - 1) / 2 + 'rem' }} />
+				<Folder />
 				<span>{folder.name}</span>
 			</ContextMenuItem>
-			<HomeSidebarFolderActionMoveContextMenuGroup target={target} parent={parent} folders={folder.children} />
+			<HomeSidebarFolderActionMoveContextMenuGroup
+				target={target}
+				parent={folder}
+				current={folder}
+				folders={folder.children}
+			/>
 		</ContextMenuGroup>
 	))
 }

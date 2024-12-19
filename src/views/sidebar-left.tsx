@@ -13,32 +13,18 @@ import {
 	useSidebar
 } from '@/components/ui/sidebar'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { SIDEBAR_ICON_WIDTH, SIDEBAR_WIDTH, useHome } from '@/contexts/home'
-import { cn } from '@/lib/utils'
+import { useHome } from '@/contexts/home'
 import { Columns2, Columns3, Command, PanelLeft } from 'lucide-react'
-import { useCallback } from 'react'
 import { HomeSidebarFolder } from './sidebar-folder'
 import { HomeSidebarFolderActionNewContextMenu } from './sidebar-folder-action-new-context-menu'
 import { HomeSidebarFolderDropdownMenu } from './sidebar-folder-dropdown-menu'
 import { HomeSidebarUser } from './sidebar-user'
 
-const sideWidthStatic: string[][] = [
-	[SIDEBAR_ICON_WIDTH, SIDEBAR_ICON_WIDTH, '0px'],
-	[`calc(${SIDEBAR_ICON_WIDTH} + ${SIDEBAR_WIDTH[2]})`, SIDEBAR_ICON_WIDTH, SIDEBAR_WIDTH[2]],
-	SIDEBAR_WIDTH
-]
-
 export function HomeSidebarLeft() {
 	const { setOpen } = useSidebar()
 
 	// parent provider
-	const { state, dispatch, sidebarWidth, setSidebarWidth, isColumns } = useHome()
-
-	const setColumns = useCallback(
-		(columnType: 1 | 2 | 3) =>
-			isColumns(columnType) || (setSidebarWidth(sideWidthStatic[columnType - 1]), setOpen(columnType !== 1)),
-		[isColumns, setOpen, setSidebarWidth]
-	)
+	const { state, dispatch, sidebarWidth, setSidebarColumns } = useHome()
 
 	return (
 		<div style={{ '--sidebar-width': sidebarWidth[1] } as React.CSSProperties}>
@@ -67,15 +53,13 @@ export function HomeSidebarLeft() {
 										<Tooltip>
 											<TooltipTrigger asChild>
 												<SidebarMenuButton
-													className={cn(
-														'transition-colors',
-														menu.id === state.activeMenu.id
-															? '!bg-sidebar-primary !text-sidebar-primary-foreground'
-															: ''
-													)}
+													className="transition-colors [&[data-active=true]>span]:hidden"
+													isActive={menu.id === state.activeMenu.id}
 												>
 													{menu.icon && <LucideIcon name={menu.icon} />}
-													<span>{menu.name}</span>
+													<span className="group-data-[columns=1]:hidden group-data-[columns=2]:hidden">
+														{menu.name}
+													</span>
 												</SidebarMenuButton>
 											</TooltipTrigger>
 											<TooltipContent side="right" align="center" className="relative overflow-visible" sideOffset={10}>
@@ -86,7 +70,11 @@ export function HomeSidebarLeft() {
 										</Tooltip>
 									</SidebarMenuItem>
 								))}
-								{isColumns(3) ? <HomeSidebarFolder folders={state.folders} /> : <HomeSidebarFolderDropdownMenu />}
+								<HomeSidebarFolder
+									folders={state.folders}
+									className="group-data-[columns=1]:hidden group-data-[columns=2]:hidden"
+								/>
+								<HomeSidebarFolderDropdownMenu className="group-data-[columns=3]:hidden" />
 							</SidebarMenu>
 						</SidebarGroup>
 					</ScrollArea>
@@ -97,16 +85,31 @@ export function HomeSidebarLeft() {
 					</HomeSidebarFolderActionNewContextMenu>
 				</SidebarContent>
 				<SidebarFooter>
-					<div className={cn('flex items-center justify-center', isColumns(3) ? 'flex-row' : 'flex-col')}>
-						<Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setColumns(1)}>
+					<div className="flex items-center justify-center group-data-[columns=1]:flex-col group-data-[columns=2]:flex-col group-data-[columns=3]:flex-row">
+						<Button
+							variant="ghost"
+							size="icon"
+							className="h-7 w-7"
+							onClick={() => (setSidebarColumns(1), setOpen(false))}
+						>
 							<PanelLeft />
 							<span className="sr-only">Set Columns 1</span>
 						</Button>
-						<Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setColumns(2)}>
+						<Button
+							variant="ghost"
+							size="icon"
+							className="h-7 w-7"
+							onClick={() => (setSidebarColumns(2), setOpen(true))}
+						>
 							<Columns2 />
 							<span className="sr-only">Set Columns 2</span>
 						</Button>
-						<Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setColumns(3)}>
+						<Button
+							variant="ghost"
+							size="icon"
+							className="h-7 w-7"
+							onClick={() => (setSidebarColumns(3), setOpen(true))}
+						>
 							<Columns3 />
 							<span className="sr-only">Set Columns 3</span>
 						</Button>
