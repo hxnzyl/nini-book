@@ -52,12 +52,9 @@ export function HomeSidebarLeft() {
 									<SidebarMenuItem key={menu.id} onClick={() => dispatch({ key: 'setActiveMenu', value: menu })}>
 										<Tooltip>
 											<TooltipTrigger asChild>
-												<SidebarMenuButton
-													className="transition-colors [&[data-active=true]>span]:hidden"
-													isActive={menu.id === state.activeMenu.id}
-												>
+												<SidebarMenuButton className="transition-colors" isActive={menu.id === state.activeMenu.id}>
 													{menu.icon && <LucideIcon name={menu.icon} />}
-													<span className="group-data-[columns=1]:hidden group-data-[columns=2]:hidden">
+													<span className="group-data-[columns=1]:hidden group-data-[columns=2]:hidden ">
 														{menu.name}
 													</span>
 												</SidebarMenuButton>

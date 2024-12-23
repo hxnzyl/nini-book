@@ -1,25 +1,20 @@
 'use client'
 
 import type { ToastActionElement, ToastProps } from '@/components/ui/toast'
-import { ToastProviderProps } from '@radix-ui/react-toast'
 import { ReactNode } from 'react'
 
-export type ToasterProps = ToastProps & {
+export interface ToasterProps extends ToastProps {
 	id?: string
-	title?: ReactNode
 	description?: ReactNode
 	action?: ToastActionElement
 }
 
-export interface ToasterState extends ToastProviderProps {
+export interface ToasterState extends ToasterProps {
 	toasts: ToasterProps[]
 	maxToastSize: number
 }
 
-export interface ToasterAction {
-	key: keyof typeof ToasterActions
-	value?: ToasterProps
-}
+export type ToasterAction = ReducerAction<ToasterState, keyof typeof ToasterActions>
 
 /**
  * Toaster Actions
@@ -66,6 +61,11 @@ const ToasterActions = {
  * @returns
  */
 export function ToasterReducer(state: ToasterState, action: ToasterAction) {
-	ToasterActions[action.key](state, action)
+	if (action.key in ToasterActions) {
+		ToasterActions[action.key as keyof typeof ToasterActions](state, action)
+	} else {
+		// Refresh Data, keyof ToasterState
+		state[action.key as keyof ToasterState] = action.value as never
+	}
 	return { ...state }
 }
