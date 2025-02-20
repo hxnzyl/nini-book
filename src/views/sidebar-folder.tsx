@@ -36,7 +36,7 @@ export function HomeSidebarFolder({
 								onClick={() => dispatch({ key: 'setActiveFolderAsMenu', value: folder })}
 							>
 								<Folder className="w-4 h-4" />
-								<span>{folder.name}</span>
+								<span className="min-w-max">{folder.name}</span>
 							</div>
 							<HomeSidebarFolderActionDropdownMenu file={folder} />
 						</SidebarMenuButton>
@@ -60,7 +60,7 @@ export function HomeSidebarFolder({
 							onClick={() => dispatch({ key: 'setActiveFolderAsMenu', value: folder })}
 						>
 							<Folder className="w-4 h-4" />
-							<span>{folder.name}</span>
+							<span className="min-w-max">{folder.name}</span>
 						</div>
 						<HomeSidebarFolderActionDropdownMenu file={folder} />
 					</SidebarMenuButton>

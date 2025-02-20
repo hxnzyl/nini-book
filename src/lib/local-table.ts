@@ -67,6 +67,7 @@ export class LocalTable<PO extends LocalTableBasePO> {
 		dto.updateTime = new Date().toLocaleString()
 		dto.deleteFlag = 0
 		dto = this.fields.reduce((item, field) => ((item[field] = dto[field]), item), {} as PO)
+		console.log(dto)
 		this.forage.setItem(dto.id, dto)
 		return dto
 	}

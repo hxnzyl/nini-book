@@ -84,15 +84,18 @@ const HomeActions = {
 	},
 	setActiveMenu(state: HomeState, action: HomeAction) {
 		const menu = action.value as MenuVO
-		const field = ('is' + menu.name) as keyof UserNoteFileVO
 		const files =
 			menu.name === 'Recycle'
 				? state.removedFolders.concat(state.removedNotes as [])
-				: (state.notes.filter((note) => note[field]) as [])
+				: menu.name === 'Favorite'
+				? (state.notes.filter((note) => note.isFavorite) as [])
+				: menu.name === 'Latest'
+				? (state.notes.filter((note) => note.isLatest) as [])
+				: []
 		state.activeFile = files.find((file) => !file.isFolder)
 		state.activeFiles = files
 		state.filterFiles = files
-		state.activeFolder = menu
+		state.activeFolder = menu as UserNoteFolderVO
 		state.activeMenu = menu
 		state.keyword = ''
 	},
