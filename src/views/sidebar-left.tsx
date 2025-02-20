@@ -6,6 +6,7 @@ import {
 	SidebarContent,
 	SidebarFooter,
 	SidebarGroup,
+	SidebarGroupLabel,
 	SidebarHeader,
 	SidebarMenu,
 	SidebarMenuButton,
@@ -46,37 +47,49 @@ export function HomeSidebarLeft() {
 				</SidebarHeader>
 				<SidebarContent>
 					<ScrollArea>
-						<SidebarGroup>
-							<SidebarMenu>
-								{state.menus.map((menu) => (
-									<SidebarMenuItem key={menu.id} onClick={() => dispatch({ key: 'setActiveMenu', value: menu })}>
-										<Tooltip>
-											<TooltipTrigger asChild>
-												<SidebarMenuButton
-													className="transition-colors [&[data-active=true]>span]:hidden"
-													isActive={menu.id === state.activeMenu.id}
+						{state.menus.map((menu) => (
+							<SidebarGroup key={menu.id}>
+								<SidebarGroupLabel>
+									{menu.icon && <LucideIcon className="group-data-[columns=3]:hidden" name={menu.icon} />}
+									<span className="group-data-[columns=1]:hidden group-data-[columns=2]:hidden">{menu.name}</span>
+								</SidebarGroupLabel>
+								<SidebarMenu>
+									{menu.children.map((child) => (
+										<SidebarMenuItem key={child.id} onClick={() => dispatch({ key: 'setActiveMenu', value: child })}>
+											<Tooltip>
+												<TooltipTrigger asChild>
+													<SidebarMenuButton className="transition-colors" isActive={child.id === state.activeMenu.id}>
+														{child.icon && <LucideIcon name={child.icon} />}
+														<span className="group-data-[columns=1]:hidden group-data-[columns=2]:hidden">
+															{child.name}
+														</span>
+													</SidebarMenuButton>
+												</TooltipTrigger>
+												<TooltipContent
+													side="right"
+													align="center"
+													className="relative overflow-visible"
+													sideOffset={10}
 												>
-													{menu.icon && <LucideIcon name={menu.icon} />}
-													<span className="group-data-[columns=1]:hidden group-data-[columns=2]:hidden">
-														{menu.name}
-													</span>
-												</SidebarMenuButton>
-											</TooltipTrigger>
-											<TooltipContent side="right" align="center" className="relative overflow-visible" sideOffset={10}>
-												{/** left arrow */}
-												<div className="absolute -left-[6px] w-2 h-2 border-t-8 border-b-8 border-r-8 border-t-transparent border-b-transparent border-r-primary"></div>
-												<div>{menu.name}</div>
-											</TooltipContent>
-										</Tooltip>
-									</SidebarMenuItem>
-								))}
-								<HomeSidebarFolder
-									folders={state.folders}
-									className="group-data-[columns=1]:hidden group-data-[columns=2]:hidden"
-								/>
-								<HomeSidebarFolderDropdownMenu className="group-data-[columns=3]:hidden" />
-							</SidebarMenu>
-						</SidebarGroup>
+													{/** left arrow */}
+													<div className="absolute -left-[6px] w-2 h-2 border-t-8 border-b-8 border-r-8 border-t-transparent border-b-transparent border-r-primary"></div>
+													<div>{child.name}</div>
+												</TooltipContent>
+											</Tooltip>
+										</SidebarMenuItem>
+									))}
+									{menu.name === 'Book' && (
+										<>
+											<HomeSidebarFolder
+												folders={state.folders}
+												className="group-data-[columns=1]:hidden group-data-[columns=2]:hidden"
+											/>
+											<HomeSidebarFolderDropdownMenu className="group-data-[columns=3]:hidden" />
+										</>
+									)}
+								</SidebarMenu>
+							</SidebarGroup>
+						))}
 					</ScrollArea>
 					<HomeSidebarFolderActionNewContextMenu
 						file={state.activeFolder.isMenu ? state.folders[0] : state.activeFolder}

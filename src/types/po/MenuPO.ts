@@ -1,5 +1,8 @@
+import { LucideIconName } from '@/components/lucide-icon'
+
 export interface MenuPO {
 	id: string
 	name: string
-	icon?: string
+	pid?: string
+	icon?: LucideIconName
 }

@@ -94,7 +94,7 @@ export function HomeSidebarRight() {
 												keyword={state.keyword}
 											/>
 											<div>
-												<span className="text-xs">{file.createTime}</span>
+												<span className="text-xs">{file.deleteTime || file.createTime}</span>
 											</div>
 										</div>
 									</HomeSidebarFolderActionContextMenu>

@@ -84,11 +84,11 @@ const HomeActions = {
 	},
 	setActiveMenu(state: HomeState, action: HomeAction) {
 		const menu = action.value as MenuVO
-		const noteField = ('is' + menu.name) as keyof UserNoteFileVO
+		const field = ('is' + menu.name) as keyof UserNoteFileVO
 		const files =
-			noteField === 'deleteFlag'
+			menu.name === 'Recycle'
 				? state.removedFolders.concat(state.removedNotes as [])
-				: (state.notes.filter((note) => note[noteField]) as [])
+				: (state.notes.filter((note) => note[field]) as [])
 		state.activeFile = files.find((file) => !file.isFolder)
 		state.activeFiles = files
 		state.filterFiles = files
@@ -162,6 +162,9 @@ const HomeActions = {
 			}
 			return !deleted
 		})
+		// Refresh
+		action.value = {}
+		HomeActions.refresh(state, action)
 	},
 	removeFolder(state: HomeState, action: HomeAction) {
 		const folder = action.value as UserNoteFolderVO
@@ -267,6 +270,9 @@ const HomeActions = {
 		const file = action.value as UserNoteFileVO
 		pull(state.removedNotes, file)
 		NotesTable.dispose(file)
+		// Refresh
+		action.value = {}
+		HomeActions.refresh(state, action)
 	},
 	removeFile(state: HomeState, action: HomeAction) {
 		const file = action.value as UserNoteFileVO
